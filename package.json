@@ -1,0 +1,22 @@
+{
+  "name": "sinerider",
+  "version": "1.0.0",
+  "description": "A game of numerical sledding",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js:bundle.js --live --open --poll -- -o bundle.js",
+    "build": "browserify index.js -o bundle.js"
+  },
+  "author": "cwalker",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "budo": "^11.3.2"
+  },
+  "dependencies": {
+    "choo": "^6.13.0",
+    "d3": "^5.5.0",
+    "lodash": "^4.17.10",
+    "mathjs": "^5.0.4"
+  }
+}
