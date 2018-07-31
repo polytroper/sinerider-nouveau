@@ -44,8 +44,6 @@ var container = body.append("div")
 var svg = container.append("svg")
 		.attr("class", "world")
 		.style("position", "absolute")
-		.style("background", "#EFF")
-		// .style("background", "#6DF")
 		.attr("width", width)
 		.attr("height", height)
 
