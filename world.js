@@ -51,7 +51,7 @@ module.exports = spec => {
 		scale: getHeight()/10
 	}
 
-	var cameraSmoothing = 0.03;
+	var cameraSmoothing = 0.02;
 
 	var cameraPoints = [[0, 0]];
 

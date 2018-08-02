@@ -2,6 +2,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
 
+var lz = require('lz-string');
 var pubsub = require('pubsub-js');
 
 var World = require('./world');
@@ -15,9 +16,12 @@ var {
 	normalize
 } = require('./helpers');
 
-var state = {
-	inputExpression: "sin(x-t)"
+var defaultState = {
+	parserVersion: "0.1.0",
+	inputExpression: "sin(x-t)",
 }
+
+var state = _.cloneDeep(defaultState);
 
 var r2d = 180/Math.PI;
 
@@ -81,18 +85,84 @@ var sampleGraphSlope = x => {
 	return (y1-y0)/e;
 }
 
-var setInputExpression = expression => {
+var setInputExpression = (expression, setUrl = true) => {
 	state.inputExpression = expression;
 
+	try {
 		sampler = math.compile(state.inputExpression);
 		sampleGraph(0);
-	try {
 	}
 	catch (error) {
 		sampler = null;
 	}
 	
 	pubsub.publish("onSetInputExpression");
+	if (setUrl) refreshUrl();
+}
+
+var getQueryString = () => {
+	var url = window.location.href;
+	var s = url.split("?=");
+	if (s.length > 1)
+		return s[1];
+	else
+		return "";
+}
+
+var loadState = json => {
+	let defaults = _.cloneDeep(defaultState);
+	_.assign(state, defaults);
+	_.assign(state, json);
+
+    setInputExpression(state.inputExpression, false);
+
+    pubsub.publish("onLoadState");
+
+    return true;
+}
+
+var serialize = () => {
+    var stateString = JSON.stringify(state);
+    stateString = lz.compressToBase64(stateString);
+
+	return stateString;
+}
+
+var deserialize = queryString => {
+	console.log("Attempting to deserialize Query String: "+queryString)
+
+    if (queryString == "")
+    	return false;
+
+    try {
+	    var stateString = lz.decompressFromBase64(queryString);
+
+	    console.log("Attempting to load State String: ");
+	    var json = JSON.parse(stateString);
+
+	    return loadState(json);
+    }
+    catch (error) {
+    	setInputExpression("Something is wrong with this link. I can't load it :(", false);
+    	return false;
+    }
+}
+
+var loadFromUrl = () => {
+	var s = getQueryString();
+	deserialize(s)
+	return s != "";
+}
+
+var refreshUrl = () => {
+	var url = window.location.href;
+	
+	if (url.includes("?"))
+		url = url.slice(0, url.indexOf("?"));
+
+	url += "?=" + serialize();
+	
+	window.history.replaceState({}, "SineRider", url);
 }
 
 var update = () => {
@@ -167,4 +237,5 @@ Ui({
 	getInputExpression,
 });
 
-setInputExpression("sin(x-sin(t))");
+if (!loadFromUrl())
+	loadState(defaultState);
