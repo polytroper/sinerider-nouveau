@@ -442,6 +442,25 @@ var toggleClock = () => {
 	else startClock();
 }
 
+var onPressEnter = () => {
+	toggleClock();
+}
+
+var keyCodes = {
+	13: onPressEnter,
+}
+
+var onPressKey = () => {
+	var k = d3.event.keyCode;
+	if (keyCodes[k]) {
+		console.log("Pressing Key "+k+", firing callback");
+		keyCodes[k]();
+	}
+	else console.log("Pressing Key "+k);
+}
+
+body.on("keypress", onPressKey);
+
 World({
 	pubsub,
 	container,
@@ -94142,7 +94161,7 @@ module.exports = spec => {
 			.style("flex-grow", 1)
 			.style("background", "white")
 			.property("value", getInputExpression())
-			.on("change", () => setInputExpression(inputBox.node().value))
+			.on("input", () => setInputExpression(inputBox.node().value))
 
 	var playButton = bottomBar.append("div")
 			.attr("class", "playButton")
@@ -94162,6 +94181,7 @@ module.exports = spec => {
 
 	var onStopClock = () => {
 		inputBox.node().disabled = false;
+		inputBox.node().focus();
 		inputBox.style("background", "#FFF")
 				.style("color", "#222")
 	}

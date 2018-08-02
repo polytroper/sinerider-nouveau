@@ -61,7 +61,7 @@ module.exports = spec => {
 			.style("flex-grow", 1)
 			.style("background", "white")
 			.property("value", getInputExpression())
-			.on("change", () => setInputExpression(inputBox.node().value))
+			.on("input", () => setInputExpression(inputBox.node().value))
 
 	var playButton = bottomBar.append("div")
 			.attr("class", "playButton")
@@ -81,6 +81,7 @@ module.exports = spec => {
 
 	var onStopClock = () => {
 		inputBox.node().disabled = false;
+		inputBox.node().focus();
 		inputBox.style("background", "#FFF")
 				.style("color", "#222")
 	}

@@ -204,6 +204,25 @@ var toggleClock = () => {
 	else startClock();
 }
 
+var onPressEnter = () => {
+	toggleClock();
+}
+
+var keyCodes = {
+	13: onPressEnter,
+}
+
+var onPressKey = () => {
+	var k = d3.event.keyCode;
+	if (keyCodes[k]) {
+		console.log("Pressing Key "+k+", firing callback");
+		keyCodes[k]();
+	}
+	else console.log("Pressing Key "+k);
+}
+
+body.on("keypress", onPressKey);
+
 World({
 	pubsub,
 	container,
