@@ -15,3 +15,13 @@ button:active {
   color: #FFFFFF;
   border-bottom: 2px solid #EE26C0;
 }
+/*
+.expressionAdder {
+  transition: 0.1s;
+}
+
+.expressionAdder:hover {
+  background: #FFF;
+  color: #000;
+}
+*/

@@ -31,6 +31,10 @@ let getQueryString = (field, url) => {
     return string ? string[1] : null;
 }
 
+let vectorLength = (x, y) => {
+	return Math.sqrt(x*x+y*y);
+}
+
 module.exports = {
 	translate,
 	rotate,

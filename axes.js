@@ -51,7 +51,7 @@ module.exports = spec => {
 	var onStopClock = () => {
 	}
 
-	var onSetInputExpression = () => {
+	var onEditExpressions = () => {
 	}
 
 	var onUpdate = () => {
@@ -76,6 +76,6 @@ module.exports = spec => {
 	pubsub.subscribe("onStopClock", onStopClock);
 	pubsub.subscribe("onStartClock", onStartClock);
 
-	pubsub.subscribe("onSetInputExpression", onSetInputExpression);
+	pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 }

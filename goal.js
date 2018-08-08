@@ -16,7 +16,6 @@ module.exports = spec => {
 		container,
 
 		getInstances,
-		getIntersections,
 
 		xScale,
 		yScale,
@@ -33,50 +32,51 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	} = spec;
 
-	var position = [0, 0];
-	var velocity = [0, 0];
-
-	var rotation = 0;
-
-	cameraPoints.push(position);
+	// cameraPoints.push(position);
 
 	var r2d = 180/Math.PI;
 
-	var sledder = container.append("g")
-			.attr("class", "sledder")
+	container = container.append("g")
+		.attr("class", "goals");
 
-	var sledderBody = sledder.append("g")
-			.attr("class", "sledder")
-			.attr("transform", translate(0, -10))
-
-	sledderBody.append("circle")
-			.attr("r", 10)
-			.attr("cx", 0)
-			.attr("cy", 0)
-			.attr("fill", "white")
-			.attr("stroke", "black")
-			.attr("strokeWidth", 1)
-
-	sledderBody.append("circle")
-			.attr("r", 2)
-			.attr("cx", 6)
-			.attr("cy", -3)
-
-	sledderBody.append("line")
-			.attr("x1", 2)
-			.attr("y1", 4)
-			.attr("x2", 9)
-			.attr("y2", 4)
-			.attr("stroke", "black")
-			.attr("strokeWidth", 2)
-
-	var refreshSledders = () => {
-
+	var goals;
+	
+	var refreshGoalTransforms = () => {
+		container.selectAll(".goal")
+				.attr("transform", d => transform(xScale(math.re(d.p)), yScale(math.im(d.p)), 0, camera.scale/20))
 	}
 
-	var refreshSledderTransform = () => {
-		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20));
+	var refreshGoals = () => {
+		var instances = getInstances();
+
+		goals = container.selectAll(".goal")
+			.data(instances);
+		goals.exit().remove();
+
+		// var goalSquares = container.selectAll(".goalSquare")
+
+		var enterGoals = goals.enter()
+			.append("g")
+				.attr("class", "goal")
+
+		var goalSquares = enterGoals.append("rect")
+				.attr("class", "goalSquare")
+				.attr("x", -10)
+				.attr("y", -10)
+				.attr("width", 20)
+				.attr("height", 20)
+
+		goals = enterGoals.merge(goals);
+		
+		goals.select(".goalSquare")
+				.style("fill", d => d.complete ? "green" : "white")
+				.style("stroke", "black")
+				.style("strokeWidth", 1)
+
+
+		refreshGoalTransforms();
 	}
+/*
 
 	var setSledderTransform = (x, y, a) => {
 		position[0] = x;
@@ -102,27 +102,40 @@ module.exports = spec => {
 	var onEditExpressions = () => {
 		resetSledder();
 	}
-
+*/
+/*
 	var onStartClock = () => {
 	}
 
 	var onStopClock = () => {
 		resetSledder();
 	}
-
+*/
 	var onMoveCamera = () => {
 		// refreshSledderTransform();
 	}
 
 	var onRender = () => {
-		refreshSledderTransform();
+		refreshGoalTransforms();
+
+		d3.selectAll(".goalSquare")
+			.style("fill", d => d.complete ? "green" : "white")
 	}
 
-	var onRefreshScene = () => {
+	var intersectPointInstance = (point, instance) => {
+		var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
+		var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
+		return intersectX && intersectY;
+	}
 
+	var getIntersections = point => {
+		var instances = getInstances();
+		var intersections = _.filter(instances, v => intersectPointInstance(point, v));
+		return intersections;
 	}
 
 	var onUpdate = () => {
+		/*
 		if (!getRunning()) return;
 
 		var frameInterval = getFrameInterval();
@@ -189,9 +202,7 @@ module.exports = spec => {
 			position[0] += scalar*normalVector.x;
 			position[1] += scalar*normalVector.y;
 		}
-
-		var intersections = getIntersections(math.complex(position[0], position[1]));
-		_.each(intersections, v => v.complete = true);
+		*/
 	}
 	
 	pubsub.subscribe("onUpdate", onUpdate);
@@ -199,10 +210,14 @@ module.exports = spec => {
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	// pubsub.subscribe("onStopClock", onStopClock);
+	// pubsub.subscribe("onStartClock", onStartClock);
 
-	pubsub.subscribe("onRefreshScene", onRefreshScene);
+	pubsub.subscribe("onRefreshScene", refreshGoals);
 
-	pubsub.subscribe("onEditExpressions", onEditExpressions);
+	// pubsub.subscribe("onEditExpressions", onEditExpressions);
+
+	return {
+		getIntersections,
+	}
 }

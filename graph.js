@@ -85,7 +85,7 @@ module.exports = spec => {
 		// refreshSamples();
 	}
 
-	var onSetInputExpression = () => {
+	var onEditExpressions = () => {
 		refreshSamples();
 	}
 
@@ -101,6 +101,8 @@ module.exports = spec => {
 		graphArea.attr("d", graphAreaGenerator);
 	}
 
+	refreshSamples();
+
 	pubsub.subscribe("onStopClock", onStopClock);
 	pubsub.subscribe("onStartClock", onStartClock);
 
@@ -108,5 +110,5 @@ module.exports = spec => {
 	pubsub.subscribe("onRender", onRender);
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
-	pubsub.subscribe("onSetInputExpression", onSetInputExpression);
+	pubsub.subscribe("onEditExpressions", onEditExpressions);
 }

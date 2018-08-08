@@ -5,19 +5,23 @@ var math = require('mathjs');
 var Axes = require('./axes');
 var Graph = require('./graph');
 var Sledder = require('./sledder');
+var Goal = require('./goal');
 
 var {
 	translate,
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	getSceneObjects,
 } = require('./helpers');
 
 module.exports = spec => {
 	var {
 		pubsub,
 		container,
+
+		getSceneObjects,
 
 		getWidth,
 		getHeight,
@@ -60,6 +64,7 @@ module.exports = spec => {
 			.style("position", "absolute")
 			.attr("width", getWidth())
 			.attr("height", getHeight())
+			.style("overflow", "hidden")
 
 	var refreshScales = () => {
 		let p = camera.position;
@@ -130,7 +135,10 @@ module.exports = spec => {
 	var onRender = () => {
 	}
 
-	var onSetInputExpression = () => {
+	var onEditExpressions = () => {
+	}
+
+	var onRefreshScene = () => {
 	}
 
 	refreshScales();
@@ -141,7 +149,8 @@ module.exports = spec => {
 	pubsub.subscribe("onStopClock", onStopClock);
 	pubsub.subscribe("onStartClock", onStartClock);
 
-	pubsub.subscribe("onSetInputExpression", onSetInputExpression);
+	pubsub.subscribe("onEditExpressions", onEditExpressions);
+	pubsub.subscribe("onRefreshScene", onRefreshScene);
 
 	var axes = Axes({
 		pubsub,
@@ -174,9 +183,31 @@ module.exports = spec => {
 		sampleGraph,
 	});
 
+	var goals = Goal({
+		pubsub,
+		container: svg,
+		getInstances: () => getSceneObjects("goal"),
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
+	});
+
 	var sledder = Sledder({
 		pubsub,
 		container: svg,
+		getInstances: () => getSceneObjects("sledder"),
+		getIntersections: goals.getIntersections,
 
 		xScale,
 		yScale,
