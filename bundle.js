@@ -90,7 +90,8 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
 
 module.exports = spec => {
@@ -211,9 +212,13 @@ module.exports = spec => {
 		return intersectX && intersectY;
 	}
 
-	var getIntersections = point => {
+	var intersectCircleInstance = (point, radius, instance) => {
+		return pointSquareDistance(point, instance.p, 1) < radius;
+	}
+
+	var getIntersections = (point, radius) => {
 		var instances = getInstances();
-		var intersections = _.filter(instances, v => intersectPointInstance(point, v));
+		var intersections = _.filter(instances, v => intersectCircleInstance(point, radius, v));
 		return intersections;
 	}
 
@@ -420,6 +425,8 @@ module.exports = spec => {
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 }
 },{"./helpers":4,"d3":38,"lodash":43,"mathjs":45}],4:[function(require,module,exports){
+var math = require('mathjs');
+
 var translate = (x, y) => {
 	return "translate("+x+", "+y+")";
 }
@@ -457,15 +464,39 @@ let vectorLength = (x, y) => {
 	return Math.sqrt(x*x+y*y);
 }
 
+let pointSquareDistance = (p, c, s) => {
+	let pc = math.subtract(c, p);
+	let dx = math.abs(math.re(pc));
+	let dy = math.abs(math.im(pc));
+
+	let edx = math.max(0, dx-s/2);
+	let edy = math.max(0, dy-s/2);
+
+	return vectorLength(edx, edy);
+}
+
+function sqr(x) { return x * x }
+function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
+function distToSegmentSquared(p, v, w) {
+  var l2 = dist2(v, w);
+  if (l2 == 0) return dist2(p, v);
+  var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+  t = Math.max(0, Math.min(1, t));
+  return dist2(p, { x: v.x + t * (w.x - v.x),
+                    y: v.y + t * (w.y - v.y) });
+}
+function distToSegment(p, v, w) { return Math.sqrt(distToSegmentSquared(p, v, w)); }
+
 module.exports = {
 	translate,
 	rotate,
 	transform,
 	lerp,
 	normalize,
-	getQueryString
+	getQueryString,
+	pointSquareDistance
 }
-},{}],5:[function(require,module,exports){
+},{"mathjs":45}],5:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
@@ -481,20 +512,10 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
-/*
-var defaultState = {
-	parserVersion: "0.1.0",
-	expressions: [
-		"test1=sin(t)*x",
-		"test2=sin(x)*sin(t)",
-		"Y=sin(x-t)"
-	]
-}
 
-var state = _.cloneDeep(defaultState);
-*/
 var expressions = [];
 
 var r2d = 180/Math.PI;
@@ -94366,7 +94387,8 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
 
 module.exports = spec => {
@@ -94394,6 +94416,8 @@ module.exports = spec => {
 
 	var position = [0, 0];
 	var velocity = [0, 0];
+	var centerLocal = math.complex(0, 0.5);
+	var center = math.complex(0, 0.5);
 
 	var rotation = 0;
 
@@ -94549,7 +94573,11 @@ module.exports = spec => {
 			position[1] += scalar*normalVector.y;
 		}
 
-		var intersections = getIntersections(math.complex(position[0], position[1]));
+		var p = math.complex(position[0], position[1]);
+		var rotator = math.complex(math.cos(rotation/r2d), math.sin(rotation/r2d));
+		center = math.add(math.multiply(centerLocal, rotator), p);
+
+		var intersections = getIntersections(center, 0.5);
 		_.each(intersections, v => v.complete = true);
 	}
 	

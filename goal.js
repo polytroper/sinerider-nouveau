@@ -7,7 +7,8 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
 
 module.exports = spec => {
@@ -128,9 +129,13 @@ module.exports = spec => {
 		return intersectX && intersectY;
 	}
 
-	var getIntersections = point => {
+	var intersectCircleInstance = (point, radius, instance) => {
+		return pointSquareDistance(point, instance.p, 1) < radius;
+	}
+
+	var getIntersections = (point, radius) => {
 		var instances = getInstances();
-		var intersections = _.filter(instances, v => intersectPointInstance(point, v));
+		var intersections = _.filter(instances, v => intersectCircleInstance(point, radius, v));
 		return intersections;
 	}
 

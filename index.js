@@ -13,20 +13,10 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
-/*
-var defaultState = {
-	parserVersion: "0.1.0",
-	expressions: [
-		"test1=sin(t)*x",
-		"test2=sin(x)*sin(t)",
-		"Y=sin(x-t)"
-	]
-}
 
-var state = _.cloneDeep(defaultState);
-*/
 var expressions = [];
 
 var r2d = 180/Math.PI;

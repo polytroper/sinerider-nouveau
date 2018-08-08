@@ -7,7 +7,8 @@ var {
 	rotate,
 	transform,
 	lerp,
-	normalize
+	normalize,
+	pointSquareDistance
 } = require('./helpers');
 
 module.exports = spec => {
@@ -35,6 +36,8 @@ module.exports = spec => {
 
 	var position = [0, 0];
 	var velocity = [0, 0];
+	var centerLocal = math.complex(0, 0.5);
+	var center = math.complex(0, 0.5);
 
 	var rotation = 0;
 
@@ -190,7 +193,11 @@ module.exports = spec => {
 			position[1] += scalar*normalVector.y;
 		}
 
-		var intersections = getIntersections(math.complex(position[0], position[1]));
+		var p = math.complex(position[0], position[1]);
+		var rotator = math.complex(math.cos(rotation/r2d), math.sin(rotation/r2d));
+		center = math.add(math.multiply(centerLocal, rotator), p);
+
+		var intersections = getIntersections(center, 0.5);
 		_.each(intersections, v => v.complete = true);
 	}
 	
