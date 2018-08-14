@@ -232,6 +232,10 @@ module.exports = spec => {
 
 		expressionInputs = expressionEnvelopes.append("input")
 				.attr("class", "expressionInput")
+				.attr("spellcheck", "false")
+				.attr("autocorrect", "off")
+				.attr("autocomplete", "off")
+				.attr("autocapitalize", "off")
 				.style("flex-grow", 1)
 				.style("display", "flex")
 				.style("background", "white")

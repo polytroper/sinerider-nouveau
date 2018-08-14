@@ -832,9 +832,6 @@ var getQueryString = () => {
 }
 
 var loadState = json => {
-	// let defaults = _.cloneDeep(defaultState);
-	// _.assign(state, defaults);
-	// _.assign(state, json);
 	setExpressions(json.expressions);
 
 	pubsub.publish("onLoadState");
@@ -94902,6 +94899,10 @@ module.exports = spec => {
 
 		expressionInputs = expressionEnvelopes.append("input")
 				.attr("class", "expressionInput")
+				.attr("spellcheck", "false")
+				.attr("autocorrect", "off")
+				.attr("autocomplete", "off")
+				.attr("autocapitalize", "off")
 				.style("flex-grow", 1)
 				.style("display", "flex")
 				.style("background", "white")

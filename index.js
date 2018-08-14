@@ -337,9 +337,6 @@ var getQueryString = () => {
 }
 
 var loadState = json => {
-	// let defaults = _.cloneDeep(defaultState);
-	// _.assign(state, defaults);
-	// _.assign(state, json);
 	setExpressions(json.expressions);
 
 	pubsub.publish("onLoadState");
