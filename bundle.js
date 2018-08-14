@@ -423,15 +423,16 @@ module.exports = spec => {
 var math = require('mathjs');
 
 var translate = (x, y) => {
-	return "translate("+x+", "+y+")";
+	return `translate(${x}, ${y})`;
 }
 
 var rotate = a => {
-	return "rotate("+(-a)+")";
+	a = -a;
+	return `rotate(${a})`;
 }
 
 var scale = s => {
-	return "scale("+s+")";
+	return `scale(${s})`;
 }
 
 var transform = (x, y, a = 0, s = 1) => {
