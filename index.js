@@ -104,9 +104,12 @@ var isComplex = c => {
 var parseExpression = o => {
 	// console.log(o);
 	var expression = o.expression;
+	o.segments = o.expression.split('`');
+	o.preprocessed = o.segments.join('');
+	o.unmodified = o.expression == o.original;
 
 	try {
-		o.sampler = math.compile(expression);
+		o.sampler = math.compile(o.preprocessed);
 		var value = o.sampler.eval(sampleScope);
 
 		if (isComplex(value))
@@ -236,12 +239,16 @@ var sampleGraphSlope = x => {
 	return (y1-y0)/e;
 }
 
-var createExpression = s => ({
-	expression: s,
-	sampleType: 2,
-	sampler: null,
-	_key: (expressionKeyIndex++).toString(),
-});
+var createExpression = s => {
+	let e = {
+		expression: _.isArray(s) ? s[0] : s,
+		original: _.isArray(s) ? s[1] : s,
+		sampleType: 2,
+		sampler: null,
+		_key: (expressionKeyIndex++).toString(),
+	}
+	return e;
+}
 
 var setExpression = (index, expression, setUrl = true) => {
 	console.log("Setting expression "+index+" to "+expression);
@@ -254,8 +261,20 @@ var setExpression = (index, expression, setUrl = true) => {
 	if (setUrl) refreshUrl();
 }
 
-var setExpressions = a => {
-	expressions = _.map(a, createExpression);
+var setExpressionSegment = (expressionIndex, segmentIndex, expressionSegment, setUrl = true) => {
+	let e = expressions[expressionIndex];
+	let segments = e.segments;
+	expressionSegment = expressionSegment.split('`').join('');
+	segments[segmentIndex] = expressionSegment;
+	let expression = segments.join('`');
+	setExpression(expressionIndex, expression, setUrl);
+}
+
+var setExpressions = (a, b = []) => {
+	console.log("Setting expressions: "+JSON.stringify(a)+", "+JSON.stringify(b));
+	b.length = a.length;
+	b = _.map(b, (v, i) => v ? v : a[i]);
+	expressions = _.map(_.zip(a, b), createExpression);
 
 	parseExpressions();
 	refreshScene();
@@ -272,6 +291,15 @@ var getExpressions = () => {
 
 var getExpressionStrings = () => {
 	return _.map(expressions, v => v.expression);
+}
+
+var getOriginalStrings = () => {
+	return _.map(expressions, v => v.original);
+}
+
+var resetToOriginals = () => {
+	setExpressions(getOriginalStrings());
+	refreshUrl();
 }
 
 var addExpression = (index = 0, expression = "") => {
@@ -298,27 +326,16 @@ var removeExpression = (index) => {
 	refreshUrl();
 }
 
-var getExpressionStrings = () => _.map(expressions, d => d.expression);
-
 var moveExpression = (expression, newIndex) => {
-	console.log("Moving expression "+expression.expression+" to "+newIndex);
-	console.log(getExpressionStrings());
+	// console.log("Moving expression "+expression.expression+" to "+newIndex);
+	// console.log(getExpressionStrings());
 	var i = _.indexOf(expressions, expression);
 	var l = expressions.length;
-
-	// var newIndex = i+indexOffset;
-
-	// if (indexOffset > 0)
-		// newIndex -= 1;
 
 	newIndex = math.max(0, newIndex);
 	newIndex = math.min(l-1, newIndex);
 
     expressions.splice(newIndex, 0, expressions.splice(i, 1)[0]);
-
-	// expressions.splice(i, 1);
-	// expressions.splice(newIndex, 0, expression);
-	console.log(getExpressionStrings());
 
 	parseExpressions();
 	refreshScene();
@@ -337,7 +354,12 @@ var getQueryString = () => {
 }
 
 var loadState = json => {
-	setExpressions(json.expressions);
+	console.log("Loading State")
+	console.log(json);
+	let e = json.expressions;
+	let o = json.originals;
+	if (!o) o = _.clone(e);
+	setExpressions(e, o);
 
 	pubsub.publish("onLoadState");
 
@@ -347,7 +369,8 @@ var loadState = json => {
 var serialize = () => {
 	var state = {
 		version: "0.0.0",
-		expressions: getExpressionStrings()
+		expressions: getExpressionStrings(),
+		originals: getOriginalStrings(),
 	}
 
     var stateString = JSON.stringify(state);
@@ -362,13 +385,13 @@ var deserialize = queryString => {
     if (queryString == "")
     	return false;
 
-    try {
 	    var stateString = lz.decompressFromBase64(queryString);
 
 	    console.log("Attempting to load State String: ");
 	    var json = JSON.parse(stateString);
 
 	    return loadState(json);
+    try {
     }
     catch (error) {
     	setExpressions(["Something is wrong with this link. I can't load it :("]);
@@ -394,7 +417,6 @@ var refreshUrl = () => {
 }
 
 var update = () => {
-	// console.log("Updating");
 	if (getRunning()) {
 		clockTime += frameInterval;
 		sampleScope.t = getClockTime();
@@ -409,7 +431,6 @@ var update = () => {
 update();
 
 var render = () => {
-	// console.log("Rendering");
 	pubsub.publish("onRender");
 	requestAnimationFrame(render);
 }
@@ -528,6 +549,7 @@ Ui({
 	setExpression,
 	getExpression,
 	getExpressions,
+	resetToOriginals,
 
 	addExpression,
 	removeExpression,

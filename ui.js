@@ -33,6 +33,7 @@ module.exports = spec => {
 		setExpression,
 		getExpression,
 		getExpressions,
+		resetToOriginals,
 
 		addExpression,
 		removeExpression,
@@ -98,6 +99,13 @@ module.exports = spec => {
 	addExpressionButton.append("div")
 			.text("+")
 
+	var resetExpressionsButton = overlayContainer.append("div")
+			.attr("class", "addExpressionButton")
+			.on("click", () => resetToOriginals())
+
+	resetExpressionsButton.append("div")
+			.text("<<")
+
 	var playButton = overlayContainer.append("div")
 			.attr("class", "startButton")
 			.on("click", toggleClock)
@@ -117,13 +125,13 @@ module.exports = spec => {
 	var dragOffsetY = 0;
 	var dragY = 0;
 
-//	var dragSubject = 
-
 	var expressions;
 	var enterExpressions;
 	var expressionEnvelopes;
 	var expressionHandles;
-	var expressionInputs;
+	var buildExpressionInputs;
+
+	var showResetButton = () => getEditing && _.every(getExpressions(), v => v.unmodified);
 
 	var refreshExpressions = () => {
 		expressions = bottomBar.selectAll(".expression")
@@ -230,7 +238,7 @@ module.exports = spec => {
 		expressionHandles.append("div")
 				.text("☰")
 
-		expressionInputs = expressionEnvelopes.append("input")
+		buildExpressionInputs = expressionEnvelopes.append("input")
 				.attr("class", "expressionInput")
 				.attr("spellcheck", "false")
 				.attr("autocorrect", "off")
@@ -257,6 +265,7 @@ module.exports = spec => {
 
 		expressions.exit().remove();
 
+		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
 	}
 
 	var onSetMacroState = () => {
@@ -271,6 +280,8 @@ module.exports = spec => {
 		buildButton.style("display", getRunning() ? "none" : "flex")
 
 		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
+
+		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
 	}
 
 	var onUpdate = () => {
