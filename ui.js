@@ -20,17 +20,19 @@ module.exports = spec => {
 		getHeight,
 		getAspect,
 
-		stopClock,
-		startClock,
 		toggleClock,
+		toggleBuilder,
 
 		getRunning,
-		getClockTime,
+		getEditing,
+		getBuilding,
+		getMacroState,
 
-		getExpressions,
+		getClockTime,
 
 		setExpression,
 		getExpression,
+		getExpressions,
 
 		addExpression,
 		removeExpression,
@@ -93,9 +95,19 @@ module.exports = spec => {
 			.attr("class", "addExpressionButton")
 			.on("click", () => addExpression(0, ""))
 
+	addExpressionButton.append("div")
+			.text("+")
+
 	var playButton = overlayContainer.append("div")
 			.attr("class", "startButton")
 			.on("click", toggleClock)
+
+	var buildButton = overlayContainer.append("div")
+			.attr("class", "buildButton")
+			.on("click", toggleBuilder)
+
+	buildButton.append("div")
+			.text("≈")
 
 	var expressionHeight = 25;
 
@@ -242,24 +254,18 @@ module.exports = spec => {
 
 	}
 
-	var onStartClock = () => {
+	var onSetMacroState = () => {
 		d3.selectAll(".expressionInput")
-				.property("disabled", true)
-				.style("background", "#444")
-				.style("color", "#FFF")
+				.property("disabled", getRunning())
+				.style("background", getRunning() ? "#444" : "#FFF")
+				.style("color", getRunning() ? "#FFF" : "#222")
 
-		playButton.attr("class", "stopButton");
-		addExpressionButton.style("display", "none");
-	}
+		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
+				.style("display", getBuilding() ? "none" : "flex")
 
-	var onStopClock = () => {
-		d3.selectAll(".expressionInput")
-				.property("disabled", false)
-				.style("background", "#FFF")
-				.style("color", "#222")
+		buildButton.style("display", getRunning() ? "none" : "flex")
 
-		playButton.attr("class", "startButton");
-		addExpressionButton.style("display", "block");
+		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 	}
 
 	var onUpdate = () => {
@@ -275,9 +281,9 @@ module.exports = spec => {
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	refreshExpressions();
+	onSetMacroState();
 
-	pubsub.subscribe("onStartClock", onStartClock);
-	pubsub.subscribe("onStopClock", onStopClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 }

@@ -113,10 +113,7 @@ module.exports = spec => {
 		resetSledder();
 	}
 
-	var onStartClock = () => {
-	}
-
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 		resetSledder();
 	}
 
@@ -213,8 +210,7 @@ module.exports = spec => {
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onRefreshScene", onRefreshScene);
 

@@ -215,12 +215,7 @@ module.exports = spec => {
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
-	// pubsub.subscribe("onStopClock", onStopClock);
-	// pubsub.subscribe("onStartClock", onStartClock);
-
 	pubsub.subscribe("onRefreshScene", refreshGoals);
-
-	// pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	return {
 		getIntersections,

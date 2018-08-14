@@ -298,12 +298,7 @@ module.exports = spec => {
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
-	// pubsub.subscribe("onStopClock", onStopClock);
-	// pubsub.subscribe("onStartClock", onStartClock);
-
 	pubsub.subscribe("onRefreshScene", refreshGoals);
-
-	// pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	return {
 		getIntersections,
@@ -361,18 +356,18 @@ module.exports = spec => {
 			// .attr("stroke-linecap", "round")
 			// .attr("stroke-width", 1.5)
 
-/*
 	var graphLineGenerator = d3.line()
 		.x(d => xScale(d[0]))
 		.y(d => yScale(d[1]))
-		
+
 	var graphLine = graph.append("path")
 			.datum(samples)
 			.attr("fill", "none")
 			.attr("stroke", "black")
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-linecap", "round")
-			.attr("stroke-width", 0)
+			.attr("stroke-width", 4)
+/*
 */
 	var refreshSamples = () => {
 		for (var i = 0; i < sampleCount; i++) {
@@ -390,7 +385,7 @@ module.exports = spec => {
 	var onStartClock = () => {
 	}
 
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 		refreshSamples();
 	}
 
@@ -416,8 +411,7 @@ module.exports = spec => {
 
 	refreshSamples();
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
@@ -553,10 +547,13 @@ var getFrameInterval = () => frameInterval;
 var getFrameIntervalMS = () => frameIntervalMS;
 
 var clockTime = 0;
-var running = false;
 var gravity = -9.8/frameRate;
+var macroState = 1;
 
-var getRunning = () => running;
+var getMacroState = () => macroState;
+var getBuilding = () => macroState == 0;
+var getEditing = () => macroState == 1;
+var getRunning = () => macroState == 2;
 var getClockTime = () => clockTime;
 var getGravity = () => gravity;
 
@@ -895,7 +892,7 @@ var refreshUrl = () => {
 
 var update = () => {
 	// console.log("Updating");
-	if (running) {
+	if (getRunning()) {
 		clockTime += frameInterval;
 		sampleScope.t = getClockTime();
 	}
@@ -915,29 +912,51 @@ var render = () => {
 }
 render();
 
-var stopClock = () => {
-	running = false;
+var setMacroState = s => {
+	macroState = s;
+	macroState = math.max(macroState, 0);
+	macroState = math.min(macroState, 2);
+
 	clockTime = 0;
 	sampleScope.t = 0;
 
 	refreshScene();
 
-	pubsub.publish("onStopClock");
+	pubsub.publish("onSetMacroState");
 }
 
-var startClock = () => {
-	running = true;
+var forwardMacroState = () => {
+	setMacroState(macroState+1);
+	
+}
 
-	pubsub.publish("onStartClock");
+var backwardMacroState = () => {
+	setMacroState(macroState-1);
+}
+
+var alternateMacroState = () => {
+	
 }
 
 var toggleClock = () => {
-	if (running) stopClock();
-	else startClock();
+	if (getRunning())
+		backwardMacroState();
+	else
+		forwardMacroState();
 }
 
-var onPressEnter = () => {
-	toggleClock();
+var toggleBuilder = () => {
+	if (getBuilding())
+		forwardMacroState();
+	else
+		backwardMacroState();
+}
+
+var onPressEnter = shift => {
+	if (shift)
+		toggleBuilder();
+	else
+		toggleClock();
 }
 
 var keyCodes = {
@@ -946,9 +965,10 @@ var keyCodes = {
 
 var onPressKey = () => {
 	var k = d3.event.keyCode;
+	var shift = d3.event.shiftKey;
 	if (keyCodes[k]) {
 		console.log("Pressing Key "+k+", firing callback");
-		keyCodes[k]();
+		keyCodes[k](shift);
 	}
 	else console.log("Pressing Key "+k);
 }
@@ -956,9 +976,9 @@ var onPressKey = () => {
 body.on("keypress", onPressKey);
 
 setExpressions([
-	"test1=sin(t)*x",
-	"test2=sin(x)*sin(t)",
-	"Y=sin(x-t)"
+	"a=sin(x-t)",
+	"b=x/8",
+	"Y=a+b"
 ]);
 
 World({
@@ -970,6 +990,10 @@ World({
 	getAspect,
 
 	getRunning,
+	getEditing,
+	getBuilding,
+	getMacroState,
+
 	getClockTime,
 	getFrameInterval,
 	getGravity,
@@ -988,17 +1012,19 @@ Ui({
 	getHeight,
 	getAspect,
 
-	stopClock,
-	startClock,
 	toggleClock,
+	toggleBuilder,
 
 	getRunning,
-	getClockTime,
+	getEditing,
+	getBuilding,
+	getMacroState,
 
-	getExpressions,
+	getClockTime,
 
 	setExpression,
 	getExpression,
+	getExpressions,
 
 	addExpression,
 	removeExpression,
@@ -94537,10 +94563,7 @@ module.exports = spec => {
 		resetSledder();
 	}
 
-	var onStartClock = () => {
-	}
-
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 		resetSledder();
 	}
 
@@ -94637,8 +94660,7 @@ module.exports = spec => {
 
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onRefreshScene", onRefreshScene);
 
@@ -94667,17 +94689,19 @@ module.exports = spec => {
 		getHeight,
 		getAspect,
 
-		stopClock,
-		startClock,
 		toggleClock,
+		toggleBuilder,
 
 		getRunning,
-		getClockTime,
+		getEditing,
+		getBuilding,
+		getMacroState,
 
-		getExpressions,
+		getClockTime,
 
 		setExpression,
 		getExpression,
+		getExpressions,
 
 		addExpression,
 		removeExpression,
@@ -94740,9 +94764,19 @@ module.exports = spec => {
 			.attr("class", "addExpressionButton")
 			.on("click", () => addExpression(0, ""))
 
+	addExpressionButton.append("div")
+			.text("+")
+
 	var playButton = overlayContainer.append("div")
 			.attr("class", "startButton")
 			.on("click", toggleClock)
+
+	var buildButton = overlayContainer.append("div")
+			.attr("class", "buildButton")
+			.on("click", toggleBuilder)
+
+	buildButton.append("div")
+			.text("≈")
 
 	var expressionHeight = 25;
 
@@ -94889,24 +94923,18 @@ module.exports = spec => {
 
 	}
 
-	var onStartClock = () => {
+	var onSetMacroState = () => {
 		d3.selectAll(".expressionInput")
-				.property("disabled", true)
-				.style("background", "#444")
-				.style("color", "#FFF")
+				.property("disabled", getRunning())
+				.style("background", getRunning() ? "#444" : "#FFF")
+				.style("color", getRunning() ? "#FFF" : "#222")
 
-		playButton.attr("class", "stopButton");
-		addExpressionButton.style("display", "none");
-	}
+		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
+				.style("display", getBuilding() ? "none" : "flex")
 
-	var onStopClock = () => {
-		d3.selectAll(".expressionInput")
-				.property("disabled", false)
-				.style("background", "#FFF")
-				.style("color", "#222")
+		buildButton.style("display", getRunning() ? "none" : "flex")
 
-		playButton.attr("class", "startButton");
-		addExpressionButton.style("display", "block");
+		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 	}
 
 	var onUpdate = () => {
@@ -94922,9 +94950,9 @@ module.exports = spec => {
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	refreshExpressions();
+	onSetMacroState();
 
-	pubsub.subscribe("onStartClock", onStartClock);
-	pubsub.subscribe("onStopClock", onStopClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 }
@@ -95052,10 +95080,7 @@ module.exports = spec => {
 		// pubsub.publish("onMoveCamera");
 	}
 
-	var onStartClock = () => {
-	}
-
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 	}
 
 	var onUpdate = () => {
@@ -95077,8 +95102,7 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 	pubsub.subscribe("onRefreshScene", onRefreshScene);

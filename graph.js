@@ -49,18 +49,18 @@ module.exports = spec => {
 			// .attr("stroke-linecap", "round")
 			// .attr("stroke-width", 1.5)
 
-/*
 	var graphLineGenerator = d3.line()
 		.x(d => xScale(d[0]))
 		.y(d => yScale(d[1]))
-		
+
 	var graphLine = graph.append("path")
 			.datum(samples)
 			.attr("fill", "none")
 			.attr("stroke", "black")
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-linecap", "round")
-			.attr("stroke-width", 0)
+			.attr("stroke-width", 4)
+/*
 */
 	var refreshSamples = () => {
 		for (var i = 0; i < sampleCount; i++) {
@@ -78,7 +78,7 @@ module.exports = spec => {
 	var onStartClock = () => {
 	}
 
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 		refreshSamples();
 	}
 
@@ -104,8 +104,7 @@ module.exports = spec => {
 
 	refreshSamples();
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);

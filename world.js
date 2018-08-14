@@ -121,10 +121,7 @@ module.exports = spec => {
 		// pubsub.publish("onMoveCamera");
 	}
 
-	var onStartClock = () => {
-	}
-
-	var onStopClock = () => {
+	var onSetMacroState = () => {
 	}
 
 	var onUpdate = () => {
@@ -146,8 +143,7 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 	pubsub.subscribe("onRefreshScene", onRefreshScene);

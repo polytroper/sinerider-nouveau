@@ -32,6 +32,10 @@ html, body {
   color: #FFF;
   background: #666;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   position: absolute;
   left: 0;
   bottom: 0;
@@ -54,9 +58,45 @@ html, body {
   background: #FFF;
 }
 
+.buildButton {
+  color: #CCC;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 20px;
+  height: 20px;
+
+  margin: 5px;
+  border: 1px solid #CCC;
+  border-radius: 5px;
+
+  align-self: flex-end;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.buildButton:hover {
+  color: #000;
+  background: #FFF;
+  border: 1px solid black;
+}
+
 .startButton {
   color: #FFF;
   background: #0C0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   position: absolute;
   right: 0;
@@ -83,6 +123,10 @@ html, body {
 .stopButton {
   color: #FFF;
   background: #C00;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   position: absolute;
   right: 0;
