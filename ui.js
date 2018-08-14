@@ -170,6 +170,7 @@ module.exports = spec => {
 			d3.drag()
 				.container(bottomBar.node())
 				.subject(() => ({x: 0, y: 0}))
+				.filter(getBuilding)
 				.on("start", function(d, i, a){
 					i = _.indexOf(getExpressions(), d);
 
