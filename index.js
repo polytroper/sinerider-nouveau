@@ -20,6 +20,7 @@ var {
 var expressions = [];
 
 var r2d = 180/Math.PI;
+var expressionKeyIndex = 0;
 
 var width = window.innerWidth;
 var height = window.innerHeight;
@@ -98,7 +99,7 @@ var isComplex = c => {
 }
 
 var parseExpression = o => {
-	console.log(o);
+	// console.log(o);
 	var expression = o.expression;
 
 	try {
@@ -122,6 +123,7 @@ var parseExpressions = () => {
 	resetScope();
 	console.log("Parsing...");
 	_.each(expressions, (v, i) => parseExpression(v));
+	console.log(sampleScope);
 }
 
 var evaluateExpression = o => {
@@ -165,8 +167,18 @@ var createSceneObject = v => {
 }
 
 var tryCreateSceneObject = v => {
+	// console.log("Trying to create scene object with:");
+	// console.log(v);
+
+	// if (_.isArray(v))
+	if (v._data)
+	{
 	console.log("Trying to create scene object with:");
 	console.log(v);
+		_.each(v._data, tryCreateSceneObject);
+		return;
+	}
+
 	if (!_.isObject(v))
 		return;
 
@@ -215,7 +227,7 @@ var sampleGraphVelocity = x => {
 }
 
 var sampleGraphSlope = x => {
-	let e = 0.05;
+	let e = 0.01;
 	let y0 = sampleGraph(x);
 	let y1 = sampleGraph(x+e);
 	return (y1-y0)/e;
@@ -225,6 +237,7 @@ var createExpression = s => ({
 	expression: s,
 	sampleType: 2,
 	sampler: null,
+	_key: (expressionKeyIndex++).toString(),
 });
 
 var setExpression = (index, expression, setUrl = true) => {
@@ -258,7 +271,7 @@ var getExpressionStrings = () => {
 	return _.map(expressions, v => v.expression);
 }
 
-var addExpression = (index, expression = "") => {
+var addExpression = (index = 0, expression = "") => {
 	console.log("Adding expression "+index+": "+expression);
 
 	expressions.splice(index, 0, createExpression(expression));
@@ -274,6 +287,35 @@ var removeExpression = (index) => {
 	console.log("Removing expression "+index+": "+expressions[index].expression);
 
 	expressions.splice(index, 1);
+
+	parseExpressions();
+	refreshScene();
+
+	pubsub.publish("onEditExpressions");
+	refreshUrl();
+}
+
+var getExpressionStrings = () => _.map(expressions, d => d.expression);
+
+var moveExpression = (expression, newIndex) => {
+	console.log("Moving expression "+expression.expression+" to "+newIndex);
+	console.log(getExpressionStrings());
+	var i = _.indexOf(expressions, expression);
+	var l = expressions.length;
+
+	// var newIndex = i+indexOffset;
+
+	// if (indexOffset > 0)
+		// newIndex -= 1;
+
+	newIndex = math.max(0, newIndex);
+	newIndex = math.min(l-1, newIndex);
+
+    expressions.splice(newIndex, 0, expressions.splice(i, 1)[0]);
+
+	// expressions.splice(i, 1);
+	// expressions.splice(newIndex, 0, expression);
+	console.log(getExpressionStrings());
 
 	parseExpressions();
 	refreshScene();
@@ -460,6 +502,7 @@ Ui({
 
 	addExpression,
 	removeExpression,
+	moveExpression,
 });
 
 if (!loadFromUrl())

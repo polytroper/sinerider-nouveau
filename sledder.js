@@ -48,6 +48,13 @@ module.exports = spec => {
 	var sledder = container.append("g")
 			.attr("class", "sledder")
 
+	sledder.append("svg:image")
+		.attr('x', -15)
+		.attr('y', -30)
+		.attr('width', 30)
+		.attr('height', 30)
+		.attr("xlink:href", "assets/rider_peeps.png")
+/*
 	var sledderBody = sledder.append("g")
 			.attr("class", "sledder")
 			.attr("transform", translate(0, -10))
@@ -72,7 +79,7 @@ module.exports = spec => {
 			.attr("y2", 4)
 			.attr("stroke", "black")
 			.attr("strokeWidth", 2)
-
+*/
 	var refreshSledders = () => {
 
 	}
@@ -166,8 +173,8 @@ module.exports = spec => {
 			// console.log(normalVector)
 
 			// Rotation vector ease to Normal!
-			rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.1);
-			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.1);
+			rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.15);
+			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.15);
 			normalize(rotationVector);
 
 			rotation = math.atan2(rotationVector.y, rotationVector.x)*r2d;
