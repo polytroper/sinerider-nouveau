@@ -104,9 +104,21 @@ var isComplex = c => {
 var parseExpression = o => {
 	// console.log(o);
 	var expression = o.expression;
+	var expressionIndex = _.indexOf(expressions, o);
+
 	o.segments = o.expression.split('`');
 	o.preprocessed = o.segments.join('');
 	o.unmodified = o.expression == o.original;
+
+	o.segmentData = _.map(o.segments, (v, i) => ({
+		str: v,
+		set: s => setExpressionSegment(expressionIndex, i, s)
+	}));
+
+	var evens = _.filter(o.segments, (v, i) => i%2 == 0);
+	var odds = _.filter(o.segments, (v, i) => i%2 == 1);
+
+	o.segmentPairs = _.zip(evens, odds);
 
 	try {
 		o.sampler = math.compile(o.preprocessed);
@@ -250,9 +262,12 @@ var createExpression = s => {
 	return e;
 }
 
-var setExpression = (index, expression, setUrl = true) => {
+var setExpression = (index, expression, setUrl = true, setOriginal = true) => {
 	console.log("Setting expression "+index+" to "+expression);
 	expressions[index].expression = expression;
+
+	if (setOriginal)
+		expressions[index].original = expression;
 	
 	parseExpressions();
 	refreshScene();
@@ -262,12 +277,13 @@ var setExpression = (index, expression, setUrl = true) => {
 }
 
 var setExpressionSegment = (expressionIndex, segmentIndex, expressionSegment, setUrl = true) => {
+	console.log("Setting Expression "+expressionIndex+" Segment "+segmentIndex);
 	let e = expressions[expressionIndex];
 	let segments = e.segments;
 	expressionSegment = expressionSegment.split('`').join('');
 	segments[segmentIndex] = expressionSegment;
 	let expression = segments.join('`');
-	setExpression(expressionIndex, expression, setUrl);
+	setExpression(expressionIndex, expression, setUrl, false);
 }
 
 var setExpressions = (a, b = []) => {
@@ -441,6 +457,9 @@ var setMacroState = s => {
 	macroState = math.max(macroState, 0);
 	macroState = math.min(macroState, 2);
 
+	if (macroState == 0)
+		resetToOriginals();
+
 	clockTime = 0;
 	sampleScope.t = 0;
 
@@ -549,6 +568,7 @@ Ui({
 	setExpression,
 	getExpression,
 	getExpressions,
+	setExpressionSegment,
 	resetToOriginals,
 
 	addExpression,

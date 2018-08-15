@@ -28,6 +28,8 @@ module.exports = spec => {
 		getAspect,
 		
 		getRunning,
+		getEditing,
+		getBuilding,
 		getClockTime,
 		getFrameInterval,
 		getGravity,
@@ -97,6 +99,18 @@ module.exports = spec => {
 		refreshScales();
 	}
 
+	var jumpCamera = () => {
+		camera.position[0] = cameraTarget.position[0];
+		camera.position[1] = cameraTarget.position[1];
+
+		camera.size[0] = cameraTarget.size[0];
+		camera.size[1] = cameraTarget.size[1];
+
+		camera.scale = getHeight()/(camera.size[1]*2);
+
+		refreshScales();
+	}
+
 	var followCameraPoints = () => {
 		var min = _.reduce(cameraPoints, (a, v) => [math.min(a[0], v[0]), math.min(a[1], v[1])]);
 		var max = _.reduce(cameraPoints, (a, v) => [math.max(a[0], v[0]), math.max(a[1], v[1])]);
@@ -122,11 +136,16 @@ module.exports = spec => {
 	}
 
 	var onSetMacroState = () => {
+		jumpCamera();
 	}
 
 	var onUpdate = () => {
 		followCameraPoints();
-		smoothCamera();
+
+		if (getRunning())
+			smoothCamera();
+		else
+			jumpCamera();
 	}
 
 	var onRender = () => {

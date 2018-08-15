@@ -33,6 +33,7 @@ module.exports = spec => {
 		setExpression,
 		getExpression,
 		getExpressions,
+		setExpressionSegment,
 		resetToOriginals,
 
 		addExpression,
@@ -130,8 +131,13 @@ module.exports = spec => {
 	var expressionEnvelopes;
 	var expressionHandles;
 	var buildExpressionInputs;
+	var editExpressionInputs;
 
 	var showResetButton = () => getEditing && _.every(getExpressions(), v => v.unmodified);
+	
+	var showSegment = d => !getBuilding() && d.length > 0;
+
+	var calculateInputWidth = (w, i) => w*6.7+(i%2 == 0 ? 4 : 10);
 
 	var refreshExpressions = () => {
 		expressions = bottomBar.selectAll(".expression")
@@ -151,6 +157,8 @@ module.exports = spec => {
 				.style("align-content", "stretch")
 				// .on("mouseover", (d, i, a) => onOverExpression(a[i], true))
 				// .on("mouseout", (d, i, a) => onOverExpression(a[i], false))
+
+		enterExpressions.merge(expressions).order();
 
 		expressionEnvelopes = enterExpressions
 			.append("div")
@@ -238,22 +246,85 @@ module.exports = spec => {
 		expressionHandles.append("div")
 				.text("☰")
 
-		buildExpressionInputs = expressionEnvelopes.append("input")
-				.attr("class", "expressionInput")
+		expressionEnvelopes.append("div")
+				.attr("class", "buildExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		expressionEnvelopes.append("div")
+				.attr("class", "editExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		expressionEnvelopes.append("div")
+				.attr("class", "playExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		buildExpressionInputs = expressionEnvelopes
+			.select(".buildExpressionEnvelope")
+			.append("input")
+				.attr("class", "buildExpressionInput")
 				.attr("spellcheck", "false")
 				.attr("autocorrect", "off")
 				.attr("autocomplete", "off")
 				.attr("autocapitalize", "off")
 				.style("flex-grow", 1)
-				.style("display", "flex")
 				.style("background", "white")
 				.on("input", function(d, i, a){setExpression(_.indexOf(getExpressions(), d), this.value)})
-				// .property("value", (d, i) => i + ": "+d)
 
-		d3.selectAll(".expressionInput")
+		d3.selectAll(".buildExpressionInput")
 				.property("value", function(d, i, a){return d.expression;})
 
-		enterExpressions.merge(expressions).order();
+		expressionEnvelopes.select(".editExpressionEnvelope")
+			.append("div")
+				.attr("class", "editExpressionSegments")
+				.style("display", "flex")
+				.style("flex-grow", 0)
+				
+		expressionEnvelopes.select(".editExpressionEnvelope")
+			.append("div")
+				.attr("class", "editExpressionTail")
+				.style("flex-shrink", 1)
+				.style("flex-grow", 1)
+				.style("background", "white")
+
+		editExpressionInputs = enterExpressions.merge(expressions)
+			.select(".expressionEnvelope")
+			.select(".editExpressionEnvelope")
+			.select(".editExpressionSegments")
+			.selectAll(".editExpressionInput")
+				.data(d => d.segmentData)
+
+		editExpressionInputs.exit().remove();
+
+		var enterEditExpressionInputs = editExpressionInputs.enter()
+			.append("input")
+				.attr("class", "editExpressionInput")
+				.attr("spellcheck", "false")
+				.attr("autocorrect", "off")
+				.attr("autocomplete", "off")
+				.attr("autocapitalize", "off")
+				.style("flex-grow", 0)
+				.style("flex-basis", "content")
+				.style("text-align", "center")
+				.style("padding", "0px 0px")
+				.style("margin", "2px 0px")
+				.style("background", "white")
+				.style("border-style", "dashed")
+				.style("border-color", "#E0E0E0")
+				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
+				.style("font-family", "Courier")
+				.on("input", function(d){d.set(this.value);})
+		
+		enterEditExpressionInputs.merge(editExpressionInputs)
+				.style("width", (d, i) => calculateInputWidth(d.str.length, i))
+				// .style("width", function(d, i, a){return d.str.length*6+10;})
+				.property("disabled", function(d, i, a){return i%2 == 0;})
+				.property("value", function(d, i, a){console.log("setting segment VALUE Function "+i+" is "+d.str); return d.str;})
 
 		if (dragIndex < 0) {
 			enterExpressions.merge(expressions)
@@ -266,13 +337,45 @@ module.exports = spec => {
 		expressions.exit().remove();
 
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
+
+		playExpressionText = expressionEnvelopes
+			.select(".playExpressionEnvelope")
+			.append("input")
+				.attr("class", "playExpressionText")
+				.property("disabled", true)
+				.style("flex-grow", 1)
+				.style("color", "#FFF")
+				.style("background", "#666")
+				.style("padding", "0px 4px")
+				.style("border", "1px inset #888")
+				.style("font-family", "Courier")
+				// .style("font-size", "12px")
+
+		d3.selectAll(".playExpressionText")
+				.property("value", function(d, i, a){return d.preprocessed;})
+
+		d3.selectAll(".buildExpressionEnvelope")
+				.style("display", getBuilding() ? "flex" : "none")
+
+		d3.selectAll(".editExpressionEnvelope")
+				.style("display", getEditing() ? "flex" : "none")
+
+		d3.selectAll(".playExpressionEnvelope")
+				.style("display", getRunning() ? "flex" : "none")
 	}
 
 	var onSetMacroState = () => {
-		d3.selectAll(".expressionInput")
-				.property("disabled", getRunning())
-				.style("background", getRunning() ? "#444" : "#FFF")
-				.style("color", getRunning() ? "#FFF" : "#222")
+		d3.selectAll(".buildExpressionEnvelope")
+				.style("display", getBuilding() ? "flex" : "none")
+
+		d3.selectAll(".editExpressionEnvelope")
+				.style("display", getEditing() ? "flex" : "none")
+
+		d3.selectAll(".playExpressionEnvelope")
+				.style("display", getRunning() ? "flex" : "none")
+
+		// d3.selectAll(".editExpressionInput")
+				// .style("display", d => (d.str.length > 0) ? "flex" : "none")
 
 		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
 				.style("display", getBuilding() ? "none" : "flex")
@@ -281,7 +384,7 @@ module.exports = spec => {
 
 		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 
-		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
+		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
 	}
 
 	var onUpdate = () => {

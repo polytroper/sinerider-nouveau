@@ -599,9 +599,21 @@ var isComplex = c => {
 var parseExpression = o => {
 	// console.log(o);
 	var expression = o.expression;
+	var expressionIndex = _.indexOf(expressions, o);
+
 	o.segments = o.expression.split('`');
 	o.preprocessed = o.segments.join('');
 	o.unmodified = o.expression == o.original;
+
+	o.segmentData = _.map(o.segments, (v, i) => ({
+		str: v,
+		set: s => setExpressionSegment(expressionIndex, i, s)
+	}));
+
+	var evens = _.filter(o.segments, (v, i) => i%2 == 0);
+	var odds = _.filter(o.segments, (v, i) => i%2 == 1);
+
+	o.segmentPairs = _.zip(evens, odds);
 
 	try {
 		o.sampler = math.compile(o.preprocessed);
@@ -745,9 +757,12 @@ var createExpression = s => {
 	return e;
 }
 
-var setExpression = (index, expression, setUrl = true) => {
+var setExpression = (index, expression, setUrl = true, setOriginal = true) => {
 	console.log("Setting expression "+index+" to "+expression);
 	expressions[index].expression = expression;
+
+	if (setOriginal)
+		expressions[index].original = expression;
 	
 	parseExpressions();
 	refreshScene();
@@ -757,12 +772,13 @@ var setExpression = (index, expression, setUrl = true) => {
 }
 
 var setExpressionSegment = (expressionIndex, segmentIndex, expressionSegment, setUrl = true) => {
+	console.log("Setting Expression "+expressionIndex+" Segment "+segmentIndex);
 	let e = expressions[expressionIndex];
 	let segments = e.segments;
 	expressionSegment = expressionSegment.split('`').join('');
 	segments[segmentIndex] = expressionSegment;
 	let expression = segments.join('`');
-	setExpression(expressionIndex, expression, setUrl);
+	setExpression(expressionIndex, expression, setUrl, false);
 }
 
 var setExpressions = (a, b = []) => {
@@ -936,6 +952,9 @@ var setMacroState = s => {
 	macroState = math.max(macroState, 0);
 	macroState = math.min(macroState, 2);
 
+	if (macroState == 0)
+		resetToOriginals();
+
 	clockTime = 0;
 	sampleScope.t = 0;
 
@@ -1044,6 +1063,7 @@ Ui({
 	setExpression,
 	getExpression,
 	getExpressions,
+	setExpressionSegment,
 	resetToOriginals,
 
 	addExpression,
@@ -94722,6 +94742,7 @@ module.exports = spec => {
 		setExpression,
 		getExpression,
 		getExpressions,
+		setExpressionSegment,
 		resetToOriginals,
 
 		addExpression,
@@ -94819,8 +94840,13 @@ module.exports = spec => {
 	var expressionEnvelopes;
 	var expressionHandles;
 	var buildExpressionInputs;
+	var editExpressionInputs;
 
 	var showResetButton = () => getEditing && _.every(getExpressions(), v => v.unmodified);
+	
+	var showSegment = d => !getBuilding() && d.length > 0;
+
+	var calculateInputWidth = (w, i) => w*6.7+(i%2 == 0 ? 4 : 10);
 
 	var refreshExpressions = () => {
 		expressions = bottomBar.selectAll(".expression")
@@ -94840,6 +94866,8 @@ module.exports = spec => {
 				.style("align-content", "stretch")
 				// .on("mouseover", (d, i, a) => onOverExpression(a[i], true))
 				// .on("mouseout", (d, i, a) => onOverExpression(a[i], false))
+
+		enterExpressions.merge(expressions).order();
 
 		expressionEnvelopes = enterExpressions
 			.append("div")
@@ -94927,22 +94955,85 @@ module.exports = spec => {
 		expressionHandles.append("div")
 				.text("☰")
 
-		buildExpressionInputs = expressionEnvelopes.append("input")
-				.attr("class", "expressionInput")
+		expressionEnvelopes.append("div")
+				.attr("class", "buildExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		expressionEnvelopes.append("div")
+				.attr("class", "editExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		expressionEnvelopes.append("div")
+				.attr("class", "playExpressionEnvelope")
+				.style("flex-grow", 1)
+				.style("display", "flex")
+				.style("background", "white")
+
+		buildExpressionInputs = expressionEnvelopes
+			.select(".buildExpressionEnvelope")
+			.append("input")
+				.attr("class", "buildExpressionInput")
 				.attr("spellcheck", "false")
 				.attr("autocorrect", "off")
 				.attr("autocomplete", "off")
 				.attr("autocapitalize", "off")
 				.style("flex-grow", 1)
-				.style("display", "flex")
 				.style("background", "white")
 				.on("input", function(d, i, a){setExpression(_.indexOf(getExpressions(), d), this.value)})
-				// .property("value", (d, i) => i + ": "+d)
 
-		d3.selectAll(".expressionInput")
+		d3.selectAll(".buildExpressionInput")
 				.property("value", function(d, i, a){return d.expression;})
 
-		enterExpressions.merge(expressions).order();
+		expressionEnvelopes.select(".editExpressionEnvelope")
+			.append("div")
+				.attr("class", "editExpressionSegments")
+				.style("display", "flex")
+				.style("flex-grow", 0)
+				
+		expressionEnvelopes.select(".editExpressionEnvelope")
+			.append("div")
+				.attr("class", "editExpressionTail")
+				.style("flex-shrink", 1)
+				.style("flex-grow", 1)
+				.style("background", "white")
+
+		editExpressionInputs = enterExpressions.merge(expressions)
+			.select(".expressionEnvelope")
+			.select(".editExpressionEnvelope")
+			.select(".editExpressionSegments")
+			.selectAll(".editExpressionInput")
+				.data(d => d.segmentData)
+
+		editExpressionInputs.exit().remove();
+
+		var enterEditExpressionInputs = editExpressionInputs.enter()
+			.append("input")
+				.attr("class", "editExpressionInput")
+				.attr("spellcheck", "false")
+				.attr("autocorrect", "off")
+				.attr("autocomplete", "off")
+				.attr("autocapitalize", "off")
+				.style("flex-grow", 0)
+				.style("flex-basis", "content")
+				.style("text-align", "center")
+				.style("padding", "0px 0px")
+				.style("margin", "2px 0px")
+				.style("background", "white")
+				.style("border-style", "dashed")
+				.style("border-color", "#E0E0E0")
+				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
+				.style("font-family", "Courier")
+				.on("input", function(d){d.set(this.value);})
+		
+		enterEditExpressionInputs.merge(editExpressionInputs)
+				.style("width", (d, i) => calculateInputWidth(d.str.length, i))
+				// .style("width", function(d, i, a){return d.str.length*6+10;})
+				.property("disabled", function(d, i, a){return i%2 == 0;})
+				.property("value", function(d, i, a){console.log("setting segment VALUE Function "+i+" is "+d.str); return d.str;})
 
 		if (dragIndex < 0) {
 			enterExpressions.merge(expressions)
@@ -94955,13 +95046,45 @@ module.exports = spec => {
 		expressions.exit().remove();
 
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
+
+		playExpressionText = expressionEnvelopes
+			.select(".playExpressionEnvelope")
+			.append("input")
+				.attr("class", "playExpressionText")
+				.property("disabled", true)
+				.style("flex-grow", 1)
+				.style("color", "#FFF")
+				.style("background", "#666")
+				.style("padding", "0px 4px")
+				.style("border", "1px inset #888")
+				.style("font-family", "Courier")
+				// .style("font-size", "12px")
+
+		d3.selectAll(".playExpressionText")
+				.property("value", function(d, i, a){return d.preprocessed;})
+
+		d3.selectAll(".buildExpressionEnvelope")
+				.style("display", getBuilding() ? "flex" : "none")
+
+		d3.selectAll(".editExpressionEnvelope")
+				.style("display", getEditing() ? "flex" : "none")
+
+		d3.selectAll(".playExpressionEnvelope")
+				.style("display", getRunning() ? "flex" : "none")
 	}
 
 	var onSetMacroState = () => {
-		d3.selectAll(".expressionInput")
-				.property("disabled", getRunning())
-				.style("background", getRunning() ? "#444" : "#FFF")
-				.style("color", getRunning() ? "#FFF" : "#222")
+		d3.selectAll(".buildExpressionEnvelope")
+				.style("display", getBuilding() ? "flex" : "none")
+
+		d3.selectAll(".editExpressionEnvelope")
+				.style("display", getEditing() ? "flex" : "none")
+
+		d3.selectAll(".playExpressionEnvelope")
+				.style("display", getRunning() ? "flex" : "none")
+
+		// d3.selectAll(".editExpressionInput")
+				// .style("display", d => (d.str.length > 0) ? "flex" : "none")
 
 		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
 				.style("display", getBuilding() ? "none" : "flex")
@@ -94970,7 +95093,7 @@ module.exports = spec => {
 
 		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 
-		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
+		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
 	}
 
 	var onUpdate = () => {
@@ -95023,6 +95146,8 @@ module.exports = spec => {
 		getAspect,
 		
 		getRunning,
+		getEditing,
+		getBuilding,
 		getClockTime,
 		getFrameInterval,
 		getGravity,
@@ -95092,6 +95217,18 @@ module.exports = spec => {
 		refreshScales();
 	}
 
+	var jumpCamera = () => {
+		camera.position[0] = cameraTarget.position[0];
+		camera.position[1] = cameraTarget.position[1];
+
+		camera.size[0] = cameraTarget.size[0];
+		camera.size[1] = cameraTarget.size[1];
+
+		camera.scale = getHeight()/(camera.size[1]*2);
+
+		refreshScales();
+	}
+
 	var followCameraPoints = () => {
 		var min = _.reduce(cameraPoints, (a, v) => [math.min(a[0], v[0]), math.min(a[1], v[1])]);
 		var max = _.reduce(cameraPoints, (a, v) => [math.max(a[0], v[0]), math.max(a[1], v[1])]);
@@ -95117,11 +95254,16 @@ module.exports = spec => {
 	}
 
 	var onSetMacroState = () => {
+		jumpCamera();
 	}
 
 	var onUpdate = () => {
 		followCameraPoints();
-		smoothCamera();
+
+		if (getRunning())
+			smoothCamera();
+		else
+			jumpCamera();
 	}
 
 	var onRender = () => {
