@@ -112,7 +112,8 @@ var parseExpression = o => {
 
 	o.segmentData = _.map(o.segments, (v, i) => ({
 		str: v,
-		set: s => setExpressionSegment(expressionIndex, i, s)
+		set: s => setExpressionSegment(expressionIndex, i, s),
+		hide: (v == "") && (i == o.segments.length-1),
 	}));
 
 	var evens = _.filter(o.segments, (v, i) => i%2 == 0);
@@ -519,9 +520,10 @@ var onPressKey = () => {
 body.on("keypress", onPressKey);
 
 setExpressions([
-	"a=sin(x-t)",
-	"b=x/8",
-	"Y=a+b"
+	"a=-sin(x/32)*64/(abs(x/24)+1)`",
+	"b=6/(1+((x-64)/3)^2)`",
+	"c=1-1/(1+t)`",
+	"Y=(a+b)*c`"
 ]);
 
 World({

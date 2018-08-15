@@ -607,7 +607,8 @@ var parseExpression = o => {
 
 	o.segmentData = _.map(o.segments, (v, i) => ({
 		str: v,
-		set: s => setExpressionSegment(expressionIndex, i, s)
+		set: s => setExpressionSegment(expressionIndex, i, s),
+		hide: (v == "") && (i == o.segments.length-1),
 	}));
 
 	var evens = _.filter(o.segments, (v, i) => i%2 == 0);
@@ -1014,9 +1015,10 @@ var onPressKey = () => {
 body.on("keypress", onPressKey);
 
 setExpressions([
-	"a=sin(x-t)",
-	"b=x/8",
-	"Y=a+b"
+	"a=-sin(x/32)*64/(abs(x/24)+1)`",
+	"b=6/(1+((x-64)/3)^2)`",
+	"c=1-1/(1+t)`",
+	"Y=(a+b)*c`"
 ]);
 
 World({
@@ -94762,15 +94764,6 @@ module.exports = spec => {
 			.style("width", getWidth())
 			.style("height", getHeight())
 			.style("overflow", "hidden")
-/*
-	var bottom = ui.append("div")
-			.attr("class", "bottom")
-			.style("flex-grow", 1)
-			.style("display", "flex")
-			// .style("align-items", "stretch")
-			.style("justify-content", "bottom")
-			// .style("flex-direction", "column-reverse")
-*/
 
 	var overlayContainer = ui.append("div")
 			.attr("class", "overlayContainer")
@@ -94790,8 +94783,9 @@ module.exports = spec => {
 			// .style("align-content", "stretch")
 
 	var bottomExpander = bottomBar.append("div")
+			.attr("class", "bottomExpander")
 			// .style("position", "absolute")
-			// .style("flex-grow", 1)
+			.style("flex-grow", 1)
 
 	var removeExpressionRegion = overlayContainer.append("div")
 			.attr("class", "removeExpressionRegion")
@@ -94846,7 +94840,27 @@ module.exports = spec => {
 	
 	var showSegment = d => !getBuilding() && d.length > 0;
 
+	var showExpression = d => getBuilding() || d.segments.length > 1;
+
 	var calculateInputWidth = (w, i) => w*6.7+(i%2 == 0 ? 4 : 10);
+
+	var calculateBottomBarHeight = () => {
+		var displayedExpressions = _.filter(getExpressions(), showExpression)
+		return displayedExpressions.length*25;
+	}
+
+	var refreshExpressionPositions = () => {
+		var h = 0;
+		var topValues = _.map(getExpressions, () => 0);
+		_.each(getExpressions(), (v, i) => {
+			topValues[i] = h;
+			h += showExpression(v) ? 25 : 0;
+		});
+
+		d3.selectAll(".expression")
+				.order()
+				.style("top", (d, i, a) => topValues[_.indexOf(getExpressions(), d)])
+	}
 
 	var refreshExpressions = () => {
 		expressions = bottomBar.selectAll(".expression")
@@ -95024,24 +95038,23 @@ module.exports = spec => {
 				.style("margin", "2px 0px")
 				.style("background", "white")
 				.style("border-style", "dashed")
-				.style("border-color", "#E0E0E0")
+				.style("border-color", "#E4E4E4")
 				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
 				.style("font-family", "Courier")
 				.on("input", function(d){d.set(this.value);})
 		
 		enterEditExpressionInputs.merge(editExpressionInputs)
 				.style("width", (d, i) => calculateInputWidth(d.str.length, i))
-				// .style("width", function(d, i, a){return d.str.length*6+10;})
+				.style("display", d => d.hide ? "none" : "flex")
 				.property("disabled", function(d, i, a){return i%2 == 0;})
-				.property("value", function(d, i, a){console.log("setting segment VALUE Function "+i+" is "+d.str); return d.str;})
+				.property("value", function(d, i, a){return d.str;})
+				// .style("width", function(d, i, a){return d.str.length*6+10;})
 
 		if (dragIndex < 0) {
-			enterExpressions.merge(expressions)
-					.order()
-					.style("top", (d, i, a) => 25*i)
+			refreshExpressionPositions();
 		}
 
-		bottomExpander.style("height", getExpressions().length*25);
+		bottomExpander.style("height", calculateBottomBarHeight());
 
 		expressions.exit().remove();
 
@@ -95074,6 +95087,12 @@ module.exports = spec => {
 	}
 
 	var onSetMacroState = () => {
+		refreshExpressionPositions();
+		
+		d3.selectAll(".expression")
+				.style("display", d => showExpression(d) ? "flex" : "none")
+				// .style("position", d => (getBuilding() || d.segments.length > 1) ? "static" : "absolute")
+
 		d3.selectAll(".buildExpressionEnvelope")
 				.style("display", getBuilding() ? "flex" : "none")
 
@@ -95094,6 +95113,8 @@ module.exports = spec => {
 		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
+
+		bottomExpander.style("height", calculateBottomBarHeight());
 	}
 
 	var onUpdate = () => {
