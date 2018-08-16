@@ -69,6 +69,7 @@ module.exports = spec => {
 			// .style("flex-grow", 1)
 			.style("flex-direction", "column")
 			.style("align-items", "stretch")
+			// .style("border-top", "1px solid #888")
 			// .style("align-content", "stretch")
 
 	var bottomExpander = bottomBar.append("div")
@@ -268,7 +269,7 @@ module.exports = spec => {
 				.attr("class", "editExpressionEnvelope")
 				.style("flex-grow", 1)
 				.style("display", "flex")
-				.style("background", "white")
+				.style("background", "#FBFBFB")
 
 		expressionEnvelopes.append("div")
 				.attr("class", "playExpressionEnvelope")
@@ -302,7 +303,7 @@ module.exports = spec => {
 				.attr("class", "editExpressionTail")
 				.style("flex-shrink", 1)
 				.style("flex-grow", 1)
-				.style("background", "white")
+				.style("background", "#FBFBFB")
 
 		editExpressionInputs = enterExpressions.merge(expressions)
 			.select(".expressionEnvelope")
@@ -325,7 +326,7 @@ module.exports = spec => {
 				.style("text-align", "center")
 				.style("padding", "0px 0px")
 				.style("margin", "2px 0px")
-				.style("background", "white")
+				.style("background", "#FBFBFB")
 				.style("border-style", "dashed")
 				.style("border-color", "#E4E4E4")
 				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
@@ -404,6 +405,8 @@ module.exports = spec => {
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
 
 		bottomExpander.style("height", calculateBottomBarHeight());
+
+		bottomBar.style("opacity", getRunning() ? 0.2 : 1);
 	}
 
 	var onUpdate = () => {

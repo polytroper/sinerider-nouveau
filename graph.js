@@ -29,7 +29,7 @@ module.exports = spec => {
 		sampleGraph,
 	} = spec;
 // (((x-16)/3)^2-6)*(x < 24)
-	var sampleCount = 128;
+	var sampleCount = 256;
 
 	var samples = [];
 	samples.length = sampleCount;
@@ -40,11 +40,13 @@ module.exports = spec => {
 	var graphAreaGenerator = d3.area()
 		.x(d => xScale(d[0]))
 		.y0(getHeight())
-		.y1(d => yScale(d[1]));
+		.y1(d => yScale(d[1]))
+		.curve(d3.curveNatural)
 
 	var graphArea = graph.append("path")
 			.datum(samples)
 			.attr("fill", "black")
+			// .attr("shape-rendering", "optimizeSpeed")
 			// .attr("stroke-linejoin", "round")
 			// .attr("stroke-linecap", "round")
 			// .attr("stroke-width", 1.5)
@@ -52,14 +54,16 @@ module.exports = spec => {
 	var graphLineGenerator = d3.line()
 		.x(d => xScale(d[0]))
 		.y(d => yScale(d[1]))
+		.curve(d3.curveNatural)
 
 	var graphLine = graph.append("path")
 			.datum(samples)
 			.attr("fill", "none")
 			.attr("stroke", "black")
+			// .attr("shape-rendering", "optimizeSpeed")
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-linecap", "round")
-			.attr("stroke-width", 4)
+			.attr("stroke-width", 3)
 /*
 */
 	var refreshSamples = () => {

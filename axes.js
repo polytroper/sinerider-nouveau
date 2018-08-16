@@ -27,13 +27,16 @@ module.exports = spec => {
 	var axes = container.append("g")
 			.attr("class", "axes")
 
+	var tickInts = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 	var xAxis = axes.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + yScale(0) + ")")
 		.call(
 			d3.axisBottom(xScale)
-				// .ticks(10)
+				.ticks(0)
 				// .tickFormat("")
+				// .tickValues(tickInts)
 		);
 
 	var yAxis = axes.append("g")
@@ -41,8 +44,9 @@ module.exports = spec => {
 		.attr("transform", "translate(" + xScale(0) + ", 0)")
 		.call(
 			d3.axisLeft(yScale)
-				// .ticks(10)
+				.ticks(0)
 				// .tickFormat("")
+				// .tickValues(tickInts)
 		);
 
 	var onStartClock = () => {
@@ -59,10 +63,20 @@ module.exports = spec => {
 
 	var onRender = () => {
 		xAxis.attr("transform", translate(0, yScale(0)))
-			.call(d3.axisBottom(xScale));
+			.call(
+				d3.axisBottom(xScale)
+					.ticks(0)
+					// .tickFormat("")
+					// .tickValues(tickInts)
+			);
 
 		yAxis.attr("transform", translate(xScale(0), 0))
-			.call(d3.axisLeft(yScale));
+			.call(
+				d3.axisLeft(yScale)
+					.ticks(0)
+					// .tickFormat("")
+					// .tickValues(tickInts)
+			);
 	}
 
 	var onMoveCamera = () => {
@@ -70,7 +84,7 @@ module.exports = spec => {
 	
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
-	
+
 	pubsub.subscribe("onMoveCamera", onMoveCamera);
 
 	pubsub.subscribe("onStopClock", onStopClock);
