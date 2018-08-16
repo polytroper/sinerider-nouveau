@@ -157,6 +157,14 @@ module.exports = spec => {
 	var onRefreshScene = () => {
 	}
 
+	var onResize = () => {
+		yScale.range([getHeight(), 0])
+		xScale.range([0, getWidth()])
+
+		svg.attr("width", getWidth())
+		svg.attr("height", getHeight())
+	}
+
 	refreshScales();
 
 	pubsub.subscribe("onUpdate", onUpdate);
@@ -166,6 +174,8 @@ module.exports = spec => {
 
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 	pubsub.subscribe("onRefreshScene", onRefreshScene);
+
+	pubsub.subscribe("onResize", onResize);
 
 	var axes = Axes({
 		pubsub,

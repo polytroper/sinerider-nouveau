@@ -39,7 +39,7 @@ module.exports = spec => {
 
 	var graphAreaGenerator = d3.area()
 		.x(d => xScale(d[0]))
-		.y0(getHeight())
+		.y0(d => getHeight())
 		.y1(d => yScale(d[1]))
 		.curve(d3.curveNatural)
 

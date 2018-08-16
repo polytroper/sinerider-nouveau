@@ -41,8 +41,11 @@ var container = body.append("div")
 		.style("display", "flex")
 		.style("align-items", "stretch")
 		.style("align-content", "stretch")
-		.style("width", width)
-		.style("height", height)
+		.style("position", "absolute")
+		.style("left", "0")
+		.style("right", "0")
+		.style("top", "0")
+		.style("bottom", "0")
 		.style("overflow", "hidden")
 
 var frameRate = 60;
@@ -517,7 +520,14 @@ var onPressKey = () => {
 	else console.log("Pressing Key "+k);
 }
 
+var onResize = () => {
+
+	pubsub.publish("onResize");
+}
+
 body.on("keypress", onPressKey);
+
+window.addEventListener("resize", onResize);
 
 setExpressions([
 	"a=-sin(x/32)*64/(abs(x/24)+1)`",

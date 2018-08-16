@@ -46,12 +46,15 @@ module.exports = spec => {
 			.style("display", "flex")
 			.style("flex-direction", "column")
 			.style("position", "absolute")
+			.style("left", "0")
+			.style("right", "0")
+			.style("top", "0")
+			.style("bottom", "0")
 			.style("flex-grow", 0)
 			.style("align-items", "stretch")
 			.style("align-content", "stretch")
-
-			.style("width", getWidth())
-			.style("height", getHeight())
+			// .style("width", getWidth())
+			// .style("height", getHeight())
 			.style("overflow", "hidden")
 
 	var overlayContainer = ui.append("div")

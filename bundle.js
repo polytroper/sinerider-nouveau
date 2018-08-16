@@ -360,7 +360,7 @@ module.exports = spec => {
 
 	var graphAreaGenerator = d3.area()
 		.x(d => xScale(d[0]))
-		.y0(getHeight())
+		.y0(d => getHeight())
 		.y1(d => yScale(d[1]))
 		.curve(d3.curveNatural)
 
@@ -554,8 +554,11 @@ var container = body.append("div")
 		.style("display", "flex")
 		.style("align-items", "stretch")
 		.style("align-content", "stretch")
-		.style("width", width)
-		.style("height", height)
+		.style("position", "absolute")
+		.style("left", "0")
+		.style("right", "0")
+		.style("top", "0")
+		.style("bottom", "0")
 		.style("overflow", "hidden")
 
 var frameRate = 60;
@@ -1030,7 +1033,14 @@ var onPressKey = () => {
 	else console.log("Pressing Key "+k);
 }
 
+var onResize = () => {
+
+	pubsub.publish("onResize");
+}
+
 body.on("keypress", onPressKey);
+
+window.addEventListener("resize", onResize);
 
 setExpressions([
 	"a=-sin(x/32)*64/(abs(x/24)+1)`",
@@ -94775,12 +94785,15 @@ module.exports = spec => {
 			.style("display", "flex")
 			.style("flex-direction", "column")
 			.style("position", "absolute")
+			.style("left", "0")
+			.style("right", "0")
+			.style("top", "0")
+			.style("bottom", "0")
 			.style("flex-grow", 0)
 			.style("align-items", "stretch")
 			.style("align-content", "stretch")
-
-			.style("width", getWidth())
-			.style("height", getHeight())
+			// .style("width", getWidth())
+			// .style("height", getHeight())
 			.style("overflow", "hidden")
 
 	var overlayContainer = ui.append("div")
@@ -95317,6 +95330,14 @@ module.exports = spec => {
 	var onRefreshScene = () => {
 	}
 
+	var onResize = () => {
+		yScale.range([getHeight(), 0])
+		xScale.range([0, getWidth()])
+
+		svg.attr("width", getWidth())
+		svg.attr("height", getHeight())
+	}
+
 	refreshScales();
 
 	pubsub.subscribe("onUpdate", onUpdate);
@@ -95326,6 +95347,8 @@ module.exports = spec => {
 
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 	pubsub.subscribe("onRefreshScene", onRefreshScene);
+
+	pubsub.subscribe("onResize", onResize);
 
 	var axes = Axes({
 		pubsub,
