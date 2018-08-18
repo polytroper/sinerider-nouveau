@@ -69,6 +69,7 @@ module.exports = spec => {
 			// .style("width", "100%")
 			// .style("height", "25px")
 			.style("display", "flex")
+			.style("margin", "0px 20px 20px 20px")
 			// .style("flex-grow", 1)
 			.style("flex-direction", "column")
 			.style("align-items", "stretch")
@@ -331,7 +332,7 @@ module.exports = spec => {
 				.style("margin", "2px 0px")
 				.style("background", "#FBFBFB")
 				.style("border-style", "dashed")
-				.style("border-color", "#E4E4E4")
+				.style("border-color", "#E2E2E2")
 				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
 				.style("font-family", "Courier")
 				.on("input", function(d){d.set(this.value);})
@@ -409,7 +410,7 @@ module.exports = spec => {
 
 		bottomExpander.style("height", calculateBottomBarHeight());
 
-		bottomBar.style("opacity", getRunning() ? 0.2 : 1);
+		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
 	}
 
 	var onUpdate = () => {
