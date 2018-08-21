@@ -90,7 +90,7 @@ module.exports = spec => {
 		images.select(".imageNode")
 				.style("fill", d => d.color)//parseColor(d.color))
 				.style("font-size", d => math.round(d.fontSize*20)+"px")
-				.attr("href", d => d.url)
+				.attr("xlink:href", d => d.url)
 				.attr("x", calculateOffsetX)
 				.attr("y", calculateOffsetY)
 				.attr("width", calculateSize)
