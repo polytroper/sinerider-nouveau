@@ -208,8 +208,6 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onMoveCamera", onMoveCamera);
-
 	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onRefreshScene", onRefreshScene);

@@ -310,8 +310,6 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onMoveCamera", onMoveCamera);
-
 	pubsub.subscribe("onRefreshScene", refreshGoals);
 
 	return {
@@ -439,6 +437,7 @@ module.exports = spec => {
 }
 },{"./helpers":4,"d3":38,"lodash":43,"mathjs":45}],4:[function(require,module,exports){
 var math = require('mathjs');
+var _ = require('lodash');
 
 var translate = (x, y) => {
 	return `translate(${x}, ${y})`;
@@ -459,6 +458,21 @@ var transform = (x, y, a = 0, s = 1) => {
 
 var lerp = (a, b, t) => {
 	return b*t + a*(1-t);
+}
+
+let intToGrayscale = v => {
+	return `rgb(${v}, ${v}, ${v})`;
+}
+
+let floatToGrayscale = v => {
+	return intToGrayscale(math.round(lerp(0, 255, v)));
+}
+
+let parseColor = c => {
+	if (_.isNumber)
+		return floatToGrayscale(c);
+
+	return _.toString(c);
 }
 
 let normalize = (vector) => {
@@ -506,11 +520,14 @@ module.exports = {
 	rotate,
 	transform,
 	lerp,
+	floatToGrayscale,
+	intToGrayscale,
+	parseColor,
 	normalize,
 	getQueryString,
-	pointSquareDistance
+	pointSquareDistance,
 }
-},{"mathjs":45}],5:[function(require,module,exports){
+},{"lodash":43,"mathjs":45}],5:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
@@ -596,7 +613,10 @@ var sceneObjectTypes = {
 	},
 	text: {
 		p: math.complex(0, 0),
-		value: "Text!",
+		v: "Text!",
+		fontSize: 1,
+		anchor: 0,
+		color: 0,
 	},
 }
 
@@ -1042,12 +1062,23 @@ body.on("keypress", onPressKey);
 
 window.addEventListener("resize", onResize);
 
-setExpressions([
-	"a=-sin(x/32)*64/(abs(x/24)+1)`",
-	"b=6/(1+((x-64)/3)^2)`",
-	"c=1-1/(1+t)`",
-	"Y=(a+b)*c`"
-]);
+
+var loadDefault = () => {
+	setExpressions([
+		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
+		"welcome={o:\"text\", p:4-2i, v:\"Welcome.\"}",
+//		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
+		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
+		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
+		// "a_game={o:\"text\", p:32-64i, v:\"(a game of numerical sledding)\", fontSize: 6, color:\"white\"}",
+		"a=-sin(x/32)*64/(abs(x/24)+1)",
+		"b=8/(1+((x-60)/4)^2)",
+		"c=1-1/(1+t)",
+		"Y=`(a+b)*c"
+	]);
+}
+
+loadDefault();
 
 World({
 	pubsub,
@@ -1102,11 +1133,12 @@ Ui({
 });
 
 if (!loadFromUrl())
-	console.log("No URL state to load");
+	loadDefault();
+	// console.log("No URL state to load");
 	// loadState(defaultState);
 
 
-},{"./helpers":4,"./ui":613,"./world":614,"d3":38,"lodash":43,"lz-string":44,"mathjs":45,"pubsub-js":608}],6:[function(require,module,exports){
+},{"./helpers":4,"./ui":614,"./world":615,"d3":38,"lodash":43,"lz-string":44,"mathjs":45,"pubsub-js":608}],6:[function(require,module,exports){
 /**
  * @license Complex.js v2.0.11 11/02/2016
  *
@@ -94728,8 +94760,6 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onMoveCamera", onMoveCamera);
-
 	pubsub.subscribe("onSetMacroState", onSetMacroState);
 
 	pubsub.subscribe("onRefreshScene", onRefreshScene);
@@ -94737,6 +94767,240 @@ module.exports = spec => {
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 }
 },{"./helpers":4,"d3":38,"lodash":43,"mathjs":45}],613:[function(require,module,exports){
+var d3 = require('d3');
+var _ = require('lodash');
+var math = require('mathjs');
+
+var {
+	translate,
+	rotate,
+	transform,
+	lerp,
+	floatToGrayscale,
+	intToGrayscale,
+	parseColor,
+	normalize,
+	pointSquareDistance
+} = require('./helpers');
+
+module.exports = spec => {
+	var {
+		pubsub,
+		container,
+
+		getInstances,
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+		
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
+	} = spec;
+
+	// cameraPoints.push(position);
+
+	var r2d = 180/Math.PI;
+
+	container = container.append("g")
+		.attr("class", "texts");
+
+	var texts;
+	
+	var refreshTextTransforms = () => {
+		container.selectAll(".text")
+				.attr("transform", d => transform(xScale(math.re(d.p)), yScale(math.im(d.p)), 0, camera.scale/20))
+
+		container.selectAll(".textNode")
+				.style("fill", d => d.color)//parseColor(d.color))
+				// .style("stroke", d => parseColor(d.color))
+				.style("font-size", d => math.round(d.fontSize*20)+"px")
+				.text(d => _.toString(d.v))
+	}
+
+	var refreshTexts = () => {
+		var instances = getInstances();
+
+		texts = container.selectAll(".text")
+			.data(instances);
+		texts.exit().remove();
+
+		// var textNodes = container.selectAll(".textNode")
+
+		var enterTexts = texts.enter()
+			.append("g")
+				.attr("class", "text")
+
+		var textNodes = enterTexts.append("text")
+				.attr("class", "textNode")
+				// .attr("dx", "50%")
+				// .attr("dy", "50%")
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-family", "Inconsolata")
+				// .attr("width", 20)
+				// .attr("height", 20)
+
+		texts = enterTexts.merge(texts);
+		
+		texts.select(".textNode")
+				.style("fill", d => d.color)//parseColor(d.color))
+				// .style("stroke", d => parseColor(d.color))
+				.style("font-size", d => math.round(d.fontSize*20)+"px")
+				// .style("strokeWidth", 1)
+				.text(d => _.toString(d.v))
+
+		refreshTextTransforms();
+	}
+/*
+
+	var setSledderTransform = (x, y, a) => {
+		position[0] = x;
+		position[1] = y;
+		rotation = a;
+		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20))
+	}
+
+	var setSledderVelocity = (x, y) => {
+		velocity[0] = x;
+		velocity[1] = y;
+	}
+
+	var resetSledder = () => {
+		let y = sampleGraph(0);
+		let s = sampleGraphSlope(y);
+		let a = r2d*Math.atan(s);
+		console.log("Sledder Angle is "+a+", slope is "+s)
+		setSledderTransform(0, y, a);
+		setSledderVelocity(0, 0);
+	}
+
+	var onEditExpressions = () => {
+		resetSledder();
+	}
+*/
+/*
+	var onStartClock = () => {
+	}
+
+	var onStopClock = () => {
+		resetSledder();
+	}
+*/
+	var onMoveCamera = () => {
+		// refreshSledderTransform();
+	}
+
+	var onRender = () => {
+		refreshTextTransforms();
+
+		// d3.selectAll(".textNode")
+			// .style("fill", d => d.complete ? "green" : "white")
+	}
+
+	var intersectPointInstance = (point, instance) => {
+		var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
+		var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
+		return intersectX && intersectY;
+	}
+
+	var intersectCircleInstance = (point, radius, instance) => {
+		return pointSquareDistance(point, instance.p, 1) < radius;
+	}
+
+	var getIntersections = (point, radius) => {
+		var instances = getInstances();
+		var intersections = _.filter(instances, v => intersectCircleInstance(point, radius, v));
+		return intersections;
+	}
+
+	var onUpdate = () => {
+		/*
+		if (!getRunning()) return;
+
+		var frameInterval = getFrameInterval();
+		var gravity = getGravity();
+
+		// Move me
+		position[0] += velocity[0]*frameInterval;
+		position[1] += velocity[1]*frameInterval;
+
+		// Gravity
+		velocity[1] += gravity;
+
+		// Am I below ground? If so, it's THE REAL PHYSICS TIME
+		var gy = sampleGraph(position[0]);
+		var slope = sampleGraphSlope(position[0]);
+		var buffer = 0;//.01;
+		if (position[1] <= gy-buffer) {
+
+			// Get slope/normal vectors of ground
+			var slopeVector = {
+				x: 1,
+				y: slope
+			};
+			normalize(slopeVector); // make this a unit vector...
+			// console.log(slopeVector)
+
+			var rotationVector = {
+				x: math.cos(rotation/r2d),
+				y: math.sin(rotation/r2d)
+			}
+			// console.log(rotationVector)
+			
+			// normal!
+			var normalVector = {
+				x: slopeVector.y,
+				y: -slopeVector.x
+			}
+			// console.log(normalVector)
+
+			// Rotation vector ease to Normal!
+			rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.1);
+			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.1);
+			normalize(rotationVector);
+
+			rotation = math.atan2(rotationVector.y, rotationVector.x)*r2d;
+
+			// Project Sledder velocity to ground vector
+			// var scalar = velocity[0]*slopeVector.x + velocity[1]*slopeVector.y; // dot product
+			var scalar = math.dot([velocity[0], velocity[1]], [slopeVector.x, slopeVector.y]);
+			velocity[0] = slopeVector.x*scalar;
+			velocity[1] = math.max(velocity[1], slopeVector.y*scalar);
+
+			// GROUND'S VELOCITY ITSELF
+			var groundVelY = sampleGraphVelocity(position[0]);
+
+			// Project onto normal vector, add to Sledder
+
+			scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
+			velocity[0] += normalVector.x*scalar;
+			velocity[1] += normalVector.y*scalar;
+
+			// depenetration!
+			scalar = math.dot([0, gy-position[1]], [normalVector.x, normalVector.y]);
+			position[0] += scalar*normalVector.x;
+			position[1] += scalar*normalVector.y;
+		}
+		*/
+	}
+	
+	pubsub.subscribe("onUpdate", onUpdate);
+	pubsub.subscribe("onRender", onRender);
+
+	pubsub.subscribe("onRefreshScene", refreshTexts);
+
+	return {
+	}
+}
+},{"./helpers":4,"d3":38,"lodash":43,"mathjs":45}],614:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 
@@ -95171,7 +95435,7 @@ module.exports = spec => {
 
 	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 }
-},{"./helpers":4,"d3":38,"lodash":43}],614:[function(require,module,exports){
+},{"./helpers":4,"d3":38,"lodash":43}],615:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
@@ -95180,6 +95444,7 @@ var Axes = require('./axes');
 var Graph = require('./graph');
 var Sledder = require('./sledder');
 var Goal = require('./goal');
+var Text = require('./text');
 
 var {
 	translate,
@@ -95382,7 +95647,51 @@ module.exports = spec => {
 		sampleGraph,
 	});
 
-	var goals = Goal({
+	// lol hack
+	var goals;
+
+	var sledder = Sledder({
+		pubsub,
+		container: svg,
+		getInstances: () => getSceneObjects("sledder"),
+		getIntersections: () => goals.getIntersections(),
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
+	});
+
+	var texts = Text({
+		pubsub,
+		container: svg,
+		getInstances: () => getSceneObjects("text"),
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
+	});
+
+	goals = Goal({
 		pubsub,
 		container: svg,
 		getInstances: () => getSceneObjects("goal"),
@@ -95401,26 +95710,5 @@ module.exports = spec => {
 		sampleGraphSlope,
 		sampleGraphVelocity,
 	});
-
-	var sledder = Sledder({
-		pubsub,
-		container: svg,
-		getInstances: () => getSceneObjects("sledder"),
-		getIntersections: goals.getIntersections,
-
-		xScale,
-		yScale,
-		camera,
-
-		cameraPoints,
-
-		getRunning,
-		getFrameInterval,
-		getGravity,
-
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	});
 }
-},{"./axes":1,"./goal":2,"./graph":3,"./helpers":4,"./sledder":612,"d3":38,"lodash":43,"mathjs":45}]},{},[5]);
+},{"./axes":1,"./goal":2,"./graph":3,"./helpers":4,"./sledder":612,"./text":613,"d3":38,"lodash":43,"mathjs":45}]},{},[5]);

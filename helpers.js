@@ -1,4 +1,5 @@
 var math = require('mathjs');
+var _ = require('lodash');
 
 var translate = (x, y) => {
 	return `translate(${x}, ${y})`;
@@ -19,6 +20,21 @@ var transform = (x, y, a = 0, s = 1) => {
 
 var lerp = (a, b, t) => {
 	return b*t + a*(1-t);
+}
+
+let intToGrayscale = v => {
+	return `rgb(${v}, ${v}, ${v})`;
+}
+
+let floatToGrayscale = v => {
+	return intToGrayscale(math.round(lerp(0, 255, v)));
+}
+
+let parseColor = c => {
+	if (_.isNumber)
+		return floatToGrayscale(c);
+
+	return _.toString(c);
 }
 
 let normalize = (vector) => {
@@ -66,7 +82,10 @@ module.exports = {
 	rotate,
 	transform,
 	lerp,
+	floatToGrayscale,
+	intToGrayscale,
+	parseColor,
 	normalize,
 	getQueryString,
-	pointSquareDistance
+	pointSquareDistance,
 }

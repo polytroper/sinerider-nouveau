@@ -83,7 +83,10 @@ var sceneObjectTypes = {
 	},
 	text: {
 		p: math.complex(0, 0),
-		value: "Text!",
+		v: "Text!",
+		fontSize: 1,
+		anchor: 0,
+		color: 0,
 	},
 }
 
@@ -529,12 +532,23 @@ body.on("keypress", onPressKey);
 
 window.addEventListener("resize", onResize);
 
-setExpressions([
-	"a=-sin(x/32)*64/(abs(x/24)+1)`",
-	"b=6/(1+((x-64)/3)^2)`",
-	"c=1-1/(1+t)`",
-	"Y=(a+b)*c`"
-]);
+
+var loadDefault = () => {
+	setExpressions([
+		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
+		"welcome={o:\"text\", p:4-2i, v:\"Welcome.\"}",
+//		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
+		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
+		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
+		// "a_game={o:\"text\", p:32-64i, v:\"(a game of numerical sledding)\", fontSize: 6, color:\"white\"}",
+		"a=-sin(x/32)*64/(abs(x/24)+1)",
+		"b=8/(1+((x-60)/4)^2)",
+		"c=1-1/(1+t)",
+		"Y=`(a+b)*c"
+	]);
+}
+
+loadDefault();
 
 World({
 	pubsub,
@@ -589,6 +603,7 @@ Ui({
 });
 
 if (!loadFromUrl())
-	console.log("No URL state to load");
+	loadDefault();
+	// console.log("No URL state to load");
 	// loadState(defaultState);
 

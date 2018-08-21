@@ -7,6 +7,9 @@ var {
 	rotate,
 	transform,
 	lerp,
+	floatToGrayscale,
+	intToGrayscale,
+	parseColor,
 	normalize,
 	pointSquareDistance
 } = require('./helpers');
@@ -38,44 +41,54 @@ module.exports = spec => {
 	var r2d = 180/Math.PI;
 
 	container = container.append("g")
-		.attr("class", "goals");
+		.attr("class", "texts");
 
-	var goals;
+	var texts;
 	
-	var refreshGoalTransforms = () => {
-		container.selectAll(".goal")
+	var refreshTextTransforms = () => {
+		container.selectAll(".text")
 				.attr("transform", d => transform(xScale(math.re(d.p)), yScale(math.im(d.p)), 0, camera.scale/20))
+
+		container.selectAll(".textNode")
+				.style("fill", d => d.color)//parseColor(d.color))
+				// .style("stroke", d => parseColor(d.color))
+				.style("font-size", d => math.round(d.fontSize*20)+"px")
+				.text(d => _.toString(d.v))
 	}
 
-	var refreshGoals = () => {
+	var refreshTexts = () => {
 		var instances = getInstances();
 
-		goals = container.selectAll(".goal")
+		texts = container.selectAll(".text")
 			.data(instances);
-		goals.exit().remove();
+		texts.exit().remove();
 
-		// var goalSquares = container.selectAll(".goalSquare")
+		// var textNodes = container.selectAll(".textNode")
 
-		var enterGoals = goals.enter()
+		var enterTexts = texts.enter()
 			.append("g")
-				.attr("class", "goal")
+				.attr("class", "text")
 
-		var goalSquares = enterGoals.append("rect")
-				.attr("class", "goalSquare")
-				.attr("x", -10)
-				.attr("y", -10)
-				.attr("width", 20)
-				.attr("height", 20)
+		var textNodes = enterTexts.append("text")
+				.attr("class", "textNode")
+				// .attr("dx", "50%")
+				// .attr("dy", "50%")
+				.attr("text-anchor", "middle")
+				.attr("alignment-baseline", "middle")
+				.style("font-family", "Inconsolata")
+				// .attr("width", 20)
+				// .attr("height", 20)
 
-		goals = enterGoals.merge(goals);
+		texts = enterTexts.merge(texts);
 		
-		goals.select(".goalSquare")
-				.style("fill", d => d.complete ? "green" : "white")
-				.style("stroke", "black")
-				.style("strokeWidth", 1)
+		texts.select(".textNode")
+				.style("fill", d => d.color)//parseColor(d.color))
+				// .style("stroke", d => parseColor(d.color))
+				.style("font-size", d => math.round(d.fontSize*20)+"px")
+				// .style("strokeWidth", 1)
+				.text(d => _.toString(d.v))
 
-
-		refreshGoalTransforms();
+		refreshTextTransforms();
 	}
 /*
 
@@ -117,10 +130,10 @@ module.exports = spec => {
 	}
 
 	var onRender = () => {
-		refreshGoalTransforms();
+		refreshTextTransforms();
 
-		d3.selectAll(".goalSquare")
-			.style("fill", d => d.complete ? "green" : "white")
+		// d3.selectAll(".textNode")
+			// .style("fill", d => d.complete ? "green" : "white")
 	}
 
 	var intersectPointInstance = (point, instance) => {
@@ -213,9 +226,8 @@ module.exports = spec => {
 	pubsub.subscribe("onUpdate", onUpdate);
 	pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onRefreshScene", refreshGoals);
+	pubsub.subscribe("onRefreshScene", refreshTexts);
 
 	return {
-		getIntersections,
 	}
 }

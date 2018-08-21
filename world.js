@@ -6,6 +6,7 @@ var Axes = require('./axes');
 var Graph = require('./graph');
 var Sledder = require('./sledder');
 var Goal = require('./goal');
+var Text = require('./text');
 
 var {
 	translate,
@@ -208,10 +209,14 @@ module.exports = spec => {
 		sampleGraph,
 	});
 
-	var goals = Goal({
+	// lol hack
+	var goals;
+
+	var sledder = Sledder({
 		pubsub,
 		container: svg,
-		getInstances: () => getSceneObjects("goal"),
+		getInstances: () => getSceneObjects("sledder"),
+		getIntersections: () => goals.getIntersections(),
 
 		xScale,
 		yScale,
@@ -228,11 +233,30 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	});
 
-	var sledder = Sledder({
+	var texts = Text({
 		pubsub,
 		container: svg,
-		getInstances: () => getSceneObjects("sledder"),
-		getIntersections: goals.getIntersections,
+		getInstances: () => getSceneObjects("text"),
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
+	});
+
+	goals = Goal({
+		pubsub,
+		container: svg,
+		getInstances: () => getSceneObjects("goal"),
 
 		xScale,
 		yScale,
