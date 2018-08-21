@@ -18,6 +18,7 @@ html, body {
 
 .overlayContainer {
   position: relative;
+  pointer-events: none;
 
   align-self: stretch;
   flex-grow: 1;

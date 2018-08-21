@@ -7,6 +7,7 @@ var Graph = require('./graph');
 var Sledder = require('./sledder');
 var Goal = require('./goal');
 var Text = require('./text');
+var Image = require('./image');
 
 var {
 	translate,
@@ -189,6 +190,26 @@ module.exports = spec => {
 		xScale,
 		yScale,
 		camera,
+	});
+
+	var images = Image({
+		pubsub,
+		container: svg,
+		getInstances: () => getSceneObjects("image"),
+
+		xScale,
+		yScale,
+		camera,
+
+		cameraPoints,
+
+		getRunning,
+		getFrameInterval,
+		getGravity,
+
+		sampleGraph,
+		sampleGraphSlope,
+		sampleGraphVelocity,
 	});
 
 	var graph = Graph({

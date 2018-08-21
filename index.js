@@ -48,7 +48,7 @@ var container = body.append("div")
 		.style("bottom", "0")
 		.style("overflow", "hidden")
 
-var frameRate = 60;
+var frameRate = 30;
 var frameInterval = 1/frameRate;
 var frameIntervalMS = 1000/frameRate;
 
@@ -85,6 +85,13 @@ var sceneObjectTypes = {
 		p: math.complex(0, 0),
 		v: "Text!",
 		fontSize: 1,
+		anchor: 0,
+		color: 0,
+	},
+	image: {
+		p: math.complex(0, 0),
+		url: "http://polytrope.com/favicon.png",
+		size: 1,
 		anchor: 0,
 		color: 0,
 	},
@@ -538,12 +545,21 @@ var welcomes = [
 	"hi",
 	"Sup",
 	"oh hey",
+	"Watch out!!",
 	"Step right up!",
 	"Tell your friends",
 	"Is it hot in here?",
 	"Enjoy responsibly.",
 	"Enjoy irresponsibly.",
-	"go sledder go",
+	"Be careful out there?",
+	"Guaranteed effective!",
+	"No warranty provided",
+	"Best served chilled",
+	"Lifetime warranty!",
+	"Now with less salt",
+	"You have arrived.",
+	"go sledder go!!",
+	"Wear a helmet",
 ]
 
 var getRandomWelcome = () => {
@@ -553,11 +569,12 @@ var getRandomWelcome = () => {
 var loadDefault = () => {
 	setExpressions([
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
-		"welcome={o:\"text\", p:7-2i, v:\""+getRandomWelcome()+"\"}",
+		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
 //		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
 		// "a_game={o:\"text\", p:32-64i, v:\"(a game of numerical sledding)\", fontSize: 6, color:\"white\"}",
+		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, url:\"assets/randall_tree.png\"}",
 		"a=-sin(x/32)*64/(abs(x/24)+1)",
 		"b=8/(1+((x-60)/4)^2)",
 		"c=1-1/(1+t)",
