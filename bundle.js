@@ -1062,11 +1062,28 @@ body.on("keypress", onPressKey);
 
 window.addEventListener("resize", onResize);
 
+var welcomes = [
+	"Welcome!",
+	"Hola",
+	"hi",
+	"Sup",
+	"oh hey",
+	"Step right up!",
+	"Tell your friends",
+	"Is it hot in here?",
+	"Enjoy responsibly.",
+	"Enjoy irresponsibly.",
+	"go sledder go",
+]
+
+var getRandomWelcome = () => {
+	return _.shuffle(welcomes)[0];
+}
 
 var loadDefault = () => {
 	setExpressions([
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
-		"welcome={o:\"text\", p:4-2i, v:\"Welcome!\"}",
+		"welcome={o:\"text\", p:7-2i, v:\""+getRandomWelcome()+"\"}",
 //		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
