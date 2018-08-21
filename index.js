@@ -536,7 +536,7 @@ window.addEventListener("resize", onResize);
 var loadDefault = () => {
 	setExpressions([
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
-		"welcome={o:\"text\", p:4-2i, v:\"Welcome.\"}",
+		"welcome={o:\"text\", p:4-2i, v:\"Welcome!\"}",
 //		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
