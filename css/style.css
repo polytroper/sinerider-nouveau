@@ -29,9 +29,14 @@ html, body {
   /*justify-content: space-between;*/
 }
 
+.overlayContainer div {
+  pointer-events: all;
+}
+
 .addExpressionButton {
   color: #FFF;
   background: #666;
+  pointer-events: all;
 
   display: flex;
   align-items: center;
@@ -62,6 +67,7 @@ html, body {
 .buildButton {
   color: #CCC;
   background: transparent;
+  pointer-events: all;
 
   display: flex;
   align-items: center;
@@ -94,6 +100,7 @@ html, body {
 .startButton {
   color: #FFF;
   background: #0C0;
+  pointer-events: all;
 
   display: flex;
   align-items: center;
@@ -124,6 +131,7 @@ html, body {
 .stopButton {
   color: #FFF;
   background: #C00;
+  pointer-events: all;
 
   display: flex;
   align-items: center;
@@ -154,6 +162,7 @@ html, body {
 .removeExpressionRegion {
   position: absolute;
   display: flex;
+  pointer-events: all;
 
   align-items: center;
   justify-content: center;
