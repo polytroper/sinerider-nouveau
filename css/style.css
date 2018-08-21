@@ -9,7 +9,7 @@ html, body {
 }
 
 .axes path{
-  stroke: #DDD;
+  /*stroke: #DDD;*/
 }
 
 .axes text{

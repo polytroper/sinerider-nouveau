@@ -29,7 +29,7 @@ module.exports = spec => {
 		sampleGraph,
 	} = spec;
 // (((x-16)/3)^2-6)*(x < 24)
-	var sampleCount = 256;
+	var sampleCount = 128;
 
 	var samples = [];
 	samples.length = sampleCount;
