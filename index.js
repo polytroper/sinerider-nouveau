@@ -48,7 +48,7 @@ var container = body.append("div")
 		.style("bottom", "0")
 		.style("overflow", "hidden")
 
-var frameRate = 30;
+var frameRate = 60;
 var frameInterval = 1/frameRate;
 var frameIntervalMS = 1000/frameRate;
 

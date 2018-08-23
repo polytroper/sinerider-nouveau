@@ -57,14 +57,14 @@ module.exports = spec => {
 	var yAxis = axes.append("g")
 			.attr("class", "yAxis")
 			.attr("transform", "translate(" + xScale(0) + ", 0)")
-		
+
 	var xPath = xAxis.append("path")
-			.attr("stroke", "#EEE")
+			.attr("stroke", "#D8D8D8")
 			.attr("stroke-width", 1)
 			.attr("d", d3.line()([[0, 0], [getWidth(), 0]]))
-		
+
 	var yPath = yAxis.append("path")
-			.attr("stroke", "#EEE")
+			.attr("stroke", "#D8D8D8")
 			.attr("stroke-width", 1)
 			.attr("d", d3.line()([[0, 0], [0, getHeight()]]))
 
