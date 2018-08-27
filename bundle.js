@@ -510,8 +510,8 @@ let floatToGrayscale = v => {
 }
 
 let parseColor = c => {
-	// if (_.isNumber(c))
-		// return floatToGrayscale(c);
+	if (_.isNumber(c))
+		return floatToGrayscale(c);
 
 	if (_.isObject(c))
 	{
