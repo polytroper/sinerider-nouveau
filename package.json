@@ -14,11 +14,14 @@
     "budo": "^11.3.2"
   },
   "dependencies": {
+    "autosize-input": "^1.0.2",
     "choo": "^6.13.0",
+    "color": "^3.0.0",
     "d3": "^5.5.0",
     "lodash": "^4.17.10",
     "lz-string": "^1.4.4",
     "mathjs": "^5.0.4",
+    "nanocomponent": "^6.5.2",
     "pubsub-js": "^1.6.0"
   }
 }

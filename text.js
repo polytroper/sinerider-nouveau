@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
+var Color = require('color');
 
 var {
 	translate,
@@ -82,7 +83,7 @@ module.exports = spec => {
 		texts = enterTexts.merge(texts);
 		
 		texts.select(".textNode")
-				.style("fill", d => d.color)//parseColor(d.color))
+				.style("fill", d => parseColor(d.color))
 				// .style("stroke", d => parseColor(d.color))
 				.style("font-size", d => math.round(d.fontSize*20)+"px")
 				// .style("strokeWidth", 1)

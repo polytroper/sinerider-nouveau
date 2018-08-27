@@ -16,6 +16,38 @@ html, body {
   fill: #DDD;
 }
 
+.container {
+  display: flex;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  overflow: hidden;
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.ui {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 0;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  overflow: hidden;
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
 .overlayContainer {
   position: relative;
   pointer-events: none;
@@ -31,6 +63,169 @@ html, body {
 
 .overlayContainer div {
   pointer-events: all;
+}
+
+.bottomBar {
+  font-family: Courier;
+  position: relative;
+  display: flex;
+  margin: 0 20 20 20;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dragContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  flex-grow: 1;
+}
+
+.bottomExpander {
+  flex-grow: 1;
+}
+
+.expression {
+  height: 25px;
+  display: flex;
+  flex-grow: 1;
+  /*position: absolute;*/
+  left: 0;
+  right: 0;
+  align-self: stretch;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.expressionEnvelope {
+  height: 25px;
+  display: flex;
+  flex-grow: 1;
+  position: relative;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.expressionHandle {
+  width: 25px;
+  display: flex;
+  background: #444;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #888;
+  user-select: none;
+}
+
+.buildExpression {
+  flex-grow: 1;
+  display: flex;
+  background: white;
+}
+
+.buildExpressionInput {
+  flex-grow: 1;
+  background: white;
+  font-family: Courier;
+  font-size: 12px;
+}
+
+.expressionTextEnvelope {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+  flex-shrink: 1;
+  flex-grow: 1;
+  background: white;
+  position: relative;
+}
+
+.editExpression {
+  flex-grow: 1;
+  display: flex;
+  background: #FBFBFB;
+}
+
+.buildExpressionEnvelope {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+  flex-grow: 1;
+  display: flex;
+  background: #FBFBFB;
+}
+
+.editExpressionEnvelope {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+  flex-grow: 1;
+  display: flex;
+  background: #FBFBFB;
+}
+
+.playExpressionEnvelope {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+  flex-grow: 1;
+  display: flex;
+  background: #FBFBFB;
+}
+
+.editExpressionSegments {
+  display: flex;
+  flex-grow: 0;
+}
+
+.editExpressionSegment {
+  align-content: stretch;
+  align-items: stretch;
+  position: relative;
+  flex-grow: 0;
+  display: flex;
+}
+
+.editExpressionTail {
+  flex-shrink: 1;
+  flex-grow: 1;
+  background: #FBFBFB;
+}
+
+.editExpressionInput {
+  text-align: center;
+  background: #FBFBFB;
+  border-style: dashed;
+  border-color: #E2E2E2;
+  border-width: 1px;
+  font-family: Courier;
+  font-size: 12px;
+  padding: 0px 3px;
+  margin: 3px 0px;
+}
+
+.playExpression {
+  flex-grow: 1;
+  display: flex;
+  background: white;
+}
+
+.playExpressionText {
+  font-size: 14px;
+  flex-grow: 1;
+  color: #FFF;
+  background: #666;
+  padding: 0px 3px;
+  border: 1px inset #888;
+  font-family: Courier;
+}
+
+.removeExpressionRegion {
+  height: 100;
+  opacity: 0;
 }
 
 .addExpressionButton {

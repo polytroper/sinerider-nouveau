@@ -1,5 +1,6 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var autosizeInput = require('autosize-input');
 
 // var Inputs = require('./inputs');
 
@@ -43,48 +44,21 @@ module.exports = spec => {
 
 	var ui = container.append("div")
 			.attr("class", "ui")
-			.style("display", "flex")
-			.style("flex-direction", "column")
-			.style("position", "absolute")
-			.style("left", "0")
-			.style("right", "0")
-			.style("top", "0")
-			.style("bottom", "0")
-			.style("flex-grow", 0)
-			.style("align-items", "stretch")
-			.style("align-content", "stretch")
-			// .style("width", getWidth())
-			// .style("height", getHeight())
-			.style("overflow", "hidden")
 
 	var overlayContainer = ui.append("div")
 			.attr("class", "overlayContainer")
 
 	var bottomBar = ui.append("div")
 			.attr("class", "bottomBar")
-			// .style("position", "absolute")
-			.style("font-family", "Verdana")
-			.style("position", "relative")
-			// .style("bottom", 0)
-			// .style("width", "100%")
-			// .style("height", "25px")
-			.style("display", "flex")
-			.style("margin", "0px 20px 20px 20px")
-			// .style("flex-grow", 1)
-			.style("flex-direction", "column")
-			.style("align-items", "stretch")
-			// .style("border-top", "1px solid #888")
-			// .style("align-content", "stretch")
 
-	var bottomExpander = bottomBar.append("div")
-			.attr("class", "bottomExpander")
-			// .style("position", "absolute")
-			.style("flex-grow", 1)
+	// var dragContainer = ui.append("div")
+			// .attr("class", "dragContainer")
+
+	// var bottomExpander = bottomBar.append("div")
+			// .attr("class", "bottomExpander")
 
 	var removeExpressionRegion = overlayContainer.append("div")
 			.attr("class", "removeExpressionRegion")
-			.style("height", 100)
-			.style("opacity", 0)
 
 	removeExpressionRegion.append("div")
 			.attr("class", "removeExpressionRegionText")
@@ -122,6 +96,8 @@ module.exports = spec => {
 	var dragDeltaY = 0;
 	var dragOffsetY = 0;
 	var dragY = 0;
+	var dragEnvelope;
+	var dragExpression;
 
 	var expressions;
 	var enterExpressions;
@@ -163,41 +139,15 @@ module.exports = spec => {
 		enterExpressions = expressions.enter()
 			.append("div")
 				.attr("class", "expression")
-				.style("height", "25px")
-				.style("display", "flex")
-				.style("flex-grow", 1)
-				.style("position", "absolute")
-				.style("left", 0)
-				.style("right", 0)
-				.style("align-self", "stretch")
-				.style("align-items", "stretch")
-				.style("align-content", "stretch")
-				// .on("mouseover", (d, i, a) => onOverExpression(a[i], true))
-				// .on("mouseout", (d, i, a) => onOverExpression(a[i], false))
 
 		enterExpressions.merge(expressions).order();
 
 		expressionEnvelopes = enterExpressions
 			.append("div")
 				.attr("class", "expressionEnvelope")
-				.style("height", "25px")
-				.style("display", "flex")
-				.style("flex-grow", 1)
-				.style("position", "relative")
-				.style("align-items", "stretch")
-				.style("align-content", "stretch")
 
 		expressionHandles = expressionEnvelopes.append("div")
 				.attr("class", "expressionHandle")
-				.style("width", "25px")
-				.style("display", "flex")
-				.style("background", "#444")
-				.style("cursor", "pointer")
-				.style("align-items", "center")
-				.style("justify-content", "center")
-				.style("font-size", "14px")
-				.style("color", "#888")
-				.style("user-select", "none")
 
 		expressionHandles.call(
 			d3.drag()
@@ -209,9 +159,13 @@ module.exports = spec => {
 
 					dragIndex = i;
 					dragStartY = d3.mouse(bottomBar.node())[1];
-					dragOffsetY = dragStartY-dragIndex*25;
+					dragOffsetY = d3.mouse(this)[1];
 
-					d3.select(this.parentNode.parentNode).raise();
+					// d3.select(this.parentNode.parentNode).raise();
+
+					// dragEnvelope = d3.select(this.parentNode);
+					// dragEnvelope.remove();
+					// bottomBar.append(dragEnvelope);
 
 					removeExpressionRegion.transition()
 							.duration(200)
@@ -224,32 +178,35 @@ module.exports = spec => {
 					dragDeltaY = dragY-dragStartY;
 
 					var targetIndex = Math.floor(dragY/25);
+					targetIndex = Math.max(0, targetIndex);
 
 					if (targetIndex != i)
 						moveExpression(d, targetIndex);
 
-					enterExpressions.merge(expressions)
-							// .transition()
-							// .duration(200)
-							.style("top", (dd, ii, aa) => 25*ii)
+					var originY = i*25;
 
-					d3.select(this.parentNode.parentNode)
-							.raise()
-							.style("top", dragY-dragOffsetY)
+					d3.select(this.parentNode)
+							.style("top", dragY-originY-dragOffsetY)
 
 					removeY = d3.mouse(removeExpressionRegion.node())[1];
 
 					d3.select(this)
-						.style("background", (removeY < 100) ? "#822" : "#444")
+							.style("background", (removeY < 100) ? "#822" : "#444")
 				})
 				.on("end", function(d, i, a){
 					i = _.indexOf(getExpressions(), d);
 
 					dragIndex = -1;
 
+					// dragEnvelope.remove();
+					// bottomBar.append(dragEnvelope);
+
 					removeExpressionRegion.transition()
 							.duration(200)
 							.style("opacity", 0)
+
+					d3.select(this.parentNode)
+						.style("top", 0)
 
 					removeY = d3.mouse(removeExpressionRegion.node())[1];
 
@@ -265,21 +222,12 @@ module.exports = spec => {
 
 		expressionEnvelopes.append("div")
 				.attr("class", "buildExpressionEnvelope")
-				.style("flex-grow", 1)
-				.style("display", "flex")
-				.style("background", "white")
 
 		expressionEnvelopes.append("div")
 				.attr("class", "editExpressionEnvelope")
-				.style("flex-grow", 1)
-				.style("display", "flex")
-				.style("background", "#FBFBFB")
 
 		expressionEnvelopes.append("div")
 				.attr("class", "playExpressionEnvelope")
-				.style("flex-grow", 1)
-				.style("display", "flex")
-				.style("background", "white")
 
 		buildExpressionInputs = expressionEnvelopes
 			.select(".buildExpressionEnvelope")
@@ -289,8 +237,6 @@ module.exports = spec => {
 				.attr("autocorrect", "off")
 				.attr("autocomplete", "off")
 				.attr("autocapitalize", "off")
-				.style("flex-grow", 1)
-				.style("background", "white")
 				.on("input", function(d, i, a){setExpression(_.indexOf(getExpressions(), d), this.value)})
 
 		d3.selectAll(".buildExpressionInput")
@@ -299,15 +245,10 @@ module.exports = spec => {
 		expressionEnvelopes.select(".editExpressionEnvelope")
 			.append("div")
 				.attr("class", "editExpressionSegments")
-				.style("display", "flex")
-				.style("flex-grow", 0)
 				
 		expressionEnvelopes.select(".editExpressionEnvelope")
 			.append("div")
 				.attr("class", "editExpressionTail")
-				.style("flex-shrink", 1)
-				.style("flex-grow", 1)
-				.style("background", "#FBFBFB")
 
 		editExpressionInputs = enterExpressions.merge(expressions)
 			.select(".expressionEnvelope")
@@ -325,30 +266,18 @@ module.exports = spec => {
 				.attr("autocorrect", "off")
 				.attr("autocomplete", "off")
 				.attr("autocapitalize", "off")
-				.style("flex-grow", 0)
-				.style("flex-basis", "content")
-				.style("text-align", "center")
-				.style("padding", "0px 0px")
-				.style("margin", "2px 0px")
-				.style("background", "#FBFBFB")
-				.style("border-style", "dashed")
-				.style("border-color", "#E2E2E2")
 				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
-				.style("font-family", "Courier")
 				.on("input", function(d){d.set(this.value);})
 		
 		enterEditExpressionInputs.merge(editExpressionInputs)
-				.style("width", (d, i) => calculateInputWidth(d.str.length, i))
 				.style("display", d => d.hide ? "none" : "flex")
 				.property("disabled", function(d, i, a){return i%2 == 0;})
 				.property("value", function(d, i, a){return d.str;})
-				// .style("width", function(d, i, a){return d.str.length*6+10;})
+				.each(function(){autosizeInput(this)})
 
 		if (dragIndex < 0) {
-			refreshExpressionPositions();
+			// refreshExpressionPositions();
 		}
-
-		bottomExpander.style("height", calculateBottomBarHeight());
 
 		expressions.exit().remove();
 
@@ -359,13 +288,6 @@ module.exports = spec => {
 			.append("input")
 				.attr("class", "playExpressionText")
 				.property("disabled", true)
-				.style("flex-grow", 1)
-				.style("color", "#FFF")
-				.style("background", "#666")
-				.style("padding", "0px 4px")
-				.style("border", "1px inset #888")
-				.style("font-family", "Courier")
-				// .style("font-size", "12px")
 
 		d3.selectAll(".playExpressionText")
 				.property("value", function(d, i, a){return d.preprocessed;})
@@ -378,14 +300,16 @@ module.exports = spec => {
 
 		d3.selectAll(".playExpressionEnvelope")
 				.style("display", getRunning() ? "flex" : "none")
+
+		d3.selectAll(".expression")
+				.style("display", d => showExpression(d) ? "flex" : "none")
 	}
 
 	var onSetMacroState = () => {
-		refreshExpressionPositions();
+		// refreshExpressionPositions();
 		
 		d3.selectAll(".expression")
 				.style("display", d => showExpression(d) ? "flex" : "none")
-				// .style("position", d => (getBuilding() || d.segments.length > 1) ? "static" : "absolute")
 
 		d3.selectAll(".buildExpressionEnvelope")
 				.style("display", getBuilding() ? "flex" : "none")
@@ -396,9 +320,6 @@ module.exports = spec => {
 		d3.selectAll(".playExpressionEnvelope")
 				.style("display", getRunning() ? "flex" : "none")
 
-		// d3.selectAll(".editExpressionInput")
-				// .style("display", d => (d.str.length > 0) ? "flex" : "none")
-
 		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
 				.style("display", getBuilding() ? "none" : "flex")
 
@@ -407,8 +328,6 @@ module.exports = spec => {
 		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
 
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
-
-		bottomExpander.style("height", calculateBottomBarHeight());
 
 		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
 	}

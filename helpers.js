@@ -1,5 +1,6 @@
 var math = require('mathjs');
 var _ = require('lodash');
+var Color = require('color');
 
 var translate = (x, y) => {
 	return `translate(${x}, ${y})`;
@@ -22,17 +23,38 @@ var lerp = (a, b, t) => {
 	return b*t + a*(1-t);
 }
 
+let intsToRgb = (r, g, b) => {
+	return `rgb(${r}, ${g}, ${b})`;
+}
+
+let floatsToRgb = (r, g, b) => {
+	return intsToRgb(
+		math.floor(r*255),
+		math.floor(g*255),
+		math.floor(b*255)
+	);
+}
+
 let intToGrayscale = v => {
 	return `rgb(${v}, ${v}, ${v})`;
 }
 
 let floatToGrayscale = v => {
-	return intToGrayscale(math.round(lerp(0, 255, v)));
+	return intToGrayscale(math.floor(v*255));
 }
 
 let parseColor = c => {
-	if (_.isNumber)
-		return floatToGrayscale(c);
+	// if (_.isNumber(c))
+		// return floatToGrayscale(c);
+
+	if (_.isObject(c))
+	{
+		if (_.has(c, "_data"))
+		{
+			let a = c._data;
+			return floatsToRgb(a[0], a[1], a[2]);
+		}
+	}
 
 	return _.toString(c);
 }

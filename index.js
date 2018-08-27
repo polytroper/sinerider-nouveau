@@ -4,9 +4,12 @@ var math = require('mathjs');
 
 var lz = require('lz-string');
 var pubsub = require('pubsub-js');
+var autosizeInput = require('autosize-input');
 
 var World = require('./world');
 var Ui = require('./ui');
+
+var Nanocomponent = require('nanocomponent')
 
 var {
 	translate,
@@ -38,15 +41,6 @@ var body = d3.select("body")
 
 var container = body.append("div")
 		.attr("class", "container")
-		.style("display", "flex")
-		.style("align-items", "stretch")
-		.style("align-content", "stretch")
-		.style("position", "absolute")
-		.style("left", "0")
-		.style("right", "0")
-		.style("top", "0")
-		.style("bottom", "0")
-		.style("overflow", "hidden")
 
 var frameRate = 60;
 var frameInterval = 1/frameRate;
@@ -124,9 +118,10 @@ var parseExpression = o => {
 	o.unmodified = o.expression == o.original;
 
 	o.segmentData = _.map(o.segments, (v, i) => ({
+		index: i,
 		str: v,
 		set: s => setExpressionSegment(expressionIndex, i, s),
-		hide: (v == "") && (i == o.segments.length-1),
+		hide: (v == "") && (i == o.segments.length-1) && (i%2==1),
 	}));
 
 	var evens = _.filter(o.segments, (v, i) => i%2 == 0);
@@ -570,15 +565,13 @@ var loadDefault = () => {
 	setExpressions([
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
 		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
-//		"to={o:\"text\", p:22-12i, v:\"to\", fontSize: 4}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
-		// "a_game={o:\"text\", p:32-64i, v:\"(a game of numerical sledding)\", fontSize: 6, color:\"white\"}",
 		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, url:\"assets/randall_tree.png\"}",
 		"a=-sin(x/32)*64/(abs(x/24)+1)",
 		"b=8/(1+((x-60)/4)^2)",
 		"c=1-1/(1+t)",
-		"Y=`(a+b)*c"
+		"Y=`(a+b)`*c"
 	]);
 }
 
@@ -607,6 +600,8 @@ World({
 	sampleGraphVelocity,
 });
 
+/*
+*/
 Ui({
 	pubsub,
 	container,
@@ -640,4 +635,70 @@ if (!loadFromUrl())
 	loadDefault();
 	// console.log("No URL state to load");
 	// loadState(defaultState);
+
+const choo = require('choo');
+const html = require('choo/html');
+const app = choo();
+
+console.log(app);
+
+const UiComponent = require('./templates/ui_template');
+const ui_template = new UiComponent();
+
+app.use((state, emitter) => {
+	state.macroState = macroState;
+	state.expressions = expressions;
+
+	state.getRunning = getRunning;
+	state.getEditing = getEditing;
+	state.getBuilding = getBuilding;
+
+	emitter.on("addExpression", () => {
+		emitter.emit("render");
+	})
+})
+
+// container.append('div')
+		// .attr('class', 'ui')
+
+class AppComponent extends Nanocomponent {
+	constructor () {
+		super();
+	}
+
+	createElement (state, emit) {
+		let {
+			expression,
+			macroState,
+		} = state;
+
+		return html`
+			<div class="container" id="chooContainer" style="width:${getWidth()}; height:${getHeight()};">
+				${ui_template.render(state, emit)}
+			</div>
+		`
+	}
+}
+
+/*
+const main_view = (state, emit) => {
+	return html`
+		<div class="container" id="chooContainer" style="width:${getWidth()}; height:${getHeight()};">
+			${ui_template(state, emit)}
+		</div>
+	`
+}
+*/
+app.route('/', ui_template.render);
+
+// app.mount('.ui');
+
+pubsub.subscribe("onEditExpressions", app.emit("onEditExpressions"));
+pubsub.subscribe("onSetMacroState", app.emit("render"));
+
+var editExpressionInputs = document.querySelectorAll(".editExpressionInput");
+console.log("Resizing "+editExpressionInputs.length+" inputs");
+_.each(editExpressionInputs, autosizeInput);
+
+// d3.select("#chooContainer").node().raise();
 

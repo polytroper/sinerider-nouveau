@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
+var Color = require('color');
 
 var {
 	translate,
