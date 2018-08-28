@@ -102061,7 +102061,7 @@ module.exports = spec => {
 		pubsub,
 		container: svg,
 		getInstances: () => getSceneObjects("sledder"),
-		getIntersections: () => goals.getIntersections(),
+		getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
 		xScale,
 		yScale,
