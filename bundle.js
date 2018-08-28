@@ -1326,6 +1326,20 @@ var toggleBuilder = () => {
 		backwardMacroState();
 }
 
+var getVictory = () => {
+	if (!getRunning())
+		return false;
+
+	let goals = getSceneObjects("goal");
+
+	if (goals.length == 0)
+		return false;
+
+	let victory = _.every(goals, d => d.complete);
+
+	return victory;
+}
+
 var onPressEnter = shift => {
 	if (shift)
 		toggleBuilder();
@@ -1439,6 +1453,7 @@ Ui({
 	getEditing,
 	getBuilding,
 	getMacroState,
+	getVictory,
 
 	getClockTime,
 
@@ -1525,7 +1540,7 @@ _.each(editExpressionInputs, autosizeInput);
 // d3.select("#chooContainer").node().raise();
 
 
-},{"./helpers":4,"./templates/ui_template":663,"./ui":665,"./world":666,"autosize-input":11,"choo":15,"choo/html":14,"d3":54,"lodash":65,"lz-string":66,"mathjs":67,"nanocomponent":632,"pubsub-js":650}],7:[function(require,module,exports){
+},{"./helpers":4,"./templates/ui_template":663,"./ui":666,"./world":667,"autosize-input":11,"choo":15,"choo/html":14,"d3":54,"lodash":65,"lz-string":66,"mathjs":67,"nanocomponent":632,"pubsub-js":650}],7:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -101233,6 +101248,45 @@ module.exports = (state, emit) => {
 }
 */
 },{"./expression_template":662,"choo/html":14,"lodash":65,"nanocomponent":632}],664:[function(require,module,exports){
+const html = require('choo/html')
+const Nanocomponent = require('nanocomponent')
+
+class VictoryComponent extends Nanocomponent {
+	constructor () {
+		super();
+		this.victory = false;
+	}
+
+	update (state) {
+		if (state.victory != this.victory) {
+			this.victory = state.victory;
+			return true;
+		}
+		return false;
+	}
+
+
+	createElement (state) {
+		let {
+			victory,
+		} = state;
+
+		return html`
+			<div class="victoryEnvelope">
+				${!victory ? "" : html`
+					<div class="victoryOuter">
+						<div class="victoryInner">
+							YOU WIN
+						</div>
+					</div>
+				`}
+			</div>
+		`
+	}
+}
+
+module.exports = VictoryComponent;
+},{"choo/html":14,"nanocomponent":632}],665:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
@@ -101467,10 +101521,14 @@ module.exports = spec => {
 	return {
 	}
 }
-},{"./helpers":4,"color":21,"d3":54,"lodash":65,"mathjs":67}],665:[function(require,module,exports){
+},{"./helpers":4,"color":21,"d3":54,"lodash":65,"mathjs":67}],666:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
+var VictoryComponent = require('./templates/victory_template');
 var autosizeInput = require('autosize-input');
+
+var morph = require('nanomorph')
+var victoryComponent = new VictoryComponent();
 
 // var Inputs = require('./inputs');
 
@@ -101498,6 +101556,7 @@ module.exports = spec => {
 		getEditing,
 		getBuilding,
 		getMacroState,
+		getVictory,
 
 		getClockTime,
 
@@ -101520,6 +101579,10 @@ module.exports = spec => {
 
 	var bottomBar = ui.append("div")
 			.attr("class", "bottomBar")
+
+	var victory = ui.append("div").node()
+	var refreshVictory = () => morph(victory, victoryComponent.render({victory: getVictory()}));
+	refreshVictory();
 
 	// var dragContainer = ui.append("div")
 			// .attr("class", "dragContainer")
@@ -101800,6 +101863,8 @@ module.exports = spec => {
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
 
 		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
+
+		refreshVictory();
 	}
 
 	var onUpdate = () => {
@@ -101807,11 +101872,17 @@ module.exports = spec => {
 			// .style("height", getHeight())
 	}
 
+	var onRender = () => {
+		if (getRunning())
+			refreshVictory();
+	}
+
 	var onEditExpressions = () => {
 		refreshExpressions();
 	}
 
 	pubsub.subscribe("onUpdate", onUpdate);
+	pubsub.subscribe("onRender", onRender);
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	refreshExpressions();
@@ -101821,7 +101892,7 @@ module.exports = spec => {
 
 	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 }
-},{"./helpers":4,"autosize-input":11,"d3":54,"lodash":65}],666:[function(require,module,exports){
+},{"./helpers":4,"./templates/victory_template":664,"autosize-input":11,"d3":54,"lodash":65,"nanomorph":640}],667:[function(require,module,exports){
 var d3 = require('d3');
 var _ = require('lodash');
 var math = require('mathjs');
@@ -102118,4 +102189,4 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	});
 }
-},{"./axes":1,"./goal":2,"./graph":3,"./helpers":4,"./image":5,"./sledder":661,"./text":664,"d3":54,"lodash":65,"mathjs":67}]},{},[6]);
+},{"./axes":1,"./goal":2,"./graph":3,"./helpers":4,"./image":5,"./sledder":661,"./text":665,"d3":54,"lodash":65,"mathjs":67}]},{},[6]);

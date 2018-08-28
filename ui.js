@@ -1,6 +1,10 @@
 var d3 = require('d3');
 var _ = require('lodash');
+var VictoryComponent = require('./templates/victory_template');
 var autosizeInput = require('autosize-input');
+
+var morph = require('nanomorph')
+var victoryComponent = new VictoryComponent();
 
 // var Inputs = require('./inputs');
 
@@ -28,6 +32,7 @@ module.exports = spec => {
 		getEditing,
 		getBuilding,
 		getMacroState,
+		getVictory,
 
 		getClockTime,
 
@@ -50,6 +55,10 @@ module.exports = spec => {
 
 	var bottomBar = ui.append("div")
 			.attr("class", "bottomBar")
+
+	var victory = ui.append("div").node()
+	var refreshVictory = () => morph(victory, victoryComponent.render({victory: getVictory()}));
+	refreshVictory();
 
 	// var dragContainer = ui.append("div")
 			// .attr("class", "dragContainer")
@@ -330,6 +339,8 @@ module.exports = spec => {
 		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
 
 		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
+
+		refreshVictory();
 	}
 
 	var onUpdate = () => {
@@ -337,11 +348,17 @@ module.exports = spec => {
 			// .style("height", getHeight())
 	}
 
+	var onRender = () => {
+		if (getRunning())
+			refreshVictory();
+	}
+
 	var onEditExpressions = () => {
 		refreshExpressions();
 	}
 
 	pubsub.subscribe("onUpdate", onUpdate);
+	pubsub.subscribe("onRender", onRender);
 	pubsub.subscribe("onEditExpressions", onEditExpressions);
 
 	refreshExpressions();

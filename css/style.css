@@ -83,6 +83,53 @@ html, body {
   flex-grow: 1;
 }
 
+.victoryEnvelope {
+  font-family: Courier;
+  position: absolute;
+
+  pointer-events: none;
+
+  flex-grow: 1;
+
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.victoryOuter {
+  font-family: Courier;
+  position: relative;
+  background: black;
+
+  flex-grow: 1;
+
+  display: flex;
+  margin: 64px;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.victoryInner {
+  font-family: Courier;
+  position: relative;
+  background: white;
+
+  pointer-events: all;
+
+  flex-grow: 1;
+
+  display: flex;
+  margin: 64px;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .bottomExpander {
   flex-grow: 1;
 }

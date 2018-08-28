@@ -504,6 +504,20 @@ var toggleBuilder = () => {
 		backwardMacroState();
 }
 
+var getVictory = () => {
+	if (!getRunning())
+		return false;
+
+	let goals = getSceneObjects("goal");
+
+	if (goals.length == 0)
+		return false;
+
+	let victory = _.every(goals, d => d.complete);
+
+	return victory;
+}
+
 var onPressEnter = shift => {
 	if (shift)
 		toggleBuilder();
@@ -617,6 +631,7 @@ Ui({
 	getEditing,
 	getBuilding,
 	getMacroState,
+	getVictory,
 
 	getClockTime,
 
