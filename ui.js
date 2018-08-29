@@ -32,7 +32,9 @@ module.exports = spec => {
 		getEditing,
 		getBuilding,
 		getMacroState,
+
 		getVictory,
+		getVictoryUrl,
 
 		getClockTime,
 
@@ -56,8 +58,11 @@ module.exports = spec => {
 	var bottomBar = ui.append("div")
 			.attr("class", "bottomBar")
 
-	var victory = ui.append("div").node()
-	var refreshVictory = () => morph(victory, victoryComponent.render({victory: getVictory()}));
+	var victoryNode = ui.append("div").node();
+	var refreshVictory = () => morph(victoryNode, victoryComponent.render({
+		victory: getVictory(),
+		url: getVictoryUrl(),
+	}));
 	refreshVictory();
 
 	// var dragContainer = ui.append("div")

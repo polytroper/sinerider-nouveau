@@ -913,6 +913,7 @@ var sceneObjectTypes = {
 	},
 }
 
+var sceneScope = {}
 var sceneObjects = {}
 _.each(sceneObjectTypes, (v, k) => sceneObjects[k] = []);
 
@@ -1041,17 +1042,19 @@ var tryCreateSceneObject = v => {
 }
 
 var refreshScene = () => {
-	evaluateExpressions();
+	evaluateExpressions()
 
-	console.log("Refreshing scene");
-	console.log(sampleScope);
+	console.log("Refreshing scene")
+	console.log(sampleScope)
 
-	_.each(sceneObjects, (v, k) => v.length = 0);
-	_.each(sampleScope, tryCreateSceneObject);
+	_.each(sceneObjects, (v, k) => v.length = 0)
+	_.each(sampleScope, tryCreateSceneObject)
 
-	console.log(sceneObjects);
+	sceneScope = _.cloneDeep(sampleScope)
 
-	pubsub.publish("onRefreshScene");
+	console.log(sceneObjects)
+
+	pubsub.publish("onRefreshScene")
 }
 
 var sampleGraph = x => {
@@ -1263,6 +1266,12 @@ var refreshUrl = () => {
 	window.history.replaceState({}, "SineRider", url);
 }
 
+var getVictoryUrl = () => {
+	let url = _.has(sceneScope, "url");
+	url = url ? sceneScope["url"].toString() : "";
+	return url;
+}
+
 var update = () => {
 	if (getRunning()) {
 		clockTime += frameInterval;
@@ -1453,7 +1462,9 @@ Ui({
 	getEditing,
 	getBuilding,
 	getMacroState,
+
 	getVictory,
+	getVictoryUrl,
 
 	getClockTime,
 
@@ -101265,18 +101276,40 @@ class VictoryComponent extends Nanocomponent {
 		return false;
 	}
 
+	onClickVictoryButton (url) {
+		console.log("Navigating to "+this.url);
+		window.open(this.url);
+	}
 
 	createElement (state) {
 		let {
 			victory,
+			url,
 		} = state;
+		this.url = url;
 
 		return html`
 			<div class="victoryEnvelope">
 				${!victory ? "" : html`
 					<div class="victoryOuter">
 						<div class="victoryInner">
-							YOU WIN
+							<div class="victoryHeading">
+								Complete!
+							</div>
+							${url == "" ? "" : html`
+								<div class="victoryNextLevel">
+									<div class="victoryUrl">
+										${"Next Level: " + url}
+									</div>
+									<div class="victoryButton"
+										 onclick=${() => this.onClickVictoryButton(url)}
+										>
+										<div>
+											GO
+										</div>
+									</div>
+								</div>
+							`}
 						</div>
 					</div>
 				`}
@@ -101556,7 +101589,9 @@ module.exports = spec => {
 		getEditing,
 		getBuilding,
 		getMacroState,
+
 		getVictory,
+		getVictoryUrl,
 
 		getClockTime,
 
@@ -101580,8 +101615,11 @@ module.exports = spec => {
 	var bottomBar = ui.append("div")
 			.attr("class", "bottomBar")
 
-	var victory = ui.append("div").node()
-	var refreshVictory = () => morph(victory, victoryComponent.render({victory: getVictory()}));
+	var victoryNode = ui.append("div").node();
+	var refreshVictory = () => morph(victoryNode, victoryComponent.render({
+		victory: getVictory(),
+		url: getVictoryUrl(),
+	}));
 	refreshVictory();
 
 	// var dragContainer = ui.append("div")

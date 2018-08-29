@@ -91,6 +91,7 @@ var sceneObjectTypes = {
 	},
 }
 
+var sceneScope = {}
 var sceneObjects = {}
 _.each(sceneObjectTypes, (v, k) => sceneObjects[k] = []);
 
@@ -219,17 +220,19 @@ var tryCreateSceneObject = v => {
 }
 
 var refreshScene = () => {
-	evaluateExpressions();
+	evaluateExpressions()
 
-	console.log("Refreshing scene");
-	console.log(sampleScope);
+	console.log("Refreshing scene")
+	console.log(sampleScope)
 
-	_.each(sceneObjects, (v, k) => v.length = 0);
-	_.each(sampleScope, tryCreateSceneObject);
+	_.each(sceneObjects, (v, k) => v.length = 0)
+	_.each(sampleScope, tryCreateSceneObject)
 
-	console.log(sceneObjects);
+	sceneScope = _.cloneDeep(sampleScope)
 
-	pubsub.publish("onRefreshScene");
+	console.log(sceneObjects)
+
+	pubsub.publish("onRefreshScene")
 }
 
 var sampleGraph = x => {
@@ -441,6 +444,12 @@ var refreshUrl = () => {
 	window.history.replaceState({}, "SineRider", url);
 }
 
+var getVictoryUrl = () => {
+	let url = _.has(sceneScope, "url");
+	url = url ? sceneScope["url"].toString() : "";
+	return url;
+}
+
 var update = () => {
 	if (getRunning()) {
 		clockTime += frameInterval;
@@ -631,7 +640,9 @@ Ui({
 	getEditing,
 	getBuilding,
 	getMacroState,
+
 	getVictory,
+	getVictoryUrl,
 
 	getClockTime,
 

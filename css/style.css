@@ -88,6 +88,7 @@ html, body {
   position: absolute;
 
   pointer-events: none;
+  user-select: none;
 
   flex-grow: 1;
 
@@ -103,9 +104,7 @@ html, body {
 }
 
 .victoryOuter {
-  font-family: Courier;
-  position: relative;
-  background: black;
+  background: rgba(0, 0, 0, 0);
 
   flex-grow: 1;
 
@@ -116,18 +115,88 @@ html, body {
 }
 
 .victoryInner {
-  font-family: Courier;
-  position: relative;
-  background: white;
+  background: rgba(255, 255, 255, 0.5);
+  border: 8px solid black;
 
   pointer-events: all;
 
   flex-grow: 1;
 
   display: flex;
-  margin: 64px;
+  margin: 32px;
   flex-direction: column;
-  align-items: stretch;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.victoryHeading {
+  font-family: Verdana;
+
+  font-size: 32px;
+
+  display: flex;
+  margin: 32px;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.victoryNextLevel {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.victoryUrl {
+  font-family: Verdana;
+
+  font-size: 16px;
+
+  display: flex;
+  margin: 16px;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.victoryButton {
+  font-family: Verdana;
+  background: #24D;
+  color: white;
+
+  min-width: 144px;
+  cursor: pointer;
+
+  font-size: 16px;
+
+  display: flex;
+  margin: 16px;
+
+  justify-content: center;
+  align-items: center;
+
+  transition: 0.1s;
+}
+
+.victoryButton > div {
+  user-select: none;
+  cursor: pointer;
+
+  display: flex;
+  margin: 8px;
+  flex-direction: column;
+
+  align-items: center;
+
+  transition: 0.1s;
+}
+
+.victoryButton:hover {
+  background: white;
+  color: black;
 }
 
 .bottomExpander {
