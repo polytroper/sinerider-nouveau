@@ -304,7 +304,7 @@ module.exports = spec => {
 				.property("disabled", true)
 
 		d3.selectAll(".playExpressionText")
-				.property("value", function(d, i, a){return d.preprocessed;})
+				.property("value", function(d, i, a){return d.tagless;})
 
 		d3.selectAll(".buildExpressionEnvelope")
 				.style("display", getBuilding() ? "flex" : "none")

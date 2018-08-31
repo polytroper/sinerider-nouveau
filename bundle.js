@@ -936,8 +936,12 @@ var parseExpression = o => {
 	var expression = o.expression;
 	var expressionIndex = _.indexOf(expressions, o);
 
+	o.commentless = 
+
 	o.segments = o.expression.split('`');
-	o.preprocessed = o.segments.join('');
+	o.tagless = o.segments.join('');
+	o.commentless = _.join(_.filter(_.split(o.tagless, "//"), (v, i) => i%2==0), '');
+	o.preprocessed = o.commentless;
 	o.unmodified = o.expression == o.original;
 
 	o.segmentData = _.map(o.segments, (v, i) => ({
@@ -101861,7 +101865,7 @@ module.exports = spec => {
 				.property("disabled", true)
 
 		d3.selectAll(".playExpressionText")
-				.property("value", function(d, i, a){return d.preprocessed;})
+				.property("value", function(d, i, a){return d.tagless;})
 
 		d3.selectAll(".buildExpressionEnvelope")
 				.style("display", getBuilding() ? "flex" : "none")
