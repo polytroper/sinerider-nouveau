@@ -1,6 +1,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var VictoryComponent = require('./templates/victory_template');
+var JsonViewerComponent = require('./templates/json_viewer_template');
 var autosizeInput = require('autosize-input');
 
 var morph = require('nanomorph')
@@ -35,6 +36,7 @@ module.exports = spec => {
 
 		getVictory,
 		getVictoryUrl,
+		getDomainString,
 
 		getClockTime,
 
@@ -61,6 +63,7 @@ module.exports = spec => {
 	var victoryNode = ui.append("div").node();
 	var refreshVictory = () => morph(victoryNode, victoryComponent.render({
 		victory: getVictory(),
+		domain: getDomainString(),
 		url: getVictoryUrl(),
 	}));
 	refreshVictory();

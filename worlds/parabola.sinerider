@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"/worlds/constants.sinerider\"",
+		"x_times_2={o:\"text\", p:-8+3i, v:\"x*2 squeezes your slope\", color: 0, fontSize: 0.8}",
+		"x_times_x={o:\"text\", p:-8+2i, v:\"What does x*x do?\", color: 0, fontSize: 1}",
+		"still_working={o:\"text\", p:7-2i, v:\"(Still working on this one)\", color: 1}",
+		"g(v) = {o:\"goal\", p: -2*v+8i}",
+		"goals = map([-1, 1], g)",
+		"// Try multiplying x by x`",
+		"Y=x*`2`"
+	]
+}

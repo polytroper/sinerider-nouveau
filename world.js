@@ -233,11 +233,10 @@ module.exports = spec => {
 	// lol hack
 	var goals;
 
-	var sledder = Sledder({
+	var texts = Text({
 		pubsub,
 		container: svg,
-		getInstances: () => getSceneObjects("sledder"),
-		getIntersections: (point, radius) => goals.getIntersections(point, radius),
+		getInstances: () => getSceneObjects("text"),
 
 		xScale,
 		yScale,
@@ -254,10 +253,11 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	});
 
-	var texts = Text({
+	var sledder = Sledder({
 		pubsub,
 		container: svg,
-		getInstances: () => getSceneObjects("text"),
+		getInstances: () => getSceneObjects("sledder"),
+		getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
 		xScale,
 		yScale,

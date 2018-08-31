@@ -1,3 +1,4 @@
+var _ = require('lodash');
 const html = require('choo/html')
 const Nanocomponent = require('nanocomponent')
 
@@ -16,16 +17,18 @@ class VictoryComponent extends Nanocomponent {
 	}
 
 	onClickVictoryButton (url) {
-		console.log("Navigating to "+this.url);
-		window.open(this.url);
+		console.log("Navigating to "+url);
+		window.open(url);
 	}
 
 	createElement (state) {
 		let {
 			victory,
+			domain,
 			url,
 		} = state;
-		this.url = url;
+
+		var fullUrl = _.startsWith(url, "/") ? domain+"?"+url : url;
 
 		return html`
 			<div class="victoryEnvelope">
@@ -41,7 +44,7 @@ class VictoryComponent extends Nanocomponent {
 										${"Next Level: " + url}
 									</div>
 									<div class="victoryButton"
-										 onclick=${() => this.onClickVictoryButton(url)}
+										 onclick=${() => this.onClickVictoryButton(fullUrl)}
 										>
 										<div>
 											GO

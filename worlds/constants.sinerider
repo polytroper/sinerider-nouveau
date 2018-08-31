@@ -1,0 +1,14 @@
+{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"/worlds/slope.sinerider\"",
+		"instructions_a={o:\"text\", p:-7i, v:\"Psst... read this box!\", color: 1}",
+		"instructions_b={o:\"text\", p:-1i, v:\"Now try Y=2\", color: 1}",
+		"instructions_c={o:\"text\", p:1i, v:\"Your goal: Touch The Box (try Y=4!)\", color: 1}",
+		"instructions_d={o:\"text\", p:3i, v:\"Now press the Green Button\", color: 1}",
+		"secret_hidden_instructions={o:\"text\", p:8i, v:\"You found the secret instructions!\", color: 1}",
+		"goal = {o:\"goal\", p: 4.5i}",
+		"// Try Y=0`",
+		"Y=`-2`"
+	]
+}

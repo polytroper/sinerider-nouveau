@@ -11,6 +11,8 @@ var Ui = require('./ui');
 
 var Nanocomponent = require('nanocomponent')
 
+var FileSaver = require('file-saver');
+
 var {
 	translate,
 	rotate,
@@ -52,6 +54,8 @@ var getFrameIntervalMS = () => frameIntervalMS;
 var clockTime = 0;
 var gravity = -9.8/frameRate;
 var macroState = 1;
+
+var loadedIndirectly = false;
 
 var getMacroState = () => macroState;
 var getBuilding = () => macroState == 0;
@@ -376,6 +380,7 @@ var moveExpression = (expression, newIndex) => {
 	refreshUrl();
 }
 
+// Legacy!
 var getQueryString = () => {
 	var url = window.location.href;
 	var s = url.split("?=");
@@ -385,12 +390,42 @@ var getQueryString = () => {
 		return "";
 }
 
+var getIndirectString = () => {
+	var url = window.location.href;
+	var s = url.split("?");
+	if (s.length > 1)
+	{
+		s = s[1].split("#");
+		return _.first(s);
+	}
+	else
+		return "";
+}
+
+var getDataString = () => {
+	var url = window.location.href;
+	var s = url.split("#");
+	if (s.length > 1)
+		return s[1];
+	else
+		return "";
+}
+
+var getDomainString = () => {
+	var url = window.location.href;
+	return _.first(_.split(_.first(_.split(url, "?")), "#"));
+}
+
 var loadState = json => {
 	console.log("Loading State")
 	console.log(json);
-	let e = json.expressions;
-	let o = json.originals;
-	if (!o) o = _.clone(e);
+	
+	let e = json["expressions"];
+	let o = json["originals"];
+
+	if (!o && e) o = _.clone(e);
+	if (!e && o) e = _.clone(o);
+	
 	setExpressions(e, o);
 
 	pubsub.publish("onLoadState");
@@ -398,52 +433,96 @@ var loadState = json => {
 	return true;
 }
 
-var serialize = () => {
+var serialize = (compress = true, pretty = false) => {
 	var state = {
 		version: "0.0.0",
 		expressions: getExpressionStrings(),
 		originals: getOriginalStrings(),
 	}
 
-    var stateString = JSON.stringify(state);
-    stateString = lz.compressToBase64(stateString);
+	var stateString;
+
+	if (pretty)
+		stateString = JSON.stringify(state, null, '\t');
+	else
+		stateString = JSON.stringify(state);
+
+	if (compress)
+		stateString = lz.compressToBase64(stateString);
 
 	return stateString;
 }
 
-var deserialize = queryString => {
-	console.log("Attempting to deserialize Query String: "+queryString)
+var deserializeData = dataString => {
+	console.log("Attempting to deserialize Data String: "+dataString)
 
-    if (queryString == "")
+    if (dataString == "")
     	return false;
 
-	    var stateString = lz.decompressFromBase64(queryString);
+    try {
+	    var stateString = lz.decompressFromBase64(dataString);
 
 	    console.log("Attempting to load State String: ");
 	    var json = JSON.parse(stateString);
 
 	    return loadState(json);
-    try {
     }
     catch (error) {
-    	setExpressions(["Something is wrong with this link. I can't load it :("]);
+    	setExpressions(["Something is wrong with this link. I can't load it :(", "ERROR: " + error.toString()]);
     	return false;
     }
 }
 
+var deserializeIndirect = indirectString => {
+	console.log("Attempting to deserialize Indirect String: "+indirectString)
+	d3.json(indirectString).then(loadState);
+}
+
 var loadFromUrl = () => {
-	var s = getQueryString();
-	deserialize(s)
-	return s != "";
+	var s;
+
+	// Legacy!
+	var queryString = getQueryString();
+	if (queryString != "") {
+		deserializeData(queryString);
+		return true;
+	}
+
+	var indirectString = getIndirectString();
+	if (indirectString != "") {
+		loadedIndirectly = true;
+		deserializeIndirect(indirectString);
+		return true;
+	}
+
+	var dataString = getDataString();
+	if (dataString != "") {
+		deserializeData(dataString);
+		return true;
+	}
+
+	var dataString = getDataString();
+	if (dataString != "") {
+		deserializeData(dataString);
+		return true;
+	}
+
+	return false;
 }
 
 var refreshUrl = () => {
+	if (loadedIndirectly)
+		return;
+
 	var url = window.location.href;
-	
+
 	if (url.includes("?"))
 		url = url.slice(0, url.indexOf("?"));
 
-	url += "?=" + serialize();
+	if (url.includes("#"))
+		url = url.slice(0, url.indexOf("#"));
+
+	url += "#" + serialize();
 	
 	window.history.replaceState({}, "SineRider", url);
 }
@@ -452,6 +531,13 @@ var getVictoryUrl = () => {
 	let url = _.has(sceneScope, "url");
 	url = url ? sceneScope["url"].toString() : "";
 	return url;
+}
+
+var saveData = () => {
+	var s = serialize(false, true);
+	console.log("Saving data: "+s);
+	var blob = new Blob([s], {type: "text/plain;charset=utf-8"});
+	FileSaver.saveAs(blob, "world.sinerider");
 }
 
 var update = () => {
@@ -531,23 +617,30 @@ var getVictory = () => {
 	return victory;
 }
 
-var onPressEnter = shift => {
+var onPressEnter = event => {
+	var shift = event.shiftKey;
 	if (shift)
 		toggleBuilder();
 	else
 		toggleClock();
 }
 
+var onPressS = event => {
+	var control = event.ctrlKey;
+	if (control)
+		saveData();
+}
+
 var keyCodes = {
-	13: onPressEnter,
+	Enter: onPressEnter,
+	KeyS: onPressS,
 }
 
 var onPressKey = () => {
-	var k = d3.event.keyCode;
-	var shift = d3.event.shiftKey;
+	var k = d3.event.code;
 	if (keyCodes[k]) {
 		console.log("Pressing Key "+k+", firing callback");
-		keyCodes[k](shift);
+		keyCodes[k](d3.event);
 	}
 	else console.log("Pressing Key "+k);
 }
@@ -647,6 +740,7 @@ Ui({
 
 	getVictory,
 	getVictoryUrl,
+	getDomainString,
 
 	getClockTime,
 

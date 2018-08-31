@@ -1,0 +1,11 @@
+{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"/worlds/raise_slope.sinerider\"",
+		"title={o:\"text\", p:1/2+4i, v:\"Y=x/2 will stretch your slope\", fontSize: 1}",
+		"g(v) = {o:\"goal\", p: -2*v-(2*v/4)i}",
+		"goals = map(range(1, 16), g)",
+		"// How can you stretch this slope even more?`",
+		"Y=x/`2`"
+	]
+}

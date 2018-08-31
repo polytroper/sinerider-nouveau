@@ -1,0 +1,15 @@
+{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"/worlds/stretch_slope.sinerider\"",
+		"instructions={o:\"text\", p:1/2+6i, v:\"Y=x creates a slope.\", fontSize: 1}",
+		"positive={o:\"text\", p:-8+i, v:\"On the left, x is negative\", fontSize: 0.5}",
+		"negative={o:\"text\", p:8+i, v:\"On the right, x is positive\", fontSize: 0.5, color: 1}",
+		"negative_positive={o:\"text\", p:-8-i, v:\"Now when x is negative, y is positive\", fontSize: 0.5, color: 1}",
+		"green_button={o:\"text\", p:8-i, v:\"(Press the Green Button)\", fontSize: 0.5}",
+		"g(v) = {o:\"goal\", p: 2*v-(2*v)i}",
+		"goals = map(range(1, 5), g)",
+		"// Try making x negative`",
+		"Y=`x`"
+	]
+}

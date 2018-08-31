@@ -1,0 +1,11 @@
+{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"http://sinerider.com/?/worlds/constants.sinerider",
+		"title={o:\"text\", p:1/2+4i, v:\"To & Fro\", fontSize: 2}",
+		"g(v) = {o:\"goal\", p: v+sign(v)*1.5}",
+		"goals = map(range(-1.5, 1.5), g)",
+		"// How can this wave move in bigger wobblies?`",
+		"Y= -cos(`x+sin(t)*0.4`)"
+	]
+}

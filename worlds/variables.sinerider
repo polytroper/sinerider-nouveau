@@ -1,0 +1,12 @@
+{
+	"version": "0.0.0",
+	"expressions": [
+		"url = \"/worlds/parabola.sinerider\"",
+		"title={o:\"text\", p:-5i, v:\"Use variables to store values\", color: 1}",
+		"g(v) = {o:\"goal\", p: 2*v+(-2*v/2)*i}",
+		"goals = map(range(1, 8), g)",
+		"// 'A' is a variable`",
+		"A=`2`",
+		"Y=-x/2+A`"
+	]
+}
