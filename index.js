@@ -12,6 +12,9 @@ var Ui = require('./ui');
 var Nanocomponent = require('nanocomponent')
 
 var FileSaver = require('file-saver');
+var Gif = require('gif.js.optimized');
+// var GifWorker = require('gif.worker.js');
+console.log(Gif);
 
 var {
 	translate,
@@ -64,6 +67,24 @@ var getRunning = () => macroState == 2;
 var getClockTime = () => clockTime;
 var getGravity = () => gravity;
 
+var record = false;
+var recordTime = 3;
+
+var getRecord = () => record;
+var getRecording = () => record && getRunning();
+var setRecord = v => {record = v; pubsub.publish("onSetRecord");}
+
+var getRecordTime = () => recordTime;
+var setRecordTime = v => {recordTime = v; pubsub.publish("onSetRecord");}
+
+var gif = null;
+var gifBlob = null;
+var gifProgress = 0;
+
+var getGif = () => gif;
+var getGifBlob = () => gifBlob;
+var getGifProgress = () => gifProgress;
+
 var sampler = null;
 var defaultScope = {
 	x: 0,
@@ -74,6 +95,8 @@ var sampleScope;
 var sceneObjectTypes = {
 	sledder: {
 		p: math.complex(0, 0),
+		v: math.complex(0, 0),
+		r: 0,
 	},
 	goal: {
 		p: math.complex(0, 0),
@@ -540,7 +563,31 @@ var saveData = () => {
 	FileSaver.saveAs(blob, "world.sinerider");
 }
 
+var recordFrame = (cb) => {
+	// console.log("RECORDING FRAME");
+	var t = getClockTime();
+	var node = d3.select('svg').node();
+	// console.log(node);
+
+	var img = new Image(),
+		serialized = new XMLSerializer().serializeToString(node),
+		svg = new Blob([serialized], {type: "image/svg+xml"}),
+		url = URL.createObjectURL(svg);
+
+	img.onload = function(){
+		gif.addFrame(img, {
+			delay: frameIntervalMS,
+			copy: true
+		});
+		cb();
+	};
+
+	img.src = url;
+}
+
 var update = () => {
+	let recording = getRecording();
+
 	if (getRunning()) {
 		clockTime += frameInterval;
 		sampleScope.t = getClockTime();
@@ -550,23 +597,90 @@ var update = () => {
 
 	pubsub.publish("onUpdate");
 
-	setTimeout(update, frameIntervalMS);
+	if (recording) {
+/*
+		pubsub.publish("onRender");
+
+		pubsub.publish("onRenderGif", () => {
+			setTimeout(update, 0);
+
+			if (clockTime >= getRecordTime())
+				setMacroState(1);
+		});
+*/
+	}
+	else
+		setTimeout(update, frameIntervalMS);
 }
 update();
 
 var render = () => {
+	if (getRecording()) {
+		recordFrame(() => {
+			if (clockTime >= getRecordTime())
+				setMacroState(1);
+
+			update();
+			requestAnimationFrame(render);
+		});
+	}
+	else
+		requestAnimationFrame(render);
+
+
 	pubsub.publish("onRender");
-	requestAnimationFrame(render);
 }
 render();
 
 var setMacroState = s => {
+	let wasRecording = getRecording();
+
 	macroState = s;
 	macroState = math.max(macroState, 0);
 	macroState = math.min(macroState, 2);
 
 	if (macroState == 0)
 		resetToOriginals();
+
+	if (macroState == 2 && getRecord()) {
+		console.log("BEGIN RECORDING");
+
+		gif = new Gif({
+			repeat: 0,
+			// transparent: 'rgba(0, 0, 0, 0)', //still does not handle transparency correctly
+			workers: 4,
+			workerScript: 'gif.worker.js',
+			dither: 'FloydSteinberg-serpentine',
+			width: getWidth(),
+			height: getHeight(),
+			quality: 15
+		});
+
+		gifProgress = 0;
+		gifBlob = null;
+
+		gif.on("progress",function(p){
+			console.log("RENDER PROGRESS");
+			gifProgress = p;
+
+			pubsub.publish("onGifProgress");
+		});
+
+		gif.on('finished', function(blob) {
+			console.log("RENDER COMPLETE");
+			gifBlob = blob;
+			pubsub.publish("onGifProgress");
+		});
+
+		pubsub.publish("onGifProgress");
+	}
+
+	if (wasRecording) {
+		console.log("RENDERING RECORDING");
+		pubsub.publish("onGifProgress");
+		gif.render();
+		gif = null;
+	}
 
 	clockTime = 0;
 	sampleScope.t = 0;
@@ -654,6 +768,12 @@ body.on("keypress", onPressKey);
 
 window.addEventListener("resize", onResize);
 
+var onRecordGifFrame = () => {
+
+}
+
+pubsub.subscribe("onRecordGifFrame", onRecordGifFrame);
+
 var welcomes = [
 	"Welcome!",
 	"Hola",
@@ -715,13 +835,18 @@ World({
 	getGravity,
 	getSceneObjects,
 
+	getRecord,
+	getRecordTime,
+	getRecording,
+
+	getGif,
+	recordFrame,
+
 	sampleGraph,
 	sampleGraphSlope,
 	sampleGraphVelocity,
 });
 
-/*
-*/
 Ui({
 	pubsub,
 	container,
@@ -741,6 +866,15 @@ Ui({
 	getVictory,
 	getVictoryUrl,
 	getDomainString,
+
+	getRecord,
+	setRecord,
+	getRecordTime,
+	setRecordTime,
+	getRecording,
+	recordFrame,
+	getGifBlob,
+	getGifProgress,
 
 	getClockTime,
 

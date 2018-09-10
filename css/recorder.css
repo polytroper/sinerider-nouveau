@@ -1,0 +1,108 @@
+.recorderEnvelope {
+  display: flex;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  overflow: hidden;
+  position: absolute;
+
+  right: 10;
+  top: 10;
+}
+
+.recorderOuter {
+  display: flex;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  border-radius: 4px;
+  border: 1px solid #888;
+}
+
+.recorderInner {
+  display: flex;
+
+  align-items: stretch;
+  justify-content: center;
+}
+
+.recorderTime {
+  display: flex;
+  width: 32px;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  margin: 3px;
+
+  text-align: center;
+}
+
+.recorderLink {
+	display: flex;
+	width: 64px;
+
+	margin: 3px;
+	opacity: 0.6;
+
+	font-size: 16px;
+
+	align-items: center;
+	justify-content: center;
+
+	text-align: center;
+
+	border-radius: 4px;
+	border: 1px solid #888;
+
+	transition: 0.2s;
+
+	user-select: none;
+	cursor: pointer;
+}
+
+.recorderLink:hover {
+	background: white;
+	border: 1px solid black;
+	opacity: 1;
+
+}
+
+.recorderLink > div {
+
+}
+
+.recorderToggle {
+	/*background: rgba(222, 222, 222, 0.5);*/
+	opacity: 0.6;
+
+	display: flex;
+
+	align-items: center;
+	justify-content: center;
+
+	user-select: none;
+	cursor: pointer;
+
+	width: 30px;
+	height: 30px;
+	margin: 3px;
+
+	border-radius: 4px;
+	border: 1px solid #888;
+
+	transition: 0.2s;
+}
+
+.recorderToggle:hover {
+	background: white;
+	border: 1px solid black;
+	opacity: 1;
+}
+
+.recorderToggle > div {
+	font-size: 48px;
+
+}

@@ -31,6 +31,10 @@ html, body {
   bottom: 0;
 }
 
+svg {
+  background: white;
+}
+
 .ui {
   display: flex;
   flex-direction: column;

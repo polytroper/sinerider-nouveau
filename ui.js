@@ -2,10 +2,12 @@ var d3 = require('d3');
 var _ = require('lodash');
 var VictoryComponent = require('./templates/victory_template');
 var JsonViewerComponent = require('./templates/json_viewer_template');
+var RecorderComponent = require('./templates/recorder_template');
 var autosizeInput = require('autosize-input');
 
 var morph = require('nanomorph')
 var victoryComponent = new VictoryComponent();
+var recorderComponent = new RecorderComponent();
 
 // var Inputs = require('./inputs');
 
@@ -38,6 +40,15 @@ module.exports = spec => {
 		getVictoryUrl,
 		getDomainString,
 
+		getRecord,
+		setRecord,
+		getRecordTime,
+		setRecordTime,
+		getRecording,
+		recordFrame,
+		getGifBlob,
+		getGifProgress,
+
 		getClockTime,
 
 		setExpression,
@@ -67,6 +78,21 @@ module.exports = spec => {
 		url: getVictoryUrl(),
 	}));
 	refreshVictory();
+
+	var recorderNode = ui.append("div").node();
+	var refreshRecorder = () => morph(recorderNode, recorderComponent.render({
+		editing: getEditing(),
+
+		record: getRecord(),
+		setRecord,
+
+		recordTime: getRecordTime(),
+		setRecordTime,
+
+		gifBlob: getGifBlob(),
+		gifProgress: getGifProgress(),
+	}));
+	refreshRecorder();
 
 	// var dragContainer = ui.append("div")
 			// .attr("class", "dragContainer")
@@ -349,6 +375,7 @@ module.exports = spec => {
 		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
 
 		refreshVictory();
+		refreshRecorder();
 	}
 
 	var onUpdate = () => {
@@ -373,6 +400,9 @@ module.exports = spec => {
 	onSetMacroState();
 
 	pubsub.subscribe("onSetMacroState", onSetMacroState);
+
+	pubsub.subscribe("onSetRecord", refreshRecorder);
+	pubsub.subscribe("onGifProgress", refreshRecorder);
 
 	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 }
