@@ -52,7 +52,7 @@ module.exports = spec => {
 			var reader = new FileReader();
 			reader.onloadend = function() {
 				// console.log("Base64 Encoding Completed for Image at "+url);
-				console.log(reader.result);
+				// console.log(reader.result);
 				callback(reader.result);
 			}
 			reader.readAsDataURL(xhr.response);
@@ -78,8 +78,6 @@ module.exports = spec => {
 	}
 
 	var refreshSledderImages = () => {
-		console.log("Refreshing sledder images!")
-		console.log(sledderImage64);
 		container.selectAll(".sledder").select(".sledderImage")
 				.attr("xlink:xlink:href", sledderImage64)
 	}
@@ -101,7 +99,6 @@ module.exports = spec => {
 				.attr("y", -30)
 				.attr("width", 30)
 				.attr("height", 30)
-				.attr("xlink:href", "data:image/png;base64,"+sledderImage64)
 
 		sledders = enterSledders.merge(sledders);
 		

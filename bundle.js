@@ -1679,8 +1679,7 @@ var getRandomWelcome = () => {
 
 var loadDefault = () => {
 	setExpressions([
-		"sled_a={o:\"sled\", p:-4}",
-		"sled_b={o:\"sled\", p:4}",
+		"sled={o:\"sled\", p:0}",
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
 		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
@@ -101292,7 +101291,7 @@ module.exports = spec => {
 			var reader = new FileReader();
 			reader.onloadend = function() {
 				// console.log("Base64 Encoding Completed for Image at "+url);
-				console.log(reader.result);
+				// console.log(reader.result);
 				callback(reader.result);
 			}
 			reader.readAsDataURL(xhr.response);
@@ -101318,8 +101317,6 @@ module.exports = spec => {
 	}
 
 	var refreshSledderImages = () => {
-		console.log("Refreshing sledder images!")
-		console.log(sledderImage64);
 		container.selectAll(".sledder").select(".sledderImage")
 				.attr("xlink:xlink:href", sledderImage64)
 	}
@@ -101341,7 +101338,6 @@ module.exports = spec => {
 				.attr("y", -30)
 				.attr("width", 30)
 				.attr("height", 30)
-				.attr("xlink:href", "data:image/png;base64,"+sledderImage64)
 
 		sledders = enterSledders.merge(sledders);
 		
