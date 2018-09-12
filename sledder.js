@@ -80,6 +80,7 @@ module.exports = spec => {
 	var refreshSledderImages = () => {
 		container.selectAll(".sledder").select(".sledderImage")
 				.attr("xlink:xlink:href", sledderImage64)
+				// .attr("xlink:href", "assets/rider_peeps.png")
 	}
 
 	var refreshSledders = () => {
