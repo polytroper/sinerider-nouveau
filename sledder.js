@@ -45,13 +45,13 @@ module.exports = spec => {
 	var r2d = 180/Math.PI;
 
 	var sledderToUrl = function(url, callback) {
-		console.log("Base64 Encoding Image at "+url);
+		// console.log("Base64 Encoding Image at "+url);
 		var xhr = new XMLHttpRequest();
 		xhr.onload = function() {
-			console.log("XHR Request Loaded for Image at "+url);
+			// console.log("XHR Request Loaded for Image at "+url);
 			var reader = new FileReader();
 			reader.onloadend = function() {
-				console.log("Base64 Encoding Completed for Image at "+url);
+				// console.log("Base64 Encoding Completed for Image at "+url);
 				console.log(reader.result);
 				callback(reader.result);
 			}
