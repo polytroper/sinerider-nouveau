@@ -39,7 +39,7 @@ module.exports = spec => {
 	var r2d = 180/Math.PI;
 
 	container = container.append("g")
-		.attr("class", "goals");
+			.attr("class", "goals");
 
 	var goals;
 	

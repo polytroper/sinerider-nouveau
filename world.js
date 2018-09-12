@@ -36,6 +36,13 @@ module.exports = spec => {
 		getFrameInterval,
 		getGravity,
 
+		getRecord,
+		getRecording,
+		getRecordTime,
+
+		getGif,
+		recordFrame,
+
 		sampleGraph,
 		sampleGraphSlope,
 		sampleGraphVelocity,
@@ -69,6 +76,23 @@ module.exports = spec => {
 			.attr("width", getWidth())
 			.attr("height", getHeight())
 			.style("overflow", "hidden")
+
+	var refreshCameraPoints = () => {
+		let sledders = getSceneObjects("sled");
+
+		// +1 for the origin
+		while (cameraPoints.length < sledders.length+1)
+			cameraPoints.push([0, 0]);
+		while (cameraPoints.length > sledders.length+1)
+			cameraPoints.pop();
+
+
+		_.each(sledders, (v, i) => {
+			// +1 for the origin
+			cameraPoints[i+1][0] = math.re(v.p);
+			cameraPoints[i+1][1] = math.im(v.p);
+		})
+	}
 
 	var refreshScales = () => {
 		let p = camera.position;
@@ -142,6 +166,7 @@ module.exports = spec => {
 	}
 
 	var onUpdate = () => {
+		refreshCameraPoints();
 		followCameraPoints();
 
 		if (getRunning())
@@ -256,7 +281,7 @@ module.exports = spec => {
 	var sledder = Sledder({
 		pubsub,
 		container: svg,
-		getInstances: () => getSceneObjects("sledder"),
+		getInstances: () => getSceneObjects("sled"),
 		getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
 		xScale,

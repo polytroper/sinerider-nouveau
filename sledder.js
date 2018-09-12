@@ -8,7 +8,8 @@ var {
 	transform,
 	lerp,
 	normalize,
-	pointSquareDistance
+	isComplex,
+	pointSquareDistance,
 } = require('./helpers');
 
 module.exports = spec => {
@@ -34,87 +35,85 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	} = spec;
 
-	var position = [0, 0];
-	var velocity = [0, 0];
+	container = container.append("g")
+			.attr("class", "sledders");
+
 	var centerLocal = math.complex(0, 0.5);
-	var center = math.complex(0, 0.5);
 
-	var rotation = 0;
-
-	cameraPoints.push(position);
+	// cameraPoints.push(position);
 
 	var r2d = 180/Math.PI;
 
-	var sledder = container.append("g")
-			.attr("class", "sledder")
+	var refreshSledderTransforms = () => {
+		container.selectAll(".sledder")
+				.attr("transform", d => {
+					return transform(xScale(math.re(d.p)), yScale(math.im(d.p)), d.a, camera.scale/20);
+				});
+	}
 
-	sledder.append("svg:image")
-		.attr('x', -15)
-		.attr('y', -30)
-		.attr('width', 30)
-		.attr('height', 30)
-		.attr("xlink:href", "assets/rider_peeps.png")
-/*
-	var sledderBody = sledder.append("g")
-			.attr("class", "sledder")
-			.attr("transform", translate(0, -10))
-
-	sledderBody.append("circle")
-			.attr("r", 10)
-			.attr("cx", 0)
-			.attr("cy", 0)
-			.attr("fill", "white")
-			.attr("stroke", "black")
-			.attr("strokeWidth", 1)
-
-	sledderBody.append("circle")
-			.attr("r", 2)
-			.attr("cx", 6)
-			.attr("cy", -3)
-
-	sledderBody.append("line")
-			.attr("x1", 2)
-			.attr("y1", 4)
-			.attr("x2", 9)
-			.attr("y2", 4)
-			.attr("stroke", "black")
-			.attr("strokeWidth", 2)
-*/
 	var refreshSledders = () => {
+		var instances = getInstances();
 
+		var sledders = container.selectAll(".sledder")
+			.data(instances);
+		sledders.exit().remove();
+
+		var enterSledders = sledders.enter()
+			.append("g")
+				.attr("class", "sledder")
+
+		var sledderImages = enterSledders.append("svg:image")
+				.attr("class", "goalSquare")
+				.attr("x", -15)
+				.attr("y", -30)
+				.attr("width", 30)
+				.attr("height", 30)
+				.attr("xlink:href", "assets/rider_peeps.png")
+
+		sledders = enterSledders.merge(sledders);
+		
+		refreshSledderTransforms();
 	}
 
-	var refreshSledderTransform = () => {
-		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20));
+	var resetSledder = (instance, index) => {
+		let x = math.re(instance.p);
+		let y;
+		let a;
+		let s = sampleGraphSlope(x);
+
+		// console.log("Resetting sledder "+index);
+		// console.log(instance.p);
+
+		if (isComplex(instance.p)) {
+			y = instance.p.im;
+			a = r2d*Math.atan(s);
+		}
+		else {
+			y = sampleGraph(x);
+			instance.p = math.complex(x, y);
+			a = r2d*Math.atan(s);
+		}
+		
+
+		// math.im(instance.p) = y;
+
+		instance.a = a;
+
+		instance.v.re = 0;
+		instance.v.im = 0;
 	}
 
-	var setSledderTransform = (x, y, a) => {
-		position[0] = x;
-		position[1] = y;
-		rotation = a;
-		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20))
-	}
-
-	var setSledderVelocity = (x, y) => {
-		velocity[0] = x;
-		velocity[1] = y;
-	}
-
-	var resetSledder = () => {
-		let y = sampleGraph(0);
-		let s = sampleGraphSlope(y);
-		let a = r2d*Math.atan(s);
-		console.log("Sledder Angle is "+a+", slope is "+s)
-		setSledderTransform(0, y, a);
-		setSledderVelocity(0, 0);
+	var resetSledders = () => {
+		var instances = getInstances();
+		_.each(instances, resetSledder);
 	}
 
 	var onEditExpressions = () => {
-		resetSledder();
+		resetSledders();
 	}
 
 	var onSetMacroState = () => {
-		resetSledder();
+		resetSledders();
 	}
 
 	var onMoveCamera = () => {
@@ -122,31 +121,39 @@ module.exports = spec => {
 	}
 
 	var onRender = () => {
-		refreshSledderTransform();
+		refreshSledderTransforms();
 	}
 
 	var onRefreshScene = () => {
-
+		refreshSledders();
 	}
 
-	var onUpdate = () => {
-		if (!getRunning()) return;
-
+	var updateInstance = (instance, index) => {
 		var frameInterval = getFrameInterval();
 		var gravity = getGravity();
 
+		if (!isComplex(instance.p))
+			instance.p = math.complex(instance.p, 0);
+			// instance.p = math.complex(math.re(instance.p), math.im(instance.p));
+
+		if (!isComplex(instance.v))
+			instance.v = math.complex(instance.v, 0);
+
+		var position = instance.p;//math.complex(math.re(instance.p), math.im(instance.p));
+		var velocity = instance.v;//math.complex(math.re(instance.v), math.im(instance.v));
+
 		// Move me
-		position[0] += velocity[0]*frameInterval;
-		position[1] += velocity[1]*frameInterval;
+		position.re += velocity.re*frameInterval;
+		position.im += velocity.im*frameInterval;
 
 		// Gravity
-		velocity[1] += gravity;
+		velocity.im += gravity;
 
 		// Am I below ground? If so, it's THE REAL PHYSICS TIME
-		var gy = sampleGraph(position[0]);
-		var slope = sampleGraphSlope(position[0]);
+		var gy = sampleGraph(position.re);
+		var slope = sampleGraphSlope(position.re);
 		var buffer = 0;//.01;
-		if (position[1] <= gy-buffer) {
+		if (position.im <= gy-buffer) {
 
 			// Get slope/normal vectors of ground
 			var slopeVector = {
@@ -157,8 +164,8 @@ module.exports = spec => {
 			// console.log(slopeVector)
 
 			var rotationVector = {
-				x: math.cos(rotation/r2d),
-				y: math.sin(rotation/r2d)
+				x: math.cos(instance.a/r2d),
+				y: math.sin(instance.a/r2d)
 			}
 			// console.log(rotationVector)
 			
@@ -174,35 +181,46 @@ module.exports = spec => {
 			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.15);
 			normalize(rotationVector);
 
-			rotation = math.atan2(rotationVector.y, rotationVector.x)*r2d;
+			instance.a = math.atan2(rotationVector.y, rotationVector.x)*r2d;
 
 			// Project Sledder velocity to ground vector
-			// var scalar = velocity[0]*slopeVector.x + velocity[1]*slopeVector.y; // dot product
-			var scalar = math.dot([velocity[0], velocity[1]], [slopeVector.x, slopeVector.y]);
-			velocity[0] = slopeVector.x*scalar;
-			velocity[1] = math.max(velocity[1], slopeVector.y*scalar);
+			// var scalar = velocity.re*slopeVector.x + velocity.im*slopeVector.y; // dot product
+			var scalar = math.dot([velocity.re, velocity.im], [slopeVector.x, slopeVector.y]);
+			velocity.re = slopeVector.x*scalar;
+			velocity.im = math.max(velocity.im, slopeVector.y*scalar);
 
 			// GROUND'S VELOCITY ITSELF
-			var groundVelY = sampleGraphVelocity(position[0]);
+			var groundVelY = sampleGraphVelocity(position.re);
 
 			// Project onto normal vector, add to Sledder
 
 			scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
-			velocity[0] += normalVector.x*scalar;
-			velocity[1] += normalVector.y*scalar;
+			velocity.re += normalVector.x*scalar;
+			velocity.im += normalVector.y*scalar;
 
 			// depenetration!
-			scalar = math.dot([0, gy-position[1]], [normalVector.x, normalVector.y]);
-			position[0] += scalar*normalVector.x;
-			position[1] += scalar*normalVector.y;
+			scalar = math.dot([0, gy-position.im], [normalVector.x, normalVector.y]);
+			position.re += scalar*normalVector.x;
+			position.im += scalar*normalVector.y;
 		}
 
-		var p = math.complex(position[0], position[1]);
-		var rotator = math.complex(math.cos(rotation/r2d), math.sin(rotation/r2d));
-		center = math.add(math.multiply(centerLocal, rotator), p);
+		var rotator = math.complex(math.cos(instance.a/r2d), math.sin(instance.a/r2d));
+		var center = math.add(math.multiply(centerLocal, rotator), position);
+
+		// instance.p = position;
+		// instance.v = velocity;
 
 		var intersections = getIntersections(center, 0.5);
 		_.each(intersections, v => v.complete = true);
+
+	}
+
+	var onUpdate = () => {
+		var instances = getInstances();
+
+		if (!getRunning()) return;
+
+		_.each(instances, updateInstance);
 	}
 	
 	pubsub.subscribe("onUpdate", onUpdate);

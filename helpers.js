@@ -87,6 +87,19 @@ let pointSquareDistance = (p, c, s) => {
 	return vectorLength(edx, edy);
 }
 
+let isComplex = v => {
+	if (!_.isObject(v))
+		return false;
+
+	if (!_.has(v, "re"))
+		return false;
+
+	if (!_.has(v, "im"))
+		return false;
+
+	return true;
+}
+
 function sqr(x) { return x * x }
 function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
 function distToSegmentSquared(p, v, w) {
@@ -110,4 +123,5 @@ module.exports = {
 	normalize,
 	getQueryString,
 	pointSquareDistance,
+	isComplex,
 }

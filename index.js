@@ -6,8 +6,9 @@ var lz = require('lz-string');
 var pubsub = require('pubsub-js');
 var autosizeInput = require('autosize-input');
 
-var World = require('./world');
 var Ui = require('./ui');
+var World = require('./world');
+var Versions = require('./versions');
 
 var Nanocomponent = require('nanocomponent')
 
@@ -24,6 +25,8 @@ var {
 	normalize,
 	pointSquareDistance
 } = require('./helpers');
+
+var parserVersion = "0.0.1";
 
 var expressions = [];
 
@@ -93,10 +96,10 @@ var defaultScope = {
 var sampleScope;
 
 var sceneObjectTypes = {
-	sledder: {
-		p: math.complex(0, 0),
-		v: math.complex(0, 0),
-		r: 0,
+	sled: {
+		p: 0,
+		v: 0,
+		a: 0,
 	},
 	goal: {
 		p: math.complex(0, 0),
@@ -219,7 +222,7 @@ var getSceneObjects = (type = "") => {
 }
 
 var createSceneObject = v => {
-	var defaults = sceneObjectTypes[v.o];
+	var defaults = _.cloneDeep(sceneObjectTypes[v.o]);
 	var sceneObject = v;//_.cloneDeep(v);
 	_.defaultsDeep(sceneObject, defaults);
 	sceneObjects[v.o].push(sceneObject);
@@ -251,6 +254,7 @@ var tryCreateSceneObject = v => {
 }
 
 var refreshScene = () => {
+	resetScope()
 	evaluateExpressions()
 
 	console.log("Refreshing scene")
@@ -442,6 +446,8 @@ var getDomainString = () => {
 var loadState = json => {
 	console.log("Loading State")
 	console.log(json);
+
+	Versions.upgrade(json, parserVersion);
 	
 	let e = json["expressions"];
 	let o = json["originals"];
@@ -458,7 +464,7 @@ var loadState = json => {
 
 var serialize = (compress = true, pretty = false) => {
 	var state = {
-		version: "0.0.0",
+		version: parserVersion,
 		expressions: getExpressionStrings(),
 		originals: getOriginalStrings(),
 	}
@@ -803,6 +809,8 @@ var getRandomWelcome = () => {
 
 var loadDefault = () => {
 	setExpressions([
+		"sled_a={o:\"sled\", p:-4}",
+		"sled_b={o:\"sled\", p:4}",
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
 		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
