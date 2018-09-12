@@ -50,6 +50,12 @@ var body = d3.select("body")
 var container = body.append("div")
 		.attr("class", "container")
 
+var gifCanvas = container.append("canvas")
+		.attr("class", "gifCanvas")
+		.style("display", "none")
+		.attr("width", getWidth())
+		.attr("height", getHeight())
+
 var frameRate = 60;
 var frameInterval = 1/frameRate;
 var frameIntervalMS = 1000/frameRate;
@@ -569,26 +575,52 @@ var saveData = () => {
 	FileSaver.saveAs(blob, "world.sinerider");
 }
 
+var blah = 0;
+
 var recordFrame = (cb) => {
 	// console.log("RECORDING FRAME");
 	var t = getClockTime();
-	var node = d3.select('svg').node();
+	var svg = d3.select('svg').node();
 	// console.log(node);
 
+	/*
 	var img = new Image(),
 		serialized = new XMLSerializer().serializeToString(node),
 		svg = new Blob([serialized], {type: "image/svg+xml"}),
 		url = URL.createObjectURL(svg);
+	*/
+
+	// get svg data
+	var img = new Image();
+	var xml = new XMLSerializer().serializeToString(svg);
+
+	// make it base64
+	var svg64 = btoa(xml);
+	var b64Start = 'data:image/svg+xml;base64,';
+
+	// prepend a "header"
+	var image64 = b64Start + svg64;
 
 	img.onload = function(){
-		gif.addFrame(img, {
+		if (blah < 3) {
+
+			// console.log("Opening URL");
+			// console.log(url);
+			// window.open(url);
+			blah++;
+		}
+		ctx = gifCanvas.node().getContext('2d');
+		ctx.fillStyle = 'white';
+		ctx.fillRect(0, 0, getWidth(), getHeight());
+		ctx.drawImage(img, 0, 0)
+		gif.addFrame(ctx, {
 			delay: frameIntervalMS,
 			copy: true
 		});
 		cb();
 	};
 
-	img.src = url;
+	img.src = image64;
 }
 
 var update = () => {
@@ -766,6 +798,8 @@ var onPressKey = () => {
 }
 
 var onResize = () => {
+	gifCanvas.attr("width", getWidth())
+			.attr("height", getHeight())
 
 	pubsub.publish("onResize");
 }

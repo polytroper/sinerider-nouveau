@@ -44,11 +44,44 @@ module.exports = spec => {
 
 	var r2d = 180/Math.PI;
 
+	var sledderToUrl = function(url, callback) {
+		console.log("Base64 Encoding Image at "+url);
+		var xhr = new XMLHttpRequest();
+		xhr.onload = function() {
+			console.log("XHR Request Loaded for Image at "+url);
+			var reader = new FileReader();
+			reader.onloadend = function() {
+				console.log("Base64 Encoding Completed for Image at "+url);
+				console.log(reader.result);
+				callback(reader.result);
+			}
+			reader.readAsDataURL(xhr.response);
+		};
+		xhr.open('GET', url);
+		xhr.responseType = 'blob';
+		xhr.send();
+	}
+
+	var sledderImage64 = "";
+
+	sledderToUrl("assets/rider_peeps.png", v => {
+		sledderImage64 = v;
+		refreshSledderImages();
+	});
+
+
 	var refreshSledderTransforms = () => {
 		container.selectAll(".sledder")
 				.attr("transform", d => {
 					return transform(xScale(math.re(d.p)), yScale(math.im(d.p)), d.a, camera.scale/20);
 				});
+	}
+
+	var refreshSledderImages = () => {
+		console.log("Refreshing sledder images!")
+		console.log(sledderImage64);
+		container.selectAll(".sledder").select(".sledderImage")
+				.attr("xlink:xlink:href", sledderImage64)
 	}
 
 	var refreshSledders = () => {
@@ -63,16 +96,17 @@ module.exports = spec => {
 				.attr("class", "sledder")
 
 		var sledderImages = enterSledders.append("svg:image")
-				.attr("class", "goalSquare")
+				.attr("class", "sledderImage")
 				.attr("x", -15)
 				.attr("y", -30)
 				.attr("width", 30)
 				.attr("height", 30)
-				.attr("xlink:href", "assets/rider_peeps.png")
+				.attr("xlink:href", "data:image/png;base64,"+sledderImage64)
 
 		sledders = enterSledders.merge(sledders);
 		
 		refreshSledderTransforms();
+		refreshSledderImages();
 	}
 
 	var resetSledder = (instance, index) => {
