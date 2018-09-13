@@ -28,6 +28,18 @@
   justify-content: center;
 }
 
+.recorderResolution {
+  display: flex;
+  width: 56px;
+
+  align-items: stretch;
+  align-content: stretch;
+
+  margin: 3px;
+
+  text-align: center;
+}
+
 .recorderTime {
   display: flex;
   width: 32px;

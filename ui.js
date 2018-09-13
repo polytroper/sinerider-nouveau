@@ -44,6 +44,8 @@ module.exports = spec => {
 		setRecord,
 		getRecordTime,
 		setRecordTime,
+		getRecordResolution,
+		setRecordResolution,
 		getRecording,
 		recordFrame,
 		getGifBlob,
@@ -88,6 +90,9 @@ module.exports = spec => {
 
 		recordTime: getRecordTime(),
 		setRecordTime,
+
+		recordResolution: getRecordResolution(),
+		setRecordResolution,
 
 		gifBlob: getGifBlob(),
 		gifProgress: getGifProgress(),

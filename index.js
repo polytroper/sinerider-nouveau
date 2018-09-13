@@ -33,17 +33,34 @@ var expressions = [];
 var r2d = 180/Math.PI;
 var expressionKeyIndex = 0;
 
-var width = window.innerWidth;
-var height = window.innerHeight;
-var aspect = width/height;
-
 // var getWidth = () => width;
 // var getHeight = () => height;
 // var getAspect = () => aspect;
 
-var getWidth = () => window.innerWidth;
-var getHeight = () => window.innerHeight;
-var getAspect = () => window.innerWidth/window.innerHeight;
+var record = false;
+var getRecord = () => record;
+var setRecord = v => {
+	record = v;
+	pubsub.publish("onSetRecord");
+	onResize();
+}
+
+var recordResolution = 512;
+var getRecordResolution = () => recordResolution;
+var setRecordResolution = resolution => {
+	resolution = math.min(resolution, 2048);
+	console.log("Setting Record Resolution "+resolution);
+	recordResolution = resolution;
+	onResize();
+}
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+var aspect = width/height;
+
+var getWidth = () => getRecord() ? recordResolution : window.innerWidth;
+var getHeight = () => getRecord() ? recordResolution : window.innerHeight;
+var getAspect = () => getWidth()/getHeight();
 
 var body = d3.select("body")
 
@@ -76,12 +93,9 @@ var getRunning = () => macroState == 2;
 var getClockTime = () => clockTime;
 var getGravity = () => gravity;
 
-var record = false;
 var recordTime = 3;
 
-var getRecord = () => record;
 var getRecording = () => record && getRunning();
-var setRecord = v => {record = v; pubsub.publish("onSetRecord");}
 
 var getRecordTime = () => recordTime;
 var setRecordTime = v => {recordTime = v; pubsub.publish("onSetRecord");}
@@ -912,6 +926,8 @@ Ui({
 	setRecord,
 	getRecordTime,
 	setRecordTime,
+	getRecordResolution,
+	setRecordResolution,
 	getRecording,
 	recordFrame,
 	getGifBlob,

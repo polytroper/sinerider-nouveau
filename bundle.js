@@ -869,17 +869,34 @@ var expressions = [];
 var r2d = 180/Math.PI;
 var expressionKeyIndex = 0;
 
-var width = window.innerWidth;
-var height = window.innerHeight;
-var aspect = width/height;
-
 // var getWidth = () => width;
 // var getHeight = () => height;
 // var getAspect = () => aspect;
 
-var getWidth = () => window.innerWidth;
-var getHeight = () => window.innerHeight;
-var getAspect = () => window.innerWidth/window.innerHeight;
+var record = false;
+var getRecord = () => record;
+var setRecord = v => {
+	record = v;
+	pubsub.publish("onSetRecord");
+	onResize();
+}
+
+var recordResolution = 512;
+var getRecordResolution = () => recordResolution;
+var setRecordResolution = resolution => {
+	resolution = math.min(resolution, 2048);
+	console.log("Setting Record Resolution "+resolution);
+	recordResolution = resolution;
+	onResize();
+}
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+var aspect = width/height;
+
+var getWidth = () => getRecord() ? recordResolution : window.innerWidth;
+var getHeight = () => getRecord() ? recordResolution : window.innerHeight;
+var getAspect = () => getWidth()/getHeight();
 
 var body = d3.select("body")
 
@@ -912,12 +929,9 @@ var getRunning = () => macroState == 2;
 var getClockTime = () => clockTime;
 var getGravity = () => gravity;
 
-var record = false;
 var recordTime = 3;
 
-var getRecord = () => record;
 var getRecording = () => record && getRunning();
-var setRecord = v => {record = v; pubsub.publish("onSetRecord");}
 
 var getRecordTime = () => recordTime;
 var setRecordTime = v => {recordTime = v; pubsub.publish("onSetRecord");}
@@ -1748,6 +1762,8 @@ Ui({
 	setRecord,
 	getRecordTime,
 	setRecordTime,
+	getRecordResolution,
+	setRecordResolution,
 	getRecording,
 	recordFrame,
 	getGifBlob,
@@ -101319,6 +101335,7 @@ module.exports = spec => {
 	var refreshSledderImages = () => {
 		container.selectAll(".sledder").select(".sledderImage")
 				.attr("xlink:xlink:href", sledderImage64)
+				// .attr("xlink:href", "assets/rider_peeps.png")
 	}
 
 	var refreshSledders = () => {
@@ -101773,9 +101790,9 @@ class VictoryComponent extends Nanocomponent {
 		return u;
 	}
 
-	onClickGifLink (blob) {
+	onClickGifLink (url) {
 		console.log("OPENING RENDERED GIF");
-		window.open(URL.createObjectURL(blob));
+		window.open(url);
 	}
 
 	createElement (state) {
@@ -101788,12 +101805,15 @@ class VictoryComponent extends Nanocomponent {
 			recordTime,
 			setRecordTime,
 
+			recordResolution,
+			setRecordResolution,
+
 			gifBlob,
 			gifProgress,
 		} = state;
 
 		let cb = this.onClickGifLink;
-		let onClickGifLink = gifBlob ? () => cb(gifBlob) : () => {};
+		let onClickGifLink = gifBlob ? () => cb(URL.createObjectURL(gifBlob)) : () => cb("assets/not_done.png");
 
 		return html`
 			<div class="recorderEnvelope">
@@ -101802,9 +101822,10 @@ class VictoryComponent extends Nanocomponent {
 						${!record ? "" : html`
 						<div class="recorderInner">
 							${gifProgress == 0 ? "" : html`
-							<div class="recorderLink">
-								<div class="recorderTime"
+							<div class="recorderLink"
 									onclick=${onClickGifLink}
+									>
+								<div class="recorderTime"
 									>
 									<div>
 										${(Math.round(gifProgress*100)) + "%"}
@@ -101812,6 +101833,12 @@ class VictoryComponent extends Nanocomponent {
 								</div>
 							</div>
 							`}
+							<input
+								type="number"
+								class="recorderResolution"
+								value="${recordResolution}"
+								oninput="${function(){setRecordResolution(this.value)}}"
+							/>
 							<input
 								type="number"
 								class="recorderTime"
@@ -102275,6 +102302,8 @@ module.exports = spec => {
 		setRecord,
 		getRecordTime,
 		setRecordTime,
+		getRecordResolution,
+		setRecordResolution,
 		getRecording,
 		recordFrame,
 		getGifBlob,
@@ -102319,6 +102348,9 @@ module.exports = spec => {
 
 		recordTime: getRecordTime(),
 		setRecordTime,
+
+		recordResolution: getRecordResolution(),
+		setRecordResolution,
 
 		gifBlob: getGifBlob(),
 		gifProgress: getGifProgress(),

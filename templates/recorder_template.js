@@ -33,9 +33,9 @@ class VictoryComponent extends Nanocomponent {
 		return u;
 	}
 
-	onClickGifLink (blob) {
+	onClickGifLink (url) {
 		console.log("OPENING RENDERED GIF");
-		window.open(URL.createObjectURL(blob));
+		window.open(url);
 	}
 
 	createElement (state) {
@@ -48,12 +48,15 @@ class VictoryComponent extends Nanocomponent {
 			recordTime,
 			setRecordTime,
 
+			recordResolution,
+			setRecordResolution,
+
 			gifBlob,
 			gifProgress,
 		} = state;
 
 		let cb = this.onClickGifLink;
-		let onClickGifLink = gifBlob ? () => cb(gifBlob) : () => {};
+		let onClickGifLink = gifBlob ? () => cb(URL.createObjectURL(gifBlob)) : () => cb("assets/not_done.png");
 
 		return html`
 			<div class="recorderEnvelope">
@@ -62,9 +65,10 @@ class VictoryComponent extends Nanocomponent {
 						${!record ? "" : html`
 						<div class="recorderInner">
 							${gifProgress == 0 ? "" : html`
-							<div class="recorderLink">
-								<div class="recorderTime"
+							<div class="recorderLink"
 									onclick=${onClickGifLink}
+									>
+								<div class="recorderTime"
 									>
 									<div>
 										${(Math.round(gifProgress*100)) + "%"}
@@ -72,6 +76,12 @@ class VictoryComponent extends Nanocomponent {
 								</div>
 							</div>
 							`}
+							<input
+								type="number"
+								class="recorderResolution"
+								value="${recordResolution}"
+								oninput="${function(){setRecordResolution(this.value)}}"
+							/>
 							<input
 								type="number"
 								class="recorderTime"
