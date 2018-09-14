@@ -157,6 +157,7 @@ module.exports = spec => {
 	}
 
 	var onRefreshScene = () => {
+		resetSledders();
 		refreshSledders();
 	}
 

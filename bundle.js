@@ -677,7 +677,7 @@ module.exports = spec => {
 				.attr("class", "imageNode")
 				.attr("image-anchor", "middle")
 				.attr("alignment-baseline", "middle")
-				.style("font-family", "Inconsolata")
+				.attr("crossorigin", "anonymous")
 
 		images = enterImages.merge(images);
 		
@@ -101412,6 +101412,7 @@ module.exports = spec => {
 	}
 
 	var onRefreshScene = () => {
+		resetSledders();
 		refreshSledders();
 	}
 
@@ -102099,7 +102100,7 @@ module.exports = spec => {
 				// .attr("dy", "50%")
 				.attr("text-anchor", "middle")
 				.attr("alignment-baseline", "middle")
-				.style("font-family", "Inconsolata")
+				.style("font-family", "Courier")
 				// .attr("width", 20)
 				// .attr("height", 20)
 

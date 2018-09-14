@@ -76,7 +76,7 @@ module.exports = spec => {
 				// .attr("dy", "50%")
 				.attr("text-anchor", "middle")
 				.attr("alignment-baseline", "middle")
-				.style("font-family", "Inconsolata")
+				.style("font-family", "Courier")
 				// .attr("width", 20)
 				// .attr("height", 20)
 

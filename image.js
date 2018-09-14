@@ -83,7 +83,7 @@ module.exports = spec => {
 				.attr("class", "imageNode")
 				.attr("image-anchor", "middle")
 				.attr("alignment-baseline", "middle")
-				.style("font-family", "Inconsolata")
+				.attr("crossorigin", "anonymous")
 
 		images = enterImages.merge(images);
 		
