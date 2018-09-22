@@ -18,7 +18,17 @@ class VictoryComponent extends Nanocomponent {
 
 	onClickVictoryButton (url) {
 		console.log("Navigating to "+url);
-		window.open(url);
+
+		if (_.startsWith(url, "/")) {
+		}
+		else if (_.startsWith(url, "https://")) {
+		}
+		else if (_.startsWith(url, "http://")) {
+		}
+		else {
+			url = "https://"+url;
+		}
+		window.location.href = url;
 	}
 
 	createElement (state) {
