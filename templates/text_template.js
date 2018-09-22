@@ -136,11 +136,13 @@ class TextComponent extends Nanocomponent {
 			v,
 			color,
 			fontSize,
+			url,
 		} = instance;
 
 		return html`
 			<text class="textNode"
 				text-anchor="middle"
+				text-decoration="${url == "" ? "none" : "underline"}"
 				alignment-baseline="middle"
 				style="
 					font-size:${math.round(fontSize*20)}px;

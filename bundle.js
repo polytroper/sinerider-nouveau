@@ -1432,12 +1432,6 @@ var loadFromUrl = () => {
 		return true;
 	}
 
-	var dataString = getDataString();
-	if (dataString != "") {
-		deserializeData(dataString);
-		return true;
-	}
-
 	return false;
 }
 
@@ -1742,6 +1736,8 @@ var loadDefault = () => {
 		"sled={o:\"sled\", p:0}",
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
 		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
+		"begin_link={o:\"text\", p:80-30i, v:\"Click here to begin\", fontSize: 5, color:\"white\", url: \"/?/worlds/constants.sinerider\"}",
+		"about_link={o:\"text\", p:92-38i, v:\"About SineRider\", fontSize: 3, color:\"white\", url: \"/about.html\"}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
 		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, url:\"assets/randall_tree.png\"}",
@@ -101670,18 +101666,20 @@ ac(bel0, ["\n\t\t\t\t",arguments[1],"\n\t\t\t"])
 			v,
 			color,
 			fontSize,
+			url,
 		} = instance;
 
 		return (function () {
       var ac = require('/Users/cwalker/dev/sinerider/node_modules/yo-yoify/lib/appendChild.js')
       var bel0 = document.createElementNS("http://www.w3.org/2000/svg", "text")
 bel0.setAttributeNS(null, "text-anchor", "middle")
+bel0.setAttributeNS(null, "text-decoration", arguments[0])
 bel0.setAttributeNS(null, "alignment-baseline", "middle")
-bel0.setAttributeNS(null, "style", "\n\t\t\t\t\tfont-size:" + arguments[0] + "px;\n\t\t\t\t\tfill:" + arguments[1] + ";\n\t\t\t\t")
+bel0.setAttributeNS(null, "style", "\n\t\t\t\t\tfont-size:" + arguments[1] + "px;\n\t\t\t\t\tfill:" + arguments[2] + ";\n\t\t\t\t")
 bel0.setAttributeNS(null, "class", "textNode")
-ac(bel0, ["\n\t\t\t\t",arguments[2],"\n\t\t\t"])
+ac(bel0, ["\n\t\t\t\t",arguments[3],"\n\t\t\t"])
       return bel0
-    }(math.round(fontSize*20),parseColor(color),v))
+    }(url == "" ? "none" : "underline",math.round(fontSize*20),parseColor(color),v))
 	}
 
 	createElement (state) {

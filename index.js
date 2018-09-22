@@ -549,12 +549,6 @@ var loadFromUrl = () => {
 		return true;
 	}
 
-	var dataString = getDataString();
-	if (dataString != "") {
-		deserializeData(dataString);
-		return true;
-	}
-
 	return false;
 }
 
@@ -859,6 +853,8 @@ var loadDefault = () => {
 		"sled={o:\"sled\", p:0}",
 		"press_enter={o:\"text\", p:-4+1/2i, v:\"Press ENTER\"}",
 		"welcome={o:\"text\", p:8-2i, v:\""+getRandomWelcome()+"\"}",
+		"begin_link={o:\"text\", p:80-30i, v:\"Click here to begin\", fontSize: 5, color:\"white\", url: \"/?/worlds/constants.sinerider\"}",
+		"about_link={o:\"text\", p:92-38i, v:\"About SineRider\", fontSize: 3, color:\"white\", url: \"/about.html\"}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
 		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, url:\"assets/randall_tree.png\"}",
