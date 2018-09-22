@@ -40,6 +40,8 @@ svg {
   flex-direction: column;
   flex-grow: 0;
 
+  pointer-events: none;
+
   align-items: stretch;
   align-content: stretch;
 
@@ -71,6 +73,7 @@ svg {
 
 .bottomBar {
   font-family: Courier;
+  pointer-events: all;
   position: relative;
   display: flex;
   margin: 0 20 20 20;

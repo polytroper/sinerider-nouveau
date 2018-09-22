@@ -1,4 +1,4 @@
-var _ = require('lodash');
+const _ = require('lodash');
 const d3 = require('d3');
 const html = require('choo/html')
 const Nanocomponent = require('nanocomponent')

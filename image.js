@@ -11,6 +11,7 @@ var {
 	intToGrayscale,
 	parseColor,
 	normalize,
+	fetchImage,
 	pointSquareDistance
 } = require('./helpers');
 
@@ -18,6 +19,7 @@ module.exports = spec => {
 	var {
 		pubsub,
 		container,
+		loader,
 
 		getInstances,
 
@@ -66,8 +68,33 @@ module.exports = spec => {
 		// container.selectAll(".imageNode")
 	}
 
+	var fetchImageData = d => {
+		if (d.url != d._url) {
+			d.url = d._url;
+
+			fetchImage("assets/rider_peeps.png", v => {
+				sledderImage64 = v;
+				refreshSledderImages();
+			});
+		}
+	}
+
+	var loadImageAsset = d => {
+		loader(d.url)
+			.then(v => {
+
+			})
+	}
+
+	var refreshImageAssets = () => {
+		images.select(".imageNode")
+				.attr("xlink:href", d => d.url)
+	}
+
 	var refreshImages = () => {
 		var instances = getInstances();
+
+
 
 		images = container.selectAll(".image")
 			.data(instances);

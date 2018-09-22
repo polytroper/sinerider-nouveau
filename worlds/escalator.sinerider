@@ -1,9 +1,9 @@
 {
 	"version": "0.0.1",
 	"expressions": [
-		"url = \"/worlds/raise_slope.sinerider\"",
+		"url = \"/worlds/left_and_right.sinerider\"",
 		"sledder={o:\"sled\", p:0}",
-		"title={o:\"text\", p:1/2+4i, v:\"\", fontSize: 1}",
+		"title={o:\"text\", p:1/2+4i, v:\"up up up\", fontSize: 1}",
 		"g(v) = {o:\"goal\", p: 2*v+(2*v/4)i}",
 		"goals = map(range(1, 8), g)",
 		"// Go up`",

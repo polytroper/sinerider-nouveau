@@ -9,6 +9,7 @@ var {
 	lerp,
 	normalize,
 	isComplex,
+	fetchImage,
 	pointSquareDistance,
 } = require('./helpers');
 
@@ -16,6 +17,7 @@ module.exports = spec => {
 	var {
 		pubsub,
 		container,
+		loader,
 
 		getInstances,
 		getIntersections,
@@ -44,31 +46,12 @@ module.exports = spec => {
 
 	var r2d = 180/Math.PI;
 
-	var sledderToUrl = function(url, callback) {
-		// console.log("Base64 Encoding Image at "+url);
-		var xhr = new XMLHttpRequest();
-		xhr.onload = function() {
-			// console.log("XHR Request Loaded for Image at "+url);
-			var reader = new FileReader();
-			reader.onloadend = function() {
-				// console.log("Base64 Encoding Completed for Image at "+url);
-				// console.log(reader.result);
-				callback(reader.result);
-			}
-			reader.readAsDataURL(xhr.response);
-		};
-		xhr.open('GET', url);
-		xhr.responseType = 'blob';
-		xhr.send();
-	}
-
 	var sledderImage64 = "";
 
-	sledderToUrl("assets/rider_peeps.png", v => {
-		sledderImage64 = v;
-		refreshSledderImages();
-	});
-
+	loader("assets/rider_peeps.png", v => {
+			sledderImage64 = v;
+			refreshSledderImages();
+		});
 
 	var refreshSledderTransforms = () => {
 		container.selectAll(".sledder")

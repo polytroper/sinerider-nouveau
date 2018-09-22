@@ -100,6 +100,25 @@ let isComplex = v => {
 	return true;
 }
 
+
+var fetchImage = function(url, callback) {
+	// console.log("Base64 Encoding Image at "+url);
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function() {
+		// console.log("XHR Request Loaded for Image at "+url);
+		var reader = new FileReader();
+		reader.onloadend = function() {
+			// console.log("Base64 Encoding Completed for Image at "+url);
+			// console.log(reader.result);
+			callback(reader.result);
+		}
+		reader.readAsDataURL(xhr.response);
+	};
+	xhr.open('GET', url);
+	xhr.responseType = 'blob';
+	xhr.send();
+}
+
 function sqr(x) { return x * x }
 function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
 function distToSegmentSquared(p, v, w) {
@@ -123,5 +142,6 @@ module.exports = {
 	normalize,
 	getQueryString,
 	pointSquareDistance,
+	fetchImage,
 	isComplex,
 }

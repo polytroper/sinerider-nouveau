@@ -9,6 +9,7 @@ var autosizeInput = require('autosize-input');
 var Ui = require('./ui');
 var World = require('./world');
 var Versions = require('./versions');
+var loader = require('./loader');
 
 var Nanocomponent = require('nanocomponent')
 
@@ -128,6 +129,7 @@ var sceneObjectTypes = {
 	text: {
 		p: math.complex(0, 0),
 		v: "Text!",
+		url: "",
 		fontSize: 1,
 		anchor: 0,
 		color: 0,
@@ -168,7 +170,7 @@ var parseExpression = o => {
 
 	o.segments = o.expression.split('`');
 	o.tagless = o.segments.join('');
-	o.commentless = _.join(_.filter(_.split(o.tagless, "//"), (v, i) => i%2==0), '');
+	o.commentless = _.join(_.filter(_.split(o.tagless, "// "), (v, i) => i%2==0), '');
 	o.preprocessed = o.commentless;
 	o.unmodified = o.expression == o.original;
 
@@ -253,10 +255,7 @@ var tryCreateSceneObject = v => {
 	// console.log(v);
 
 	// if (_.isArray(v))
-	if (v._data)
-	{
-	console.log("Trying to create scene object with:");
-	console.log(v);
+	if (v._data) {
 		_.each(v._data, tryCreateSceneObject);
 		return;
 	}
@@ -875,6 +874,7 @@ loadDefault();
 World({
 	pubsub,
 	container,
+	loader,
 
 	getWidth,
 	getHeight,
@@ -905,6 +905,7 @@ World({
 Ui({
 	pubsub,
 	container,
+	loader,
 
 	getWidth,
 	getHeight,

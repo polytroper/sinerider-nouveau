@@ -1,17 +1,17 @@
-var d3 = require('d3');
-var _ = require('lodash');
-var VictoryComponent = require('./templates/victory_template');
-var JsonViewerComponent = require('./templates/json_viewer_template');
-var RecorderComponent = require('./templates/recorder_template');
-var autosizeInput = require('autosize-input');
+const d3 = require('d3');
+const _ = require('lodash');
+const VictoryComponent = require('./templates/victory_template');
+const JsonViewerComponent = require('./templates/json_viewer_template');
+const RecorderComponent = require('./templates/recorder_template');
+const autosizeInput = require('autosize-input');
 
-var morph = require('nanomorph')
-var victoryComponent = new VictoryComponent();
-var recorderComponent = new RecorderComponent();
+const morph = require('nanomorph');
+const victoryComponent = new VictoryComponent();
+const recorderComponent = new RecorderComponent();
 
 // var Inputs = require('./inputs');
 
-var {
+const {
 	translate,
 	rotate,
 	transform,

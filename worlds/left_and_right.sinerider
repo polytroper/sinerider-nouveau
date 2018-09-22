@@ -1,0 +1,12 @@
+{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/constants.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:1/2+4i, v:\"\", fontSize: 1}",
+		"g(v) = {o:\"goal\", p: sign(v)*2+v*2+0i}",
+		"goals = map(range(-3, 3), g)",
+		"// Go up`",
+		"Y=-cos(`x-sin(t*0.01)*2`)"
+	]
+}

@@ -1,15 +1,20 @@
-var d3 = require('d3');
-var _ = require('lodash');
-var math = require('mathjs');
+const d3 = require('d3');
+const _ = require('lodash');
+const math = require('mathjs');
 
-var Axes = require('./axes');
-var Graph = require('./graph');
-var Sledder = require('./sledder');
-var Goal = require('./goal');
-var Text = require('./text');
-var Image = require('./image');
+const Axes = require('./axes');
+const Graph = require('./graph');
+const Sledder = require('./sledder');
+const Goal = require('./goal');
+const Text = require('./text');
+const Image = require('./image');
 
-var {
+const morph = require('nanomorph');
+
+const WorldComponent = require('./templates/world_template');
+const worldComponent = new WorldComponent();
+
+const {
 	translate,
 	rotate,
 	transform,
@@ -22,6 +27,7 @@ module.exports = spec => {
 	var {
 		pubsub,
 		container,
+		loader,
 
 		getSceneObjects,
 
@@ -48,6 +54,8 @@ module.exports = spec => {
 		sampleGraphVelocity,
 	} = spec;
 
+	var sceneComponentStates = [];
+
 	var yScale = d3.scaleLinear()
 		.range([getHeight(), 0])
 
@@ -69,6 +77,7 @@ module.exports = spec => {
 	var cameraSmoothing = 0.02;
 
 	var cameraPoints = [[0, 0]];
+	var sceneIdCounter = 0;
 
 	var svg = container.append("svg")
 			.attr("class", "world")
@@ -163,6 +172,7 @@ module.exports = spec => {
 
 	var onSetMacroState = () => {
 		jumpCamera();
+		refreshWorldTemplate();
 	}
 
 	var onUpdate = () => {
@@ -176,12 +186,33 @@ module.exports = spec => {
 	}
 
 	var onRender = () => {
+		refreshWorldTemplate();
 	}
 
 	var onEditExpressions = () => {
 	}
 
 	var onRefreshScene = () => {
+		let sceneObjectArray = _.flatten(_.values(getSceneObjects()));
+
+		// Temporary step while transitioning to Nanocomponent:
+		// Filter for only the scene object types that currently have a Nanocomponent implementation
+		let supportedComponentTypes = [
+			"text"
+		];
+		sceneObjectArray = _.filter(sceneObjectArray, v => _.includes(v.o, supportedComponentTypes));
+
+		sceneComponentStates = _.map(sceneObjectArray, (v, i) => ({
+			arguments: {
+				instance: v,
+				camera,
+				xScale,
+				yScale,
+			},
+			type: v.o,
+			id: _.toString(sceneIdCounter++),
+		}));
+		refreshWorldTemplate();
 	}
 
 	var onResize = () => {
@@ -207,6 +238,7 @@ module.exports = spec => {
 	var axes = Axes({
 		pubsub,
 		container: svg,
+		loader,
 
 		getWidth,
 		getHeight,
@@ -220,6 +252,7 @@ module.exports = spec => {
 	var images = Image({
 		pubsub,
 		container: svg,
+		loader,
 		getInstances: () => getSceneObjects("image"),
 
 		xScale,
@@ -240,6 +273,7 @@ module.exports = spec => {
 	var graph = Graph({
 		pubsub,
 		container: svg,
+		loader,
 
 		getWidth,
 		getHeight,
@@ -257,10 +291,11 @@ module.exports = spec => {
 
 	// lol hack
 	var goals;
-
+/*
 	var texts = Text({
 		pubsub,
 		container: svg,
+		loader,
 		getInstances: () => getSceneObjects("text"),
 
 		xScale,
@@ -277,10 +312,20 @@ module.exports = spec => {
 		sampleGraphSlope,
 		sampleGraphVelocity,
 	});
+*/
+	var worldTemplateNode = svg.append("g").node();
+	var refreshWorldTemplate = () => morph(worldTemplateNode, worldComponent.render({
+		scene: sceneComponentStates,
+		camera,
+		xScale,
+		yScale,
+	}));
+	refreshWorldTemplate();
 
 	var sledder = Sledder({
 		pubsub,
 		container: svg,
+		loader,
 		getInstances: () => getSceneObjects("sled"),
 		getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
@@ -302,6 +347,7 @@ module.exports = spec => {
 	goals = Goal({
 		pubsub,
 		container: svg,
+		loader,
 		getInstances: () => getSceneObjects("goal"),
 
 		xScale,
