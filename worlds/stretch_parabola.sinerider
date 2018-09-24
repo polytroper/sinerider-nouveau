@@ -1,0 +1,12 @@
+{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/escalator.sinerider\"",
+		"sledder={o:\"sled\", p:-8}",
+		"x_times_x={o:\"text\", p:-8+2i, v:\"Parabolas can be stretched, just like slopes\", color: 0, fontSize: 1}",
+		"g(v) = {o:\"goal\", p: -8*v+4i}",
+		"goals = map([-1, 1], g)",
+		"// Try stretching this parabola`",
+		"Y=(`x/2`)^2"
+	]
+}

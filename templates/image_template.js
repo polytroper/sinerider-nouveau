@@ -15,7 +15,7 @@ var {
 	pointSquareDistance
 } = require('../helpers');
 
-class TextComponent extends Nanocomponent {
+class ImageComponent extends Nanocomponent {
 	constructor () {
 		super();
 		this.x = 0;
@@ -23,6 +23,7 @@ class TextComponent extends Nanocomponent {
 		this.a = 0;
 		this.transformString = "";
 		this.url = "";
+		this.src = "";
 	}
 
 	update (state) {
@@ -38,6 +39,7 @@ class TextComponent extends Nanocomponent {
 			a,
 			v,
 			url,
+			src,
 			color,
 			fontSize,
 		} = instance;
@@ -72,10 +74,15 @@ class TextComponent extends Nanocomponent {
 			changed = true;
 		}
 
+		if (src != this.src) {
+			this.src = src;
+			changed = true;
+		}
+
 		return changed;
 	}
 
-	onClickText (url) {
+	onClick (url) {
 		console.log("Navigating to "+url);
 
 		if (_.startsWith(url, "/")) {
@@ -94,12 +101,12 @@ class TextComponent extends Nanocomponent {
 	wrapWithLink (node, url) {
 		let transformString = this.transformString;
 
-		let onClickText = this.onClickText;
+		let onClick = this.onClick;
 
 		return html`
-			<g class="text"
+			<g class="image"
 				transform="${transformString}"
-				onclick=${() => this.onClickText(url)}
+				onclick=${() => onClick(url)}
 				style="
 					cursor: pointer;
 				"
@@ -107,23 +114,13 @@ class TextComponent extends Nanocomponent {
 				${node}
 			</g>
 		`
-
-		return html`
-			<a 
-				transform="${transformString}"
-				href="${url}"
-				target="_blank"
-				>
-				${node}
-			</a>
-		`
 	}
 
 	wrapWithGroup (node) {
 		let transformString = this.transformString;
 
 		return html`
-			<g class="text"
+			<g class="image"
 				transform="${transformString}"
 				>
 				${node}
@@ -131,18 +128,17 @@ class TextComponent extends Nanocomponent {
 		`
 	}
 
-	createTextNode (instance) {
+	createImageNode (instance) {
 		let {
 			v,
 			color,
 			fontSize,
 			url,
+			src,
 		} = instance;
 
 		return html`
-			<text class="textNode"
-				text-anchor="middle"
-				text-decoration="${url == "" ? "none" : "underline"}"
+			<image class="imageNode"
 				alignment-baseline="middle"
 				style="
 					font-size:${math.round(fontSize*20)}px;
@@ -170,13 +166,14 @@ class TextComponent extends Nanocomponent {
 			a,
 			v,
 			url,
+			src,
 			color,
 			fontSize,
 		} = instance;
 
 		let transformString = this.transformString;
 
-		let textNode = this.createTextNode(instance);
+		let textNode = this.createImageNode(instance);
 
 		return url == "" ?
 			this.wrapWithGroup(textNode) :
@@ -184,4 +181,4 @@ class TextComponent extends Nanocomponent {
 	}
 }
 
-module.exports = TextComponent;
+module.exports = ImageComponent;

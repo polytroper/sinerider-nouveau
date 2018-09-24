@@ -89,6 +89,7 @@ svg {
   bottom: 0;
   flex-grow: 1;
 }
+
 .jsonEnvelope {
   font-family: Courier;
   position: absolute;

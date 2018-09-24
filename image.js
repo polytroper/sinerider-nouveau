@@ -115,7 +115,6 @@ module.exports = spec => {
 		images = enterImages.merge(images);
 		
 		images.select(".imageNode")
-				.style("fill", d => d.color)//parseColor(d.color))
 				.style("font-size", d => math.round(d.fontSize*20)+"px")
 				.attr("xlink:href", d => d.url)
 				.attr("x", calculateOffsetX)

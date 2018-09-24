@@ -1,7 +1,7 @@
 ﻿{
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"expressions": [
-		"url = \"/worlds/escalator.sinerider\"",
+		"url = \"/worlds/power_operator.sinerider\"",
 		"sledder={o:\"sled\", p:-3}",
 		"x_times_2={o:\"text\", p:-8+3i, v:\"x*2 squeezes your slope\", color: 0, fontSize: 0.8}",
 		"x_times_x={o:\"text\", p:-8+2i, v:\"What does x*x do?\", color: 0, fontSize: 1}",

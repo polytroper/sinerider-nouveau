@@ -136,7 +136,7 @@ var sceneObjectTypes = {
 	},
 	image: {
 		p: math.complex(0, 0),
-		url: "http://polytrope.com/favicon.png",
+		src: "http://polytrope.com/favicon.png",
 		size: 1,
 		anchor: 0,
 		color: 0,
@@ -857,7 +857,7 @@ var loadDefault = () => {
 		"about_link={o:\"text\", p:92-38i, v:\"About SineRider\", fontSize: 3, color:\"white\", url: \"/about.html\"}",
 		"sine={o:\"text\", p:48-10i, v:\"Sine\", fontSize: 8}",
 		"rider={o:\"text\", p:68-16i, v:\"Rider\", fontSize: 8, color:\"white\"}",
-		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, url:\"assets/randall_tree.png\"}",
+		"img = {o:\"image\", p: 77-10i, anchor:-i, size:12, src:\"assets/randall_tree.png\"}",
 		"a=-sin(x/32)*64/(abs(x/24)+1)",
 		"b=8/(1+((x-60)/4)^2)",
 		"c=1-1/(1+t)",

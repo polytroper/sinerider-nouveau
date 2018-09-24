@@ -3,10 +3,11 @@
 	"expressions": [
 		"url = \"/\"",
 		"sledder={o:\"sled\", p:0}",
-		"title={o:\"text\", p:1/2+4i, v:\"\", fontSize: 1}",
+		"title={o:\"text\", p:0+4i, v:\"Left and Right\", fontSize: 1}",
+		"title.p.re = sin(t)",
 		"g(v) = {o:\"goal\", p: sign(v)*2+v*2+0i}",
-		"goals = map(range(-3, 3), g)",
-		"// Go up`",
-		"Y=-cos(`x-sin(t*0.01)*2`)"
+		"goals = map(range(-3, 3, 2), g)",
+		"// Waves moving in waves`",
+		"Y=-cos(`x-sin(t*0.1)*4`)"
 	]
 }

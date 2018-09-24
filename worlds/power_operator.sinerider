@@ -1,0 +1,12 @@
+{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/escalator.sinerider\"",
+		"sledder={o:\"sled\", p:2.5}",
+		"x_times_x={o:\"text\", p:6-2i, v:\"x^1=x, x^2=x*x, x^3=x*x*x...\", color: 1, fontSize: 0.8}",
+		"g(v) = {o:\"goal\", p: v}",
+		"goals = map([-2+4i, 0, 2+4i], g)",
+		"// Try raising x to the power of 2`",
+		"Y=x^`3`"
+	]
+}

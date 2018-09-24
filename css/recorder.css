@@ -1,5 +1,6 @@
 .recorderEnvelope {
   display: flex;
+  pointer-events: all;
 
   align-items: stretch;
   align-content: stretch;
