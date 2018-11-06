@@ -1,19 +1,20 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.axes line{
-  stroke: #DDD;
+.axes line {
+  stroke: #ddd;
 }
 
-.axes path{
+.axes path {
   /*stroke: #DDD;*/
 }
 
-.axes text{
-  fill: #DDD;
+.axes text {
+  fill: #ddd;
 }
 
 .container {
@@ -234,7 +235,7 @@ svg {
 
 .victoryButton {
   font-family: Verdana;
-  background: #24D;
+  background: #24d;
   color: white;
 
   min-width: 144px;
@@ -332,7 +333,7 @@ svg {
 .editExpression {
   flex-grow: 1;
   display: flex;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 
 .buildExpressionEnvelope {
@@ -341,7 +342,7 @@ svg {
   align-items: stretch;
   flex-grow: 1;
   display: flex;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 
 .editExpressionEnvelope {
@@ -350,7 +351,7 @@ svg {
   align-items: stretch;
   flex-grow: 1;
   display: flex;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 
 .playExpressionEnvelope {
@@ -359,7 +360,7 @@ svg {
   align-items: stretch;
   flex-grow: 1;
   display: flex;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 
 .editExpressionSegments {
@@ -378,14 +379,14 @@ svg {
 .editExpressionTail {
   flex-shrink: 1;
   flex-grow: 1;
-  background: #FBFBFB;
+  background: #fbfbfb;
 }
 
 .editExpressionInput {
   text-align: center;
-  background: #FBFBFB;
+  background: #fbfbfb;
   border-style: dashed;
-  border-color: #E2E2E2;
+  border-color: #e2e2e2;
   border-width: 1px;
   font-family: Courier;
   font-size: 12px;
@@ -402,7 +403,7 @@ svg {
 .playExpressionText {
   font-size: 14px;
   flex-grow: 1;
-  color: #FFF;
+  color: #fff;
   background: #666;
   padding: 0px 3px;
   border: 1px inset #888;
@@ -415,7 +416,7 @@ svg {
 }
 
 .addExpressionButton {
-  color: #FFF;
+  color: #fff;
   background: #666;
   pointer-events: all;
 
@@ -442,11 +443,11 @@ svg {
 
 .addExpressionButton:hover {
   color: #000;
-  background: #FFF;
+  background: #fff;
 }
 
 .buildButton {
-  color: #CCC;
+  color: #ccc;
   background: transparent;
   pointer-events: all;
 
@@ -462,7 +463,7 @@ svg {
   height: 20px;
 
   margin: 5px;
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
   border-radius: 5px;
 
   align-self: flex-end;
@@ -474,13 +475,13 @@ svg {
 
 .buildButton:hover {
   color: #000;
-  background: #FFF;
+  background: #fff;
   border: 1px solid black;
 }
 
 .startButton {
-  color: #FFF;
-  background: #0C0;
+  color: #fff;
+  background: #0c0;
   pointer-events: all;
 
   display: flex;
@@ -506,12 +507,12 @@ svg {
 
 .startButton:hover {
   color: #000;
-  background: #FFF;
+  background: #fff;
 }
 
 .stopButton {
-  color: #FFF;
-  background: #C00;
+  color: #fff;
+  background: #c00;
   pointer-events: all;
 
   display: flex;
@@ -537,7 +538,7 @@ svg {
 
 .stopButton:hover {
   color: #000;
-  background: #FFF;
+  background: #fff;
 }
 
 .removeExpressionRegion {

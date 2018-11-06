@@ -1,250 +1,258 @@
-var d3 = require('d3');
-var _ = require('lodash');
-var math = require('mathjs');
+var d3 = require("d3");
+var _ = require("lodash");
+var math = require("mathjs");
 
 var {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	normalize,
-	isComplex,
-	fetchImage,
-	pointSquareDistance,
-} = require('./helpers');
+  r2d,
+  translate,
+  rotate,
+  transform,
+  lerp,
+  normalize,
+  isComplex,
+  fetchImage,
+  pointSquareDistance
+} = require("./helpers");
 
 module.exports = spec => {
-	var {
-		pubsub,
-		container,
-		loader,
+  var {
+    pubsub,
+    container,
+    loader,
 
-		getInstances,
-		getIntersections,
+    getInstances,
+    getIntersections,
 
-		xScale,
-		yScale,
-		camera,
+    xScale,
+    yScale,
+    camera,
 
-		cameraPoints,
-		
-		getRunning,
-		getFrameInterval,
-		getGravity,
+    cameraPoints,
 
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	} = spec;
+    getRunning,
+    getFrameInterval,
+    getGravity,
 
-	container = container.append("g")
-			.attr("class", "sledders");
+    sampleGraph,
+    sampleGraphSlope,
+    sampleGraphVelocity
+  } = spec;
 
-	var centerLocal = math.complex(0, 0.5);
+  container = container.append("g").attr("class", "sledders");
 
-	// cameraPoints.push(position);
+  var centerLocal = math.complex(0, 0.5);
 
-	var r2d = 180/Math.PI;
+  // cameraPoints.push(position);
 
-	var sledderImage64 = "";
+  var sledderImage64 = "";
 
-	loader("assets/rider_peeps.png", v => {
-			sledderImage64 = v;
-			refreshSledderImages();
-		});
+  loader("assets/rider_peeps.png", v => {
+    sledderImage64 = v;
+    refreshSledderImages();
+  });
 
-	var refreshSledderTransforms = () => {
-		container.selectAll(".sledder")
-				.attr("transform", d => {
-					return transform(xScale(math.re(d.p)), yScale(math.im(d.p)), d.a, camera.scale/20);
-				});
-	}
+  var refreshSledderTransforms = () => {
+    container.selectAll(".sledder").attr("transform", d => {
+      return transform(
+        xScale(math.re(d.p)),
+        yScale(math.im(d.p)),
+        d.a,
+        camera.scale / 20
+      );
+    });
+  };
 
-	var refreshSledderImages = () => {
-		container.selectAll(".sledder").select(".sledderImage")
-				.attr("xlink:xlink:href", sledderImage64)
-				// .attr("xlink:href", "assets/rider_peeps.png")
-	}
+  var refreshSledderImages = () => {
+    container
+      .selectAll(".sledder")
+      .select(".sledderImage")
+      .attr("xlink:xlink:href", sledderImage64);
+    // .attr("xlink:href", "assets/rider_peeps.png")
+  };
 
-	var refreshSledders = () => {
-		var instances = getInstances();
+  var refreshSledders = () => {
+    var instances = getInstances();
 
-		var sledders = container.selectAll(".sledder")
-			.data(instances);
-		sledders.exit().remove();
+    var sledders = container.selectAll(".sledder").data(instances);
+    sledders.exit().remove();
 
-		var enterSledders = sledders.enter()
-			.append("g")
-				.attr("class", "sledder")
+    var enterSledders = sledders
+      .enter()
+      .append("g")
+      .attr("class", "sledder");
 
-		var sledderImages = enterSledders.append("svg:image")
-				.attr("class", "sledderImage")
-				.attr("x", -15)
-				.attr("y", -30)
-				.attr("width", 30)
-				.attr("height", 30)
+    var sledderImages = enterSledders
+      .append("svg:image")
+      .attr("class", "sledderImage")
+      .attr("x", -15)
+      .attr("y", -30)
+      .attr("width", 30)
+      .attr("height", 30);
 
-		sledders = enterSledders.merge(sledders);
-		
-		refreshSledderTransforms();
-		refreshSledderImages();
-	}
+    sledders = enterSledders.merge(sledders);
 
-	var resetSledder = (instance, index) => {
-		let x = math.re(instance.p);
-		let y;
-		let a;
-		let s = sampleGraphSlope(x);
+    refreshSledderTransforms();
+    refreshSledderImages();
+  };
 
-		// console.log("Resetting sledder "+index);
-		// console.log(instance.p);
+  var resetSledder = (instance, index) => {
+    let x = math.re(instance.p);
+    let y;
+    let a;
+    let s = sampleGraphSlope(x);
 
-		if (isComplex(instance.p)) {
-			y = instance.p.im;
-			a = r2d*Math.atan(s);
-		}
-		else {
-			y = sampleGraph(x);
-			instance.p = math.complex(x, y);
-			a = r2d*Math.atan(s);
-		}
-		
+    // console.log("Resetting sledder "+index);
+    // console.log(instance.p);
 
-		// math.im(instance.p) = y;
+    if (isComplex(instance.p)) {
+      y = instance.p.im;
+      a = Math.atan(s);
+    } else {
+      y = sampleGraph(x);
+      instance.p = math.complex(x, y);
+      a = Math.atan(s);
+    }
 
-		instance.a = a;
+    // math.im(instance.p) = y;
 
-		instance.v.re = 0;
-		instance.v.im = 0;
-	}
+    instance.a = a;
 
-	var resetSledders = () => {
-		var instances = getInstances();
-		_.each(instances, resetSledder);
-	}
+    instance.v.re = 0;
+    instance.v.im = 0;
+  };
 
-	var onEditExpressions = () => {
-		resetSledders();
-	}
+  var resetSledders = () => {
+    var instances = getInstances();
+    _.each(instances, resetSledder);
+  };
 
-	var onSetMacroState = () => {
-		resetSledders();
-	}
+  var onEditExpressions = () => {
+    resetSledders();
+  };
 
-	var onMoveCamera = () => {
-		// refreshSledderTransform();
-	}
+  var onSetMacroState = () => {
+    resetSledders();
+  };
 
-	var onRender = () => {
-		refreshSledderTransforms();
-	}
+  var onMoveCamera = () => {
+    // refreshSledderTransform();
+  };
 
-	var onRefreshScene = () => {
-		resetSledders();
-		refreshSledders();
-	}
+  var onRender = () => {
+    refreshSledderTransforms();
+  };
 
-	var updateInstance = (instance, index) => {
-		var frameInterval = getFrameInterval();
-		var gravity = getGravity();
+  var onRefreshScene = () => {
+    resetSledders();
+    refreshSledders();
+  };
 
-		if (!isComplex(instance.p))
-			instance.p = math.complex(instance.p, 0);
-			// instance.p = math.complex(math.re(instance.p), math.im(instance.p));
+  var updateInstance = (instance, index) => {
+    var frameInterval = getFrameInterval();
+    var gravity = getGravity();
 
-		if (!isComplex(instance.v))
-			instance.v = math.complex(instance.v, 0);
+    if (!isComplex(instance.p)) instance.p = math.complex(instance.p, 0);
+    // instance.p = math.complex(math.re(instance.p), math.im(instance.p));
 
-		var position = instance.p;//math.complex(math.re(instance.p), math.im(instance.p));
-		var velocity = instance.v;//math.complex(math.re(instance.v), math.im(instance.v));
+    if (!isComplex(instance.v)) instance.v = math.complex(instance.v, 0);
 
-		// Move me
-		position.re += velocity.re*frameInterval;
-		position.im += velocity.im*frameInterval;
+    var position = instance.p; //math.complex(math.re(instance.p), math.im(instance.p));
+    var velocity = instance.v; //math.complex(math.re(instance.v), math.im(instance.v));
 
-		// Gravity
-		velocity.im += gravity;
+    // Move me
+    position.re += velocity.re * frameInterval;
+    position.im += velocity.im * frameInterval;
 
-		// Am I below ground? If so, it's THE REAL PHYSICS TIME
-		var gy = sampleGraph(position.re);
-		var slope = sampleGraphSlope(position.re);
-		var buffer = 0;//.01;
-		if (position.im <= gy-buffer) {
+    // Gravity
+    velocity.im += gravity;
 
-			// Get slope/normal vectors of ground
-			var slopeVector = {
-				x: 1,
-				y: slope
-			};
-			normalize(slopeVector); // make this a unit vector...
-			// console.log(slopeVector)
+    // Am I below ground? If so, it's THE REAL PHYSICS TIME
+    var gy = sampleGraph(position.re);
+    var slope = sampleGraphSlope(position.re);
+    var buffer = 0; //.01;
+    if (position.im <= gy - buffer) {
+      // Get slope/normal vectors of ground
+      var slopeVector = {
+        x: 1,
+        y: slope
+      };
+      normalize(slopeVector); // make this a unit vector...
+      // console.log(slopeVector)
 
-			var rotationVector = {
-				x: math.cos(instance.a/r2d),
-				y: math.sin(instance.a/r2d)
-			}
-			// console.log(rotationVector)
-			
-			// normal!
-			var normalVector = {
-				x: slopeVector.y,
-				y: -slopeVector.x
-			}
-			// console.log(normalVector)
+      var rotationVector = {
+        x: math.cos(instance.a / r2d),
+        y: math.sin(instance.a / r2d)
+      };
+      // console.log(rotationVector)
 
-			// Rotation vector ease to Normal!
-			rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.15);
-			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.15);
-			normalize(rotationVector);
+      // normal!
+      var normalVector = {
+        x: slopeVector.y,
+        y: -slopeVector.x
+      };
+      // console.log(normalVector)
 
-			instance.a = math.atan2(rotationVector.y, rotationVector.x)*r2d;
+      // Rotation vector ease to Normal!
+      rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.15);
+      rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.15);
+      normalize(rotationVector);
 
-			// Project Sledder velocity to ground vector
-			// var scalar = velocity.re*slopeVector.x + velocity.im*slopeVector.y; // dot product
-			var scalar = math.dot([velocity.re, velocity.im], [slopeVector.x, slopeVector.y]);
-			velocity.re = slopeVector.x*scalar;
-			velocity.im = math.max(velocity.im, slopeVector.y*scalar);
+      instance.a = math.atan2(rotationVector.y, rotationVector.x) * r2d;
 
-			// GROUND'S VELOCITY ITSELF
-			var groundVelY = sampleGraphVelocity(position.re);
+      // Project Sledder velocity to ground vector
+      // var scalar = velocity.re*slopeVector.x + velocity.im*slopeVector.y; // dot product
+      var scalar = math.dot(
+        [velocity.re, velocity.im],
+        [slopeVector.x, slopeVector.y]
+      );
+      velocity.re = slopeVector.x * scalar;
+      velocity.im = math.max(velocity.im, slopeVector.y * scalar);
 
-			// Project onto normal vector, add to Sledder
+      // GROUND'S VELOCITY ITSELF
+      var groundVelY = sampleGraphVelocity(position.re);
 
-			scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
-			velocity.re += normalVector.x*scalar;
-			velocity.im += normalVector.y*scalar;
+      // Project onto normal vector, add to Sledder
 
-			// depenetration!
-			scalar = math.dot([0, gy-position.im], [normalVector.x, normalVector.y]);
-			position.re += scalar*normalVector.x;
-			position.im += scalar*normalVector.y;
-		}
+      scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
+      velocity.re += normalVector.x * scalar;
+      velocity.im += normalVector.y * scalar;
 
-		var rotator = math.complex(math.cos(instance.a/r2d), math.sin(instance.a/r2d));
-		var center = math.add(math.multiply(centerLocal, rotator), position);
+      // depenetration!
+      scalar = math.dot(
+        [0, gy - position.im],
+        [normalVector.x, normalVector.y]
+      );
+      position.re += scalar * normalVector.x;
+      position.im += scalar * normalVector.y;
+    }
 
-		// instance.p = position;
-		// instance.v = velocity;
+    var rotator = math.complex(
+      math.cos(instance.a / r2d),
+      math.sin(instance.a / r2d)
+    );
+    var center = math.add(math.multiply(centerLocal, rotator), position);
 
-		var intersections = getIntersections(center, 0.5);
-		_.each(intersections, v => v.complete = true);
+    // instance.p = position;
+    // instance.v = velocity;
 
-	}
+    var intersections = getIntersections(center, 0.5);
+    _.each(intersections, v => (v.complete = true));
+  };
 
-	var onUpdate = () => {
-		var instances = getInstances();
+  var onUpdate = () => {
+    var instances = getInstances();
 
-		if (!getRunning()) return;
+    if (!getRunning()) return;
 
-		_.each(instances, updateInstance);
-	}
-	
-	pubsub.subscribe("onUpdate", onUpdate);
-	pubsub.subscribe("onRender", onRender);
+    //_.each(instances, updateInstance);
+  };
 
-	pubsub.subscribe("onSetMacroState", onSetMacroState);
+  pubsub.subscribe("onUpdate", onUpdate);
+  pubsub.subscribe("onRender", onRender);
 
-	pubsub.subscribe("onRefreshScene", onRefreshScene);
+  pubsub.subscribe("onSetMacroState", onSetMacroState);
 
-	pubsub.subscribe("onEditExpressions", onEditExpressions);
-}
+  pubsub.subscribe("onRefreshScene", onRefreshScene);
+
+  pubsub.subscribe("onEditExpressions", onEditExpressions);
+};

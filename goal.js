@@ -1,84 +1,92 @@
-var d3 = require('d3');
-var _ = require('lodash');
-var math = require('mathjs');
-var Color = require('color');
+var d3 = require("d3");
+var _ = require("lodash");
+var math = require("mathjs");
+var Color = require("color");
 
 var {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	normalize,
-	pointSquareDistance
-} = require('./helpers');
+  translate,
+  rotate,
+  transform,
+  lerp,
+  normalize,
+  pointSquareDistance
+} = require("./helpers");
 
 module.exports = spec => {
-	var {
-		pubsub,
-		container,
+  var {
+    pubsub,
+    container,
 
-		getInstances,
+    getInstances,
 
-		xScale,
-		yScale,
-		camera,
+    xScale,
+    yScale,
+    camera,
 
-		cameraPoints,
-		
-		getRunning,
-		getFrameInterval,
-		getGravity,
+    cameraPoints,
 
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	} = spec;
+    getRunning,
+    getFrameInterval,
+    getGravity,
 
-	// cameraPoints.push(position);
+    sampleGraph,
+    sampleGraphSlope,
+    sampleGraphVelocity
+  } = spec;
 
-	var r2d = 180/Math.PI;
+  // cameraPoints.push(position);
 
-	container = container.append("g")
-			.attr("class", "goals");
+  var r2d = 180 / Math.PI;
 
-	var goals;
-	
-	var refreshGoalTransforms = () => {
-		container.selectAll(".goal")
-				.attr("transform", d => transform(xScale(math.re(d.p)), yScale(math.im(d.p)), 0, camera.scale/20))
-	}
+  container = container.append("g").attr("class", "goals");
 
-	var refreshGoals = () => {
-		var instances = getInstances();
+  var goals;
 
-		goals = container.selectAll(".goal")
-			.data(instances);
-		goals.exit().remove();
+  var refreshGoalTransforms = () => {
+    container
+      .selectAll(".goal")
+      .attr("transform", d =>
+        transform(
+          xScale(math.re(d.p)),
+          yScale(math.im(d.p)),
+          0,
+          camera.scale / 20
+        )
+      );
+  };
 
-		// var goalSquares = container.selectAll(".goalSquare")
+  var refreshGoals = () => {
+    var instances = getInstances();
 
-		var enterGoals = goals.enter()
-			.append("g")
-				.attr("class", "goal")
+    goals = container.selectAll(".goal").data(instances);
+    goals.exit().remove();
 
-		var goalSquares = enterGoals.append("rect")
-				.attr("class", "goalSquare")
-				.attr("x", -10)
-				.attr("y", -10)
-				.attr("width", 20)
-				.attr("height", 20)
+    // var goalSquares = container.selectAll(".goalSquare")
 
-		goals = enterGoals.merge(goals);
-		
-		goals.select(".goalSquare")
-				.style("fill", d => d.complete ? "green" : "white")
-				.style("stroke", "black")
-				.style("strokeWidth", 1)
+    var enterGoals = goals
+      .enter()
+      .append("g")
+      .attr("class", "goal");
 
+    var goalSquares = enterGoals
+      .append("rect")
+      .attr("class", "goalSquare")
+      .attr("x", -10)
+      .attr("y", -10)
+      .attr("width", 20)
+      .attr("height", 20);
 
-		refreshGoalTransforms();
-	}
-/*
+    goals = enterGoals.merge(goals);
+
+    goals
+      .select(".goalSquare")
+      .style("fill", d => (d.complete ? "green" : "white"))
+      .style("stroke", "black")
+      .style("strokeWidth", 1);
+
+    refreshGoalTransforms();
+  };
+  /*
 
 	var setSledderTransform = (x, y, a) => {
 		position[0] = x;
@@ -105,7 +113,7 @@ module.exports = spec => {
 		resetSledder();
 	}
 */
-/*
+  /*
 	var onStartClock = () => {
 	}
 
@@ -113,35 +121,39 @@ module.exports = spec => {
 		resetSledder();
 	}
 */
-	var onMoveCamera = () => {
-		// refreshSledderTransform();
-	}
+  var onMoveCamera = () => {
+    // refreshSledderTransform();
+  };
 
-	var onRender = () => {
-		refreshGoalTransforms();
+  var onRender = () => {
+    refreshGoalTransforms();
 
-		d3.selectAll(".goalSquare")
-			.style("fill", d => d.complete ? "green" : "white")
-	}
+    d3.selectAll(".goalSquare").style(
+      "fill",
+      d => (d.complete ? "green" : "white")
+    );
+  };
 
-	var intersectPointInstance = (point, instance) => {
-		var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
-		var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
-		return intersectX && intersectY;
-	}
+  var intersectPointInstance = (point, instance) => {
+    var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
+    var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
+    return intersectX && intersectY;
+  };
 
-	var intersectCircleInstance = (point, radius, instance) => {
-		return pointSquareDistance(point, instance.p, 1) < radius;
-	}
+  var intersectCircleInstance = (point, radius, instance) => {
+    return pointSquareDistance(point, instance.p, 1) < radius;
+  };
 
-	var getIntersections = (point, radius) => {
-		var instances = getInstances();
-		var intersections = _.filter(instances, v => intersectCircleInstance(point, radius, v));
-		return intersections;
-	}
+  var getIntersections = (point, radius) => {
+    var instances = getInstances();
+    var intersections = _.filter(instances, v =>
+      intersectCircleInstance(point, radius, v)
+    );
+    return intersections;
+  };
 
-	var onUpdate = () => {
-		/*
+  var onUpdate = () => {
+    /*
 		if (!getRunning()) return;
 
 		var frameInterval = getFrameInterval();
@@ -173,7 +185,7 @@ module.exports = spec => {
 				y: math.sin(rotation/r2d)
 			}
 			// console.log(rotationVector)
-			
+
 			// normal!
 			var normalVector = {
 				x: slopeVector.y,
@@ -209,14 +221,14 @@ module.exports = spec => {
 			position[1] += scalar*normalVector.y;
 		}
 		*/
-	}
-	
-	pubsub.subscribe("onUpdate", onUpdate);
-	pubsub.subscribe("onRender", onRender);
+  };
 
-	pubsub.subscribe("onRefreshScene", refreshGoals);
+  pubsub.subscribe("onUpdate", onUpdate);
+  pubsub.subscribe("onRender", onRender);
 
-	return {
-		getIntersections,
-	}
-}
+  pubsub.subscribe("onRefreshScene", refreshGoals);
+
+  return {
+    getIntersections
+  };
+};

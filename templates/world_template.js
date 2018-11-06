@@ -1,68 +1,66 @@
-var _ = require('lodash');
-const math = require('mathjs');
-const html = require('choo/html');
-const Nanocomponent = require('nanocomponent');
-const Nanomap = require('nanomap');
+var _ = require("lodash");
+const math = require("mathjs");
+const html = require("choo/html");
+const Nanocomponent = require("nanocomponent");
+const Nanomap = require("nanomap");
 
-var TextComponent = require('./text_template');
+var TextComponent = require("./text_template");
+var GoalComponent = require("./goal_template");
 
 var {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	floatToGrayscale,
-	intToGrayscale,
-	parseColor,
-	normalize,
-	pointSquareDistance
-} = require('../helpers');
+  translate,
+  rotate,
+  transform,
+  lerp,
+  floatToGrayscale,
+  intToGrayscale,
+  parseColor,
+  normalize,
+  pointSquareDistance
+} = require("../helpers");
 
-const componentMapper = new Nanomap({gc: true}, {
-	'text': TextComponent,
-	default: TextComponent
-});
+const componentMapper = new Nanomap(
+  { gc: true },
+  {
+    text: TextComponent,
+    goal: GoalComponent,
+    default: TextComponent
+  }
+);
 
 class WorldComponent extends Nanocomponent {
-	constructor () {
-		super();
-	}
+  constructor() {
+    super();
+  }
 
-	update (state) {
-		let {
-			scene,
-			camera,
-			xScale,
-			yScale,
-		} = state;
+  update(state) {
+    let { scene, camera, xScale, yScale } = state;
 
-		let changed = true;
+    // console.log("Refreshing World:");
+    // console.log(scene);
 
-		// If we ever have actual rendering conditionals, they go here
-		if (true) {
-			changed = true;
-		}
+    let changed = true;
 
-		return changed;
-	}
+    // If we ever have actual rendering conditionals, they go here
+    if (true) {
+      changed = true;
+    }
 
-	createElement (state) {
-		// console.log("Creating World Element");
-		// console.log(state);
+    return changed;
+  }
 
-		let {
-			scene,
-			camera,
-			xScale,
-			yScale,
-		} = state;
+  createElement(state) {
+    // console.log("Creating World Element");
+    // console.log(state);
 
-		return html`
+    let { scene, camera, xScale, yScale } = state;
+
+    return html`
 			<g class="world">
 				${scene.map(componentMapper)}
 			</g>
-		`
-	}
+		`;
+  }
 }
 
 module.exports = WorldComponent;

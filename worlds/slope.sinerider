@@ -7,7 +7,10 @@
 		"negative={o:\"text\", p:8+i, v:\"On the right, x is positive\", fontSize: 0.5, color: 1}",
 		"negative_positive={o:\"text\", p:-8-i, v:\"Now when x is negative, y is positive\", fontSize: 0.5, color: 1}",
 		"green_button={o:\"text\", p:8-i, v:\"(Press the Green Button)\", fontSize: 0.5}",
-		"g(v) = {o:\"goal\", p: 2*v-(2*v)i}",
+		"notes = add(36, [1, 3, 5, 6, 8])",
+		"get_note(n) = notes[n]",
+		"get_color(n) = d3.interpolateCool((n-1)/4)",
+		"g(v) = {o:\"goal\", p: 2*v-(2*v)i, note: get_note(v), color: get_color(v)}",
 		"goals = map(range(1, 5), g)",
 		"// Try making x negative`",
 		"Y=`x`"
