@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/escalator.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:-2i, v:\"Time can wiggle\", fontSize: 1, color: 1}",
+		"goal_count = 10",
+		"g(v) = {o:\"goal\", p: sin(v)+v*i, note: 30+v*2-floor(v/4), color: d3.interpolateViridis(v/(goal_count-1))}",
+		"goals = map(range(0, goal_count-1), g)",
+		"// Wiggle that parabola`",
+		"Y=(`x-sin(t)`)^2+t"
+	]
+}

@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/time_upward_parabola.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:3-3i, v:\"Time can carry us away\", fontSize: 1, color: 1}",
+		"goal_count = 7",
+		"g(v) = {o:\"goal\", p: v+1+i/2, note: 40+v*2-floor(abs(v)/4), color: d3.interpolatePlasma(2*abs(v)/goal_count)}",
+		"goals = map(range(1, goal_count+1), g)",
+		"// Move forward`",
+		"Y=(`x+t*2`)^2"
+	]
+}

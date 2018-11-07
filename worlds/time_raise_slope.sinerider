@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/parabola.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:3/5+4i, v:\"Time can move space\", fontSize: 1, color: 0}",
+		"goal_count = 20",
+		"g(v) = {o:\"goal\", p: v+sqrt(v)*i, note: 20+2*v-(floor(v/5)), color: d3.interpolateWarm((v-1)/(goal_count-1))}",
+		"goals = map(range(1, goal_count), g)",
+		"// Go upward`",
+		"Y=`-x/5+t`"
+	]
+}

@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/raise_parabola.sinerider\"",
+		"sledder={o:\"sled\", p:4}",
+		"title={o:\"text\", p:2-3i, v:\"Parabolas can also move left and right\", fontSize: 1, color: 1}",
+		"goal_count = 12",
+		"g(v) = {o:\"goal\", p: v+(((v+4)/3)^2)i, note: 40+abs(v)*3-floor(abs(v)/4), color: d3. interpolatePlasma(2*abs(v)/goal_count)}",
+		"goals = map(range(-goal_count/2-4, goal_count/2-4), g)",
+		"// Try moving this parabola left`",
+		"Y=(`(x-2)/3`)^2"
+	]
+}

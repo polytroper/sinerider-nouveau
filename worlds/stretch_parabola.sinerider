@@ -1,12 +1,13 @@
-{
+﻿{
 	"version": "0.0.1",
 	"expressions": [
-		"url = \"/worlds/escalator.sinerider\"",
-		"sledder={o:\"sled\", p:-8}",
-		"x_times_x={o:\"text\", p:-8+2i, v:\"Parabolas can be stretched, just like slopes\", color: 0, fontSize: 1}",
-		"g(v) = {o:\"goal\", p: -8*v+4i}",
-		"goals = map([-1, 1], g)",
-		"// Try stretching this parabola`",
-		"Y=(`x/2`)^2"
+		"url = \"/worlds/move_parabola.sinerider\"",
+		"sledder={o:\"sled\", p:-7}",
+		"title={o:\"text\", p:-4-2i, v:\"(x/7)^2 will stretch your parabola\", fontSize: 1, color: 1}",
+		"goal_count = 12",
+		"g(v) = {o:\"goal\", p: v+(v/2)^2*i, note: 40+abs(v)*2+floor(abs(v)/3), color: d3.interpolateWarm(2*abs(v)/goal_count)}",
+		"goals = map(range(-goal_count/2, goal_count/2), g)",
+		"// Try un-stretching this parabola`",
+		"Y=(`x/7`)^2"
 	]
 }

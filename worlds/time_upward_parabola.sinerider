@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/time_wiggle_parabola.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:1-2i, v:\"Time can move in all directions\", fontSize: 1, color: 1}",
+		"goal_count = 4",
+		"g(v) = {o:\"goal\", p: v+(v)i, note: 30+v*5-3*floor(v/2), color: d3.interpolateMagma(v/(goal_count-1))}",
+		"goals = map(range(1, goal_count), g)",
+		"// Try moving upward`",
+		"Y=`(x+t)^2-t`"
+	]
+}

@@ -2,10 +2,11 @@
 	"version": "0.0.0",
 	"expressions": [
 		"url = \"/worlds/stretch_raise_slope.sinerider\"",
-		"title={o:\"text\", p:-6i, v:\"Y=x+2 will raise your slope\", color: 1}",
-		"g(v) = {o:\"goal\", p: -2*v+(-2*v+8)*i}",
-		"goals = map(range(1, 8), g)",
+		"title={o:\"text\", p: 0, a: pi/4, v:\"Y=x+2 will raise your slope\", color: 1}",
+		"goal_count = 12",
+		"g(v) = {o:\"goal\", p: -2*v+(-2*v+8)*i, note: 28+7*floor(v/2)-2v, color: d3.interpolateViridis((v-1)/(goal_count-1))}",
+		"goals = map(range(1, goal_count+1), g)",
 		"// How can you raise this slope even higher?`",
-		"Y=x+`2`"
+		"Y=`x+2`"
 	]
 }

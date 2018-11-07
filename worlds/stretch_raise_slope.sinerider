@@ -1,10 +1,11 @@
 {
 	"version": "0.0.0",
 	"expressions": [
-		"url = \"/worlds/variables.sinerider\"",
+		"url = \"/worlds/time.sinerider\"",
 		"title={o:\"text\", p:-6i, v:\"You can make all kinds of slopes\", color: 1}",
-		"g(v) = {o:\"goal\", p: -2*v+(-2*v/2+8)*i}",
-		"goals = map(range(1, 12), g)",
+		"goal_count = 12",
+		"g(v) = {o:\"goal\", p: -2*v+(-2*v/2+8)*i, note: 18+7*floor(v/2)+(v%2)*4, color: d3.interpolateMagma((v-1)/(goal_count-1))}",
+		"goals = map(range(1, goal_count+1), g)",
 		"// You know what to do`",
 		"Y=`-x/3+2`"
 	]

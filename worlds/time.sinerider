@@ -1,0 +1,13 @@
+{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/time_raise_slope.sinerider\"",
+		"sledder={o:\"sled\", p:0}",
+		"title={o:\"text\", p:-4i, v:\"Time changes things\", fontSize: 1, color: 1}",
+		"goal_count = 4",
+		"g(v) = {o:\"goal\", p: (v+2)i, note: 20+2v-(floor(v/4)), color: d3.interpolateCool((v-1)/(goal_count-1))}",
+		"goals = map(range(1, goal_count+1), g)",
+		"// Go up`",
+		"Y=`-t`"
+	]
+}

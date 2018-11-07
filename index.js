@@ -138,8 +138,8 @@ var sceneObjectTypes = {
         _physicsKinetic: false,
         _physicsLayer: "player_trigger",
         _physicsShape: "circle",
-        _physicsOffset: math.complex(0, 0.5),
-        _physicsRadius: 0.5
+        _physicsOffset: math.complex(0, 0.6),
+        _physicsRadius: 0.6
       }
     ]
   },
