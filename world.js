@@ -21,7 +21,7 @@ const {
   transform,
   lerp,
   normalize,
-  getSceneObjects
+  isComplex
 } = require("./helpers");
 
 module.exports = spec => {
@@ -227,13 +227,47 @@ module.exports = spec => {
     }
   };
 
-  var onRender = () => {
+  var render = () => {
+    axes.render();
+    graph.render();
+    images.render();
+    sledder.render();
+
     refreshWorldTemplate();
   };
 
   var onEditExpressions = () => {};
 
-  var onRefreshScene = () => {
+  var refreshScene = () => {
+    _.each(getSceneObjects("sled"), instance => {
+      let x = math.re(instance.p);
+      let y;
+      let a;
+      let s = sampleGraphSlope(x);
+
+      // console.log("Resetting sledder "+index);
+      // console.log(instance.p);
+
+      if (isComplex(instance.p)) {
+        y = instance.p.im;
+        a = Math.atan(s);
+      } else {
+        y = sampleGraph(x);
+        instance.p = math.complex(x, y);
+        a = Math.atan(s);
+      }
+
+      instance._physicsUpright.re = -math.sin(a);
+      instance._physicsUpright.im = math.cos(a);
+
+      // math.im(instance.p) = y;
+
+      instance.a = a;
+
+      instance.v.re = 0;
+      instance.v.im = 0;
+    });
+
     let sceneObjectArray = _.flatten(_.values(getSceneObjects()));
 
     // Temporary step while transitioning to Nanocomponent:
@@ -267,12 +301,11 @@ module.exports = spec => {
   refreshScales();
 
   pubsub.subscribe("onUpdate", onUpdate);
-  pubsub.subscribe("onRender", onRender);
 
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
   pubsub.subscribe("onEditExpressions", onEditExpressions);
-  pubsub.subscribe("onRefreshScene", onRefreshScene);
+  // pubsub.subscribe("onRefreshScene", onRefreshScene);
 
   pubsub.subscribe("onResize", onResize);
 
@@ -330,30 +363,6 @@ module.exports = spec => {
     sampleGraph
   });
 
-  // lol hack
-  var goals;
-  /*
-	var texts = Text({
-		pubsub,
-		container: svg,
-		loader,
-		getInstances: () => getSceneObjects("text"),
-
-		xScale,
-		yScale,
-		camera,
-
-		cameraPoints,
-
-		getRunning,
-		getFrameInterval,
-		getGravity,
-
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	});
-*/
   var worldTemplateNode = svg.append("g").node();
   var refreshWorldTemplate = () =>
     morph(
@@ -372,7 +381,6 @@ module.exports = spec => {
     container: svg,
     loader,
     getInstances: () => getSceneObjects("sled"),
-    getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
     xScale,
     yScale,
@@ -388,26 +396,9 @@ module.exports = spec => {
     sampleGraphSlope,
     sampleGraphVelocity
   });
-  /*
-  goals = Goal({
-    pubsub,
-    container: svg,
-    loader,
-    getInstances: () => getSceneObjects("goal"),
 
-    xScale,
-    yScale,
-    camera,
-
-    cameraPoints,
-
-    getRunning,
-    getFrameInterval,
-    getGravity,
-
-    sampleGraph,
-    sampleGraphSlope,
-    sampleGraphVelocity
-  });
-	*/
+  return {
+    render,
+    refreshScene
+  };
 };

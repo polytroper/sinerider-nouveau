@@ -200,6 +200,7 @@ svg {
 
   justify-content: flex-start;
   align-items: center;
+  /* box-shadow: 5px 10px 5px #444; */
 }
 
 .victoryHeading {

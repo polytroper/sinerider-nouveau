@@ -98,7 +98,7 @@ module.exports = spec => {
     }
   };
 
-  var onRender = () => {
+  var render = () => {
     // graphLine.attr("d", graphLineGenerator);
     graphArea.attr("d", graphAreaGenerator);
   };
@@ -108,8 +108,12 @@ module.exports = spec => {
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
   pubsub.subscribe("onUpdate", onUpdate);
-  pubsub.subscribe("onRender", onRender);
+  // pubsub.subscribe("onRender", onRender);
 
   pubsub.subscribe("onMoveCamera", onMoveCamera);
   pubsub.subscribe("onEditExpressions", onEditExpressions);
+
+  return {
+    render
+  };
 };

@@ -317,6 +317,8 @@ var refreshScene = () => {
 
   console.log(sceneObjects);
 
+  world.refreshScene();
+
   pubsub.publish("onRefreshScene");
 };
 
@@ -693,9 +695,9 @@ var render = () => {
     });
   } else requestAnimationFrame(render);
 
-  pubsub.publish("onRender");
+  world.render();
+  ui.render();
 };
-render();
 
 var setMacroState = s => {
   let wasRecording = getRecording();
@@ -882,9 +884,7 @@ var loadDefault = () => {
   ]);
 };
 
-loadDefault();
-
-World({
+const world = World({
   pubsub,
   container,
   loader,
@@ -915,7 +915,7 @@ World({
   sampleGraphVelocity
 });
 
-Ui({
+const ui = Ui({
   pubsub,
   container,
   loader,
@@ -963,6 +963,8 @@ Ui({
 if (!loadFromUrl()) loadDefault();
 // console.log("No URL state to load");
 // loadState(defaultState);
+
+render();
 
 const choo = require("choo");
 const html = require("choo/html");
