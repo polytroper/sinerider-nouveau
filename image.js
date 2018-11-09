@@ -119,51 +119,13 @@ module.exports = spec => {
     images
       .select(".imageNode")
       .style("font-size", d => math.round(d.fontSize * 20) + "px")
-      .attr("xlink:href", d => d.url)
+      .attr("xlink:href", d => d.src)
       .attr("x", calculateOffsetX)
       .attr("y", calculateOffsetY)
       .attr("width", calculateSize)
       .attr("height", calculateSize);
 
     refreshImageTransforms();
-  };
-  /*
-
-	var setSledderTransform = (x, y, a) => {
-		position[0] = x;
-		position[1] = y;
-		rotation = a;
-		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20))
-	}
-
-	var setSledderVelocity = (x, y) => {
-		velocity[0] = x;
-		velocity[1] = y;
-	}
-
-	var resetSledder = () => {
-		let y = sampleGraph(0);
-		let s = sampleGraphSlope(y);
-		let a = r2d*Math.atan(s);
-		console.log("Sledder Angle is "+a+", slope is "+s)
-		setSledderTransform(0, y, a);
-		setSledderVelocity(0, 0);
-	}
-
-	var onEditExpressions = () => {
-		resetSledder();
-	}
-*/
-  /*
-	var onStartClock = () => {
-	}
-
-	var onStopClock = () => {
-		resetSledder();
-	}
-*/
-  var onMoveCamera = () => {
-    // refreshSledderTransform();
   };
 
   var render = () => {
