@@ -1,35 +1,28 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var d3 = require('d3');
-var _ = require('lodash');
-var math = require('mathjs');
+var d3 = require("d3");
+var _ = require("lodash");
+var math = require("mathjs");
 
-var {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	normalize
-} = require('./helpers');
+var { translate, rotate, transform, lerp, normalize } = require("./helpers");
 
 module.exports = spec => {
-	var {
-		pubsub,
-		container,
+  var {
+    pubsub,
+    container,
 
-		getWidth,
-		getHeight,
-		getAspect,
+    getWidth,
+    getHeight,
+    getAspect,
 
-		xScale,
-		yScale,
-		camera,
-	} = spec;
+    xScale,
+    yScale,
+    camera
+  } = spec;
 
-	var axes = container.append("g")
-			.attr("class", "axes")
+  var axes = container.append("g").attr("class", "axes");
 
-	var tickInts = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-/*
+  var tickInts = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  /*
 	var xAxis = axes.append("g")
 		.attr("class", "xAxis")
 		.attr("transform", "translate(0," + yScale(0) + ")")
@@ -51,38 +44,36 @@ module.exports = spec => {
 		);
 */
 
-	var xAxis = axes.append("g")
-			.attr("class", "xAxis")
-			.attr("transform", "translate(0," + yScale(0) + ")")
+  var xAxis = axes
+    .append("g")
+    .attr("class", "xAxis")
+    .attr("transform", "translate(0," + yScale(0) + ")");
 
-	var yAxis = axes.append("g")
-			.attr("class", "yAxis")
-			.attr("transform", "translate(" + xScale(0) + ", 0)")
+  var yAxis = axes
+    .append("g")
+    .attr("class", "yAxis")
+    .attr("transform", "translate(" + xScale(0) + ", 0)");
 
-	var xPath = xAxis.append("path")
-			.attr("stroke", "#D8D8D8")
-			.attr("stroke-width", 1)
-			.attr("d", d3.line()([[0, 0], [getWidth(), 0]]))
+  var xPath = xAxis
+    .append("path")
+    .attr("stroke", "#D8D8D8")
+    .attr("stroke-width", 1)
+    .attr("d", d3.line()([[0, 0], [getWidth(), 0]]));
 
-	var yPath = yAxis.append("path")
-			.attr("stroke", "#D8D8D8")
-			.attr("stroke-width", 1)
-			.attr("d", d3.line()([[0, 0], [0, getHeight()]]))
+  var yPath = yAxis
+    .append("path")
+    .attr("stroke", "#D8D8D8")
+    .attr("stroke-width", 1)
+    .attr("d", d3.line()([[0, 0], [0, getHeight()]]));
 
-	var onStartClock = () => {
-	}
+  var onStartClock = () => {};
 
-	var onStopClock = () => {
-	}
+  var onStopClock = () => {};
 
-	var onEditExpressions = () => {
-	}
+  var onEditExpressions = () => {};
 
-	var onUpdate = () => {
-	}
-
-	var onRender = () => {
-		/*
+  var render = () => {
+    /*
 		xAxis.attr("transform", translate(0, yScale(0)))
 			.call(
 				d3.axisBottom(xScale)
@@ -100,27 +91,27 @@ module.exports = spec => {
 			);
 		*/
 
-		// xPath.attr("d", xLine);
-		xAxis.attr("transform", "translate(0," + yScale(0) + ")");
-		yAxis.attr("transform", "translate(" + xScale(0) + ", 0)");
-	}
+    xAxis.attr("transform", "translate(0," + yScale(0) + ")");
+    yAxis.attr("transform", "translate(" + xScale(0) + ", 0)");
+  };
 
-	var onResize = () => {
-		xPath.attr("d", d3.line()([[0, 0], [getWidth(), 0]]));
-		yPath.attr("d", d3.line()([[0, 0], [0, getHeight()]]));
-	}
-	
-	pubsub.subscribe("onUpdate", onUpdate);
-	pubsub.subscribe("onRender", onRender);
+  var onResize = () => {
+    xPath.attr("d", d3.line()([[0, 0], [getWidth(), 0]]));
+    yPath.attr("d", d3.line()([[0, 0], [0, getHeight()]]));
+  };
 
-	pubsub.subscribe("onResize", onResize);
+  pubsub.subscribe("onResize", onResize);
 
-	pubsub.subscribe("onStopClock", onStopClock);
-	pubsub.subscribe("onStartClock", onStartClock);
+  pubsub.subscribe("onStopClock", onStopClock);
+  pubsub.subscribe("onStartClock", onStartClock);
 
-	pubsub.subscribe("onEditExpressions", onEditExpressions);
+  pubsub.subscribe("onEditExpressions", onEditExpressions);
 
-}
+  return {
+    render
+  };
+};
+
 },{"./helpers":4,"d3":55,"lodash":66,"mathjs":68}],2:[function(require,module,exports){
 var d3 = require("d3");
 var _ = require("lodash");
@@ -458,7 +449,7 @@ module.exports = spec => {
     }
   };
 
-  var onRender = () => {
+  var render = () => {
     // graphLine.attr("d", graphLineGenerator);
     graphArea.attr("d", graphAreaGenerator);
   };
@@ -468,10 +459,14 @@ module.exports = spec => {
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
   pubsub.subscribe("onUpdate", onUpdate);
-  pubsub.subscribe("onRender", onRender);
+  // pubsub.subscribe("onRender", onRender);
 
   pubsub.subscribe("onMoveCamera", onMoveCamera);
   pubsub.subscribe("onEditExpressions", onEditExpressions);
+
+  return {
+    render
+  };
 };
 
 },{"./helpers":4,"d3":55,"lodash":66,"mathjs":68}],4:[function(require,module,exports){
@@ -683,273 +678,165 @@ module.exports = {
 };
 
 },{"color":22,"lodash":66,"mathjs":68}],5:[function(require,module,exports){
-var d3 = require('d3');
-var _ = require('lodash');
-var math = require('mathjs');
+var d3 = require("d3");
+var _ = require("lodash");
+var math = require("mathjs");
 
 var {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	floatToGrayscale,
-	intToGrayscale,
-	parseColor,
-	normalize,
-	fetchImage,
-	pointSquareDistance
-} = require('./helpers');
+  translate,
+  rotate,
+  transform,
+  lerp,
+  floatToGrayscale,
+  intToGrayscale,
+  parseColor,
+  normalize,
+  fetchImage,
+  pointSquareDistance
+} = require("./helpers");
 
 module.exports = spec => {
-	var {
-		pubsub,
-		container,
-		loader,
+  var {
+    pubsub,
+    container,
+    loader,
 
-		getInstances,
+    getInstances,
 
-		xScale,
-		yScale,
-		camera,
+    xScale,
+    yScale,
+    camera,
 
-		cameraPoints,
-		
-		getRunning,
-		getFrameInterval,
-		getGravity,
+    cameraPoints,
 
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	} = spec;
+    getRunning,
+    getFrameInterval,
+    getGravity,
 
-	// cameraPoints.push(position);
+    sampleGraph,
+    sampleGraphSlope,
+    sampleGraphVelocity
+  } = spec;
 
-	var r2d = 180/Math.PI;
+  // cameraPoints.push(position);
 
-	container = container.append("g")
-		.attr("class", "images");
+  var r2d = 180 / Math.PI;
 
-	var images;
+  container = container.append("g").attr("class", "images");
 
-	var calculateSize = d => d.size*32;
+  var images;
 
-	var calculateOffsetX = d => {
-		let anchorX = math.re(d.anchor);
-		let size = calculateSize(d);
-		return lerp(-size, 0, 1-(anchorX+1)/2);
-	}
+  var calculateSize = d => d.size * 32;
 
-	var calculateOffsetY = d => {
-		let anchorY = math.im(d.anchor);
-		let size = calculateSize(d);
-		return lerp(-size, 0, (anchorY+1)/2);
-	}
-	
-	var refreshImageTransforms = () => {
-		container.selectAll(".image")
-				.attr("transform", d => transform(xScale(math.re(d.p)), yScale(math.im(d.p)), 0, camera.scale/20))
+  var calculateOffsetX = d => {
+    let anchorX = math.re(d.anchor);
+    let size = calculateSize(d);
+    return lerp(-size, 0, 1 - (anchorX + 1) / 2);
+  };
 
-		// container.selectAll(".imageNode")
-	}
+  var calculateOffsetY = d => {
+    let anchorY = math.im(d.anchor);
+    let size = calculateSize(d);
+    return lerp(-size, 0, (anchorY + 1) / 2);
+  };
 
-	var fetchImageData = d => {
-		if (d.url != d._url) {
-			d.url = d._url;
+  var refreshImageTransforms = () => {
+    container
+      .selectAll(".image")
+      .attr("transform", d =>
+        transform(
+          xScale(math.re(d.p)),
+          yScale(math.im(d.p)),
+          0,
+          camera.scale / 20
+        )
+      );
 
-			fetchImage("assets/rider_peeps.png", v => {
-				sledderImage64 = v;
-				refreshSledderImages();
-			});
-		}
-	}
+    // container.selectAll(".imageNode")
+  };
 
-	var loadImageAsset = d => {
-		loader(d.url)
-			.then(v => {
+  var fetchImageData = d => {
+    if (d.url != d._url) {
+      d.url = d._url;
 
-			})
-	}
+      fetchImage("assets/rider_peeps.png", v => {
+        sledderImage64 = v;
+        refreshSledderImages();
+      });
+    }
+  };
 
-	var refreshImageAssets = () => {
-		images.select(".imageNode")
-				.attr("xlink:href", d => d.url)
-	}
+  var loadImageAsset = d => {
+    loader(d.url).then(v => {});
+  };
 
-	var refreshImages = () => {
-		var instances = getInstances();
+  var refreshImageAssets = () => {
+    images.select(".imageNode").attr("xlink:href", d => d.url);
+  };
 
+  var refreshImages = () => {
+    var instances = getInstances();
 
+    images = container.selectAll(".image").data(instances);
+    images.exit().remove();
 
-		images = container.selectAll(".image")
-			.data(instances);
-		images.exit().remove();
+    // var imageNodes = container.selectAll(".imageNode")
 
-		// var imageNodes = container.selectAll(".imageNode")
+    var enterImages = images
+      .enter()
+      .append("g")
+      .attr("class", "image");
 
-		var enterImages = images.enter()
-			.append("g")
-				.attr("class", "image")
+    var imageNodes = enterImages
+      .append("image")
+      .attr("class", "imageNode")
+      .attr("image-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("crossorigin", "anonymous");
 
-		var imageNodes = enterImages.append("image")
-				.attr("class", "imageNode")
-				.attr("image-anchor", "middle")
-				.attr("alignment-baseline", "middle")
-				.attr("crossorigin", "anonymous")
+    images = enterImages.merge(images);
 
-		images = enterImages.merge(images);
-		
-		images.select(".imageNode")
-				.style("font-size", d => math.round(d.fontSize*20)+"px")
-				.attr("xlink:href", d => d.url)
-				.attr("x", calculateOffsetX)
-				.attr("y", calculateOffsetY)
-				.attr("width", calculateSize)
-				.attr("height", calculateSize)
+    images
+      .select(".imageNode")
+      .style("font-size", d => math.round(d.fontSize * 20) + "px")
+      .attr("xlink:href", d => d.src)
+      .attr("x", calculateOffsetX)
+      .attr("y", calculateOffsetY)
+      .attr("width", calculateSize)
+      .attr("height", calculateSize);
 
-		refreshImageTransforms();
-	}
-/*
+    refreshImageTransforms();
+  };
 
-	var setSledderTransform = (x, y, a) => {
-		position[0] = x;
-		position[1] = y;
-		rotation = a;
-		sledder.attr("transform", transform(xScale(position[0]), yScale(position[1]), rotation, camera.scale/20))
-	}
+  var render = () => {
+    refreshImageTransforms();
+  };
 
-	var setSledderVelocity = (x, y) => {
-		velocity[0] = x;
-		velocity[1] = y;
-	}
+  var intersectPointInstance = (point, instance) => {
+    var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
+    var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
+    return intersectX && intersectY;
+  };
 
-	var resetSledder = () => {
-		let y = sampleGraph(0);
-		let s = sampleGraphSlope(y);
-		let a = r2d*Math.atan(s);
-		console.log("Sledder Angle is "+a+", slope is "+s)
-		setSledderTransform(0, y, a);
-		setSledderVelocity(0, 0);
-	}
+  var intersectCircleInstance = (point, radius, instance) => {
+    return pointSquareDistance(point, instance.p, 1) < radius;
+  };
 
-	var onEditExpressions = () => {
-		resetSledder();
-	}
-*/
-/*
-	var onStartClock = () => {
-	}
+  var getIntersections = (point, radius) => {
+    var instances = getInstances();
+    var intersections = _.filter(instances, v =>
+      intersectCircleInstance(point, radius, v)
+    );
+    return intersections;
+  };
 
-	var onStopClock = () => {
-		resetSledder();
-	}
-*/
-	var onMoveCamera = () => {
-		// refreshSledderTransform();
-	}
+  pubsub.subscribe("onRefreshScene", refreshImages);
 
-	var onRender = () => {
-		refreshImageTransforms();
+  return {
+    render
+  };
+};
 
-		// d3.selectAll(".imageNode")
-			// .style("fill", d => d.complete ? "green" : "white")
-	}
-
-	var intersectPointInstance = (point, instance) => {
-		var intersectX = math.abs(point.re - math.re(instance.p)) < 0.5;
-		var intersectY = math.abs(point.im - math.im(instance.p)) < 0.5;
-		return intersectX && intersectY;
-	}
-
-	var intersectCircleInstance = (point, radius, instance) => {
-		return pointSquareDistance(point, instance.p, 1) < radius;
-	}
-
-	var getIntersections = (point, radius) => {
-		var instances = getInstances();
-		var intersections = _.filter(instances, v => intersectCircleInstance(point, radius, v));
-		return intersections;
-	}
-
-	var onUpdate = () => {
-		/*
-		if (!getRunning()) return;
-
-		var frameInterval = getFrameInterval();
-		var gravity = getGravity();
-
-		// Move me
-		position[0] += velocity[0]*frameInterval;
-		position[1] += velocity[1]*frameInterval;
-
-		// Gravity
-		velocity[1] += gravity;
-
-		// Am I below ground? If so, it's THE REAL PHYSICS TIME
-		var gy = sampleGraph(position[0]);
-		var slope = sampleGraphSlope(position[0]);
-		var buffer = 0;//.01;
-		if (position[1] <= gy-buffer) {
-
-			// Get slope/normal vectors of ground
-			var slopeVector = {
-				x: 1,
-				y: slope
-			};
-			normalize(slopeVector); // make this a unit vector...
-			// console.log(slopeVector)
-
-			var rotationVector = {
-				x: math.cos(rotation/r2d),
-				y: math.sin(rotation/r2d)
-			}
-			// console.log(rotationVector)
-			
-			// normal!
-			var normalVector = {
-				x: slopeVector.y,
-				y: -slopeVector.x
-			}
-			// console.log(normalVector)
-
-			// Rotation vector ease to Normal!
-			rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.1);
-			rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.1);
-			normalize(rotationVector);
-
-			rotation = math.atan2(rotationVector.y, rotationVector.x)*r2d;
-
-			// Project Sledder velocity to ground vector
-			// var scalar = velocity[0]*slopeVector.x + velocity[1]*slopeVector.y; // dot product
-			var scalar = math.dot([velocity[0], velocity[1]], [slopeVector.x, slopeVector.y]);
-			velocity[0] = slopeVector.x*scalar;
-			velocity[1] = math.max(velocity[1], slopeVector.y*scalar);
-
-			// GROUND'S VELOCITY ITSELF
-			var groundVelY = sampleGraphVelocity(position[0]);
-
-			// Project onto normal vector, add to Sledder
-
-			scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
-			velocity[0] += normalVector.x*scalar;
-			velocity[1] += normalVector.y*scalar;
-
-			// depenetration!
-			scalar = math.dot([0, gy-position[1]], [normalVector.x, normalVector.y]);
-			position[0] += scalar*normalVector.x;
-			position[1] += scalar*normalVector.y;
-		}
-		*/
-	}
-	
-	pubsub.subscribe("onUpdate", onUpdate);
-	pubsub.subscribe("onRender", onRender);
-
-	pubsub.subscribe("onRefreshScene", refreshImages);
-
-	return {
-	}
-}
 },{"./helpers":4,"d3":55,"lodash":66,"mathjs":68}],6:[function(require,module,exports){
 var d3 = require("d3");
 var _ = require("lodash");
@@ -1269,6 +1156,8 @@ var refreshScene = () => {
   sceneScope = _.cloneDeep(sampleScope);
 
   console.log(sceneObjects);
+
+  world.refreshScene();
 
   pubsub.publish("onRefreshScene");
 };
@@ -1646,9 +1535,9 @@ var render = () => {
     });
   } else requestAnimationFrame(render);
 
-  pubsub.publish("onRender");
+  world.render();
+  ui.render();
 };
-render();
 
 var setMacroState = s => {
   let wasRecording = getRecording();
@@ -1827,7 +1716,7 @@ var loadDefault = () => {
     'about_link={o:"text", p:92-38i, v:"About SineRider", fontSize: 3, color:"white", url: "/about.html"}',
     'sine={o:"text", p:48-10i, v:"Sine", fontSize: 8}',
     'rider={o:"text", p:68-16i, v:"Rider", fontSize: 8, color:"white"}',
-    // 'img = {o:"image", p: 77-10i, anchor:-i, size:12, src:"assets/randall_tree.png"}',
+    'img = {o:"image", p: 77-10i, anchor:-i, size:12, src:"assets/randall_tree.png"}',
     "a=-sin(x/32)*64/(abs(x/24)+1)",
     "b=8/(1+((x-60)/4)^2)",
     "c=1-1/(1+t)",
@@ -1835,9 +1724,7 @@ var loadDefault = () => {
   ]);
 };
 
-loadDefault();
-
-World({
+const world = World({
   pubsub,
   container,
   loader,
@@ -1868,7 +1755,7 @@ World({
   sampleGraphVelocity
 });
 
-Ui({
+const ui = Ui({
   pubsub,
   container,
   loader,
@@ -1916,6 +1803,8 @@ Ui({
 if (!loadFromUrl()) loadDefault();
 // console.log("No URL state to load");
 // loadState(defaultState);
+
+render();
 
 const choo = require("choo");
 const html = {};
@@ -126726,166 +126615,31 @@ module.exports = spec => {
     refreshSledderImages();
   };
 
-  var resetSledder = (instance, index) => {
-    let x = math.re(instance.p);
-    let y;
-    let a;
-    let s = sampleGraphSlope(x);
+  var onEditExpressions = () => {};
 
-    // console.log("Resetting sledder "+index);
-    // console.log(instance.p);
-
-    if (isComplex(instance.p)) {
-      y = instance.p.im;
-      a = Math.atan(s);
-    } else {
-      y = sampleGraph(x);
-      instance.p = math.complex(x, y);
-      a = Math.atan(s);
-    }
-
-    // math.im(instance.p) = y;
-
-    instance.a = a;
-
-    instance.v.re = 0;
-    instance.v.im = 0;
-  };
-
-  var resetSledders = () => {
-    var instances = getInstances();
-    _.each(instances, resetSledder);
-  };
-
-  var onEditExpressions = () => {
-    resetSledders();
-  };
-
-  var onSetMacroState = () => {
-    resetSledders();
-  };
+  var onSetMacroState = () => {};
 
   var onMoveCamera = () => {
     // refreshSledderTransform();
   };
 
-  var onRender = () => {
+  var render = () => {
     refreshSledderTransforms();
   };
 
   var onRefreshScene = () => {
-    resetSledders();
     refreshSledders();
   };
-
-  var updateInstance = (instance, index) => {
-    var frameInterval = getFrameInterval();
-    var gravity = getGravity();
-
-    if (!isComplex(instance.p)) instance.p = math.complex(instance.p, 0);
-    // instance.p = math.complex(math.re(instance.p), math.im(instance.p));
-
-    if (!isComplex(instance.v)) instance.v = math.complex(instance.v, 0);
-
-    var position = instance.p; //math.complex(math.re(instance.p), math.im(instance.p));
-    var velocity = instance.v; //math.complex(math.re(instance.v), math.im(instance.v));
-
-    // Move me
-    position.re += velocity.re * frameInterval;
-    position.im += velocity.im * frameInterval;
-
-    // Gravity
-    velocity.im += gravity;
-
-    // Am I below ground? If so, it's THE REAL PHYSICS TIME
-    var gy = sampleGraph(position.re);
-    var slope = sampleGraphSlope(position.re);
-    var buffer = 0; //.01;
-    if (position.im <= gy - buffer) {
-      // Get slope/normal vectors of ground
-      var slopeVector = {
-        x: 1,
-        y: slope
-      };
-      normalize(slopeVector); // make this a unit vector...
-      // console.log(slopeVector)
-
-      var rotationVector = {
-        x: math.cos(instance.a / r2d),
-        y: math.sin(instance.a / r2d)
-      };
-      // console.log(rotationVector)
-
-      // normal!
-      var normalVector = {
-        x: slopeVector.y,
-        y: -slopeVector.x
-      };
-      // console.log(normalVector)
-
-      // Rotation vector ease to Normal!
-      rotationVector.x = lerp(rotationVector.x, slopeVector.x, 0.15);
-      rotationVector.y = lerp(rotationVector.y, slopeVector.y, 0.15);
-      normalize(rotationVector);
-
-      instance.a = math.atan2(rotationVector.y, rotationVector.x) * r2d;
-
-      // Project Sledder velocity to ground vector
-      // var scalar = velocity.re*slopeVector.x + velocity.im*slopeVector.y; // dot product
-      var scalar = math.dot(
-        [velocity.re, velocity.im],
-        [slopeVector.x, slopeVector.y]
-      );
-      velocity.re = slopeVector.x * scalar;
-      velocity.im = math.max(velocity.im, slopeVector.y * scalar);
-
-      // GROUND'S VELOCITY ITSELF
-      var groundVelY = sampleGraphVelocity(position.re);
-
-      // Project onto normal vector, add to Sledder
-
-      scalar = math.dot([0, groundVelY], [normalVector.x, normalVector.y]);
-      velocity.re += normalVector.x * scalar;
-      velocity.im += normalVector.y * scalar;
-
-      // depenetration!
-      scalar = math.dot(
-        [0, gy - position.im],
-        [normalVector.x, normalVector.y]
-      );
-      position.re += scalar * normalVector.x;
-      position.im += scalar * normalVector.y;
-    }
-
-    var rotator = math.complex(
-      math.cos(instance.a / r2d),
-      math.sin(instance.a / r2d)
-    );
-    var center = math.add(math.multiply(centerLocal, rotator), position);
-
-    // instance.p = position;
-    // instance.v = velocity;
-
-    var intersections = getIntersections(center, 0.5);
-    _.each(intersections, v => (v.complete = true));
-  };
-
-  var onUpdate = () => {
-    var instances = getInstances();
-
-    if (!getRunning()) return;
-
-    //_.each(instances, updateInstance);
-  };
-
-  pubsub.subscribe("onUpdate", onUpdate);
-  pubsub.subscribe("onRender", onRender);
 
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
   pubsub.subscribe("onRefreshScene", onRefreshScene);
 
   pubsub.subscribe("onEditExpressions", onEditExpressions);
+
+  return {
+    render
+  };
 };
 
 },{"./helpers":4,"d3":55,"lodash":66,"mathjs":68}],662:[function(require,module,exports){
@@ -128044,419 +127798,465 @@ module.exports = spec => {
 };
 
 },{"./helpers":4,"color":22,"d3":55,"lodash":66,"mathjs":68}],671:[function(require,module,exports){
-const d3 = require('d3');
-const _ = require('lodash');
-const VictoryComponent = require('./templates/victory_template');
-const JsonViewerComponent = require('./templates/json_viewer_template');
-const RecorderComponent = require('./templates/recorder_template');
-const autosizeInput = require('autosize-input');
+const d3 = require("d3");
+const _ = require("lodash");
+const VictoryComponent = require("./templates/victory_template");
+const JsonViewerComponent = require("./templates/json_viewer_template");
+const RecorderComponent = require("./templates/recorder_template");
+const autosizeInput = require("autosize-input");
 
-const morph = require('nanomorph');
+const morph = require("nanomorph");
 const victoryComponent = new VictoryComponent();
 const recorderComponent = new RecorderComponent();
 
 // var Inputs = require('./inputs');
 
-const {
-	translate,
-	rotate,
-	transform,
-	lerp,
-	normalize
-} = require('./helpers');
+const { translate, rotate, transform, lerp, normalize } = require("./helpers");
 
 module.exports = spec => {
-	var {
-		pubsub,
-		container,
-
-		getWidth,
-		getHeight,
-		getAspect,
-
-		toggleClock,
-		toggleBuilder,
-
-		getRunning,
-		getEditing,
-		getBuilding,
-		getMacroState,
-
-		getVictory,
-		getVictoryUrl,
-		getDomainString,
+  var {
+    pubsub,
+    container,
+
+    getWidth,
+    getHeight,
+    getAspect,
+
+    toggleClock,
+    toggleBuilder,
+
+    getRunning,
+    getEditing,
+    getBuilding,
+    getMacroState,
+
+    getVictory,
+    getVictoryUrl,
+    getDomainString,
+
+    getRecord,
+    setRecord,
+    getRecordTime,
+    setRecordTime,
+    getRecordResolution,
+    setRecordResolution,
+    getRecording,
+    recordFrame,
+    getGifBlob,
+    getGifProgress,
+
+    getClockTime,
+
+    setExpression,
+    getExpression,
+    getExpressions,
+    setExpressionSegment,
+    resetToOriginals,
+
+    addExpression,
+    removeExpression,
+    moveExpression
+  } = spec;
+
+  var ui = container.append("div").attr("class", "ui");
+
+  var overlayContainer = ui.append("div").attr("class", "overlayContainer");
+
+  var bottomBar = ui.append("div").attr("class", "bottomBar");
+
+  var victoryNode = ui.append("div").node();
+  var refreshVictory = () =>
+    morph(
+      victoryNode,
+      victoryComponent.render({
+        victory: getVictory(),
+        domain: getDomainString(),
+        url: getVictoryUrl()
+      })
+    );
+  refreshVictory();
+
+  var recorderNode = ui.append("div").node();
+  var refreshRecorder = () =>
+    morph(
+      recorderNode,
+      recorderComponent.render({
+        editing: getEditing(),
+
+        record: getRecord(),
+        setRecord,
+
+        recordTime: getRecordTime(),
+        setRecordTime,
+
+        recordResolution: getRecordResolution(),
+        setRecordResolution,
+
+        gifBlob: getGifBlob(),
+        gifProgress: getGifProgress()
+      })
+    );
+  refreshRecorder();
+
+  // var dragContainer = ui.append("div")
+  // .attr("class", "dragContainer")
+
+  // var bottomExpander = bottomBar.append("div")
+  // .attr("class", "bottomExpander")
+
+  var removeExpressionRegion = overlayContainer
+    .append("div")
+    .attr("class", "removeExpressionRegion");
+
+  removeExpressionRegion
+    .append("div")
+    .attr("class", "removeExpressionRegionText")
+    .text("drag here to remove");
+
+  var addExpressionButton = overlayContainer
+    .append("div")
+    .attr("class", "addExpressionButton")
+    .on("click", () => addExpression(0, ""));
+
+  addExpressionButton.append("div").text("+");
+
+  var resetExpressionsButton = overlayContainer
+    .append("div")
+    .attr("class", "addExpressionButton")
+    .on("click", () => resetToOriginals());
+
+  resetExpressionsButton.append("div").text("<<");
+
+  var playButton = overlayContainer
+    .append("div")
+    .attr("class", "startButton")
+    .on("click", toggleClock);
+
+  var buildButton = overlayContainer
+    .append("div")
+    .attr("class", "buildButton")
+    .on("click", toggleBuilder);
+
+  buildButton.append("div").text("≈");
+
+  var expressionHeight = 25;
+
+  var dragIndex = -1;
+  var dragStartY = 0;
+  var dragDeltaY = 0;
+  var dragOffsetY = 0;
+  var dragY = 0;
+  var dragEnvelope;
+  var dragExpression;
+
+  var expressions;
+  var enterExpressions;
+  var expressionEnvelopes;
+  var expressionHandles;
+  var buildExpressionInputs;
+  var editExpressionInputs;
+
+  var showResetButton = () =>
+    getEditing && _.every(getExpressions(), v => v.unmodified);
 
-		getRecord,
-		setRecord,
-		getRecordTime,
-		setRecordTime,
-		getRecordResolution,
-		setRecordResolution,
-		getRecording,
-		recordFrame,
-		getGifBlob,
-		getGifProgress,
-
-		getClockTime,
-
-		setExpression,
-		getExpression,
-		getExpressions,
-		setExpressionSegment,
-		resetToOriginals,
-
-		addExpression,
-		removeExpression,
-		moveExpression,
-	} = spec;
-
-	var ui = container.append("div")
-			.attr("class", "ui")
-
-	var overlayContainer = ui.append("div")
-			.attr("class", "overlayContainer")
-
-	var bottomBar = ui.append("div")
-			.attr("class", "bottomBar")
-
-	var victoryNode = ui.append("div").node();
-	var refreshVictory = () => morph(victoryNode, victoryComponent.render({
-		victory: getVictory(),
-		domain: getDomainString(),
-		url: getVictoryUrl(),
-	}));
-	refreshVictory();
-
-	var recorderNode = ui.append("div").node();
-	var refreshRecorder = () => morph(recorderNode, recorderComponent.render({
-		editing: getEditing(),
-
-		record: getRecord(),
-		setRecord,
-
-		recordTime: getRecordTime(),
-		setRecordTime,
-
-		recordResolution: getRecordResolution(),
-		setRecordResolution,
-
-		gifBlob: getGifBlob(),
-		gifProgress: getGifProgress(),
-	}));
-	refreshRecorder();
-
-	// var dragContainer = ui.append("div")
-			// .attr("class", "dragContainer")
-
-	// var bottomExpander = bottomBar.append("div")
-			// .attr("class", "bottomExpander")
-
-	var removeExpressionRegion = overlayContainer.append("div")
-			.attr("class", "removeExpressionRegion")
-
-	removeExpressionRegion.append("div")
-			.attr("class", "removeExpressionRegionText")
-			.text("drag here to remove")
-
-	var addExpressionButton = overlayContainer.append("div")
-			.attr("class", "addExpressionButton")
-			.on("click", () => addExpression(0, ""))
-
-	addExpressionButton.append("div")
-			.text("+")
-
-	var resetExpressionsButton = overlayContainer.append("div")
-			.attr("class", "addExpressionButton")
-			.on("click", () => resetToOriginals())
-
-	resetExpressionsButton.append("div")
-			.text("<<")
-
-	var playButton = overlayContainer.append("div")
-			.attr("class", "startButton")
-			.on("click", toggleClock)
-
-	var buildButton = overlayContainer.append("div")
-			.attr("class", "buildButton")
-			.on("click", toggleBuilder)
-
-	buildButton.append("div")
-			.text("≈")
+  var showSegment = d => !getBuilding() && d.length > 0;
+
+  var showExpression = d => getBuilding() || d.segments.length > 1;
 
-	var expressionHeight = 25;
+  var calculateInputWidth = (w, i) => w * 6.7 + (i % 2 == 0 ? 4 : 10);
 
-	var dragIndex = -1;
-	var dragStartY = 0;
-	var dragDeltaY = 0;
-	var dragOffsetY = 0;
-	var dragY = 0;
-	var dragEnvelope;
-	var dragExpression;
+  var calculateBottomBarHeight = () => {
+    var displayedExpressions = _.filter(getExpressions(), showExpression);
+    return displayedExpressions.length * 25;
+  };
 
-	var expressions;
-	var enterExpressions;
-	var expressionEnvelopes;
-	var expressionHandles;
-	var buildExpressionInputs;
-	var editExpressionInputs;
+  var refreshExpressionPositions = () => {
+    var h = 0;
+    var topValues = _.map(getExpressions, () => 0);
+    _.each(getExpressions(), (v, i) => {
+      topValues[i] = h;
+      h += showExpression(v) ? 25 : 0;
+    });
 
-	var showResetButton = () => getEditing && _.every(getExpressions(), v => v.unmodified);
-	
-	var showSegment = d => !getBuilding() && d.length > 0;
+    d3.selectAll(".expression")
+      .order()
+      .style("top", (d, i, a) => topValues[_.indexOf(getExpressions(), d)]);
+  };
 
-	var showExpression = d => getBuilding() || d.segments.length > 1;
+  var refreshExpressions = () => {
+    expressions = bottomBar
+      .selectAll(".expression")
+      .data(getExpressions(), d => d._key);
 
-	var calculateInputWidth = (w, i) => w*6.7+(i%2 == 0 ? 4 : 10);
+    enterExpressions = expressions
+      .enter()
+      .append("div")
+      .attr("class", "expression");
 
-	var calculateBottomBarHeight = () => {
-		var displayedExpressions = _.filter(getExpressions(), showExpression)
-		return displayedExpressions.length*25;
-	}
+    enterExpressions.merge(expressions).order();
 
-	var refreshExpressionPositions = () => {
-		var h = 0;
-		var topValues = _.map(getExpressions, () => 0);
-		_.each(getExpressions(), (v, i) => {
-			topValues[i] = h;
-			h += showExpression(v) ? 25 : 0;
-		});
+    expressionEnvelopes = enterExpressions
+      .append("div")
+      .attr("class", "expressionEnvelope");
 
-		d3.selectAll(".expression")
-				.order()
-				.style("top", (d, i, a) => topValues[_.indexOf(getExpressions(), d)])
-	}
+    expressionHandles = expressionEnvelopes
+      .append("div")
+      .attr("class", "expressionHandle");
 
-	var refreshExpressions = () => {
-		expressions = bottomBar.selectAll(".expression")
-			.data(getExpressions(), d => d._key);
+    expressionHandles.call(
+      d3
+        .drag()
+        .container(bottomBar.node())
+        .subject(() => ({ x: 0, y: 0 }))
+        .filter(getBuilding)
+        .on("start", function(d, i, a) {
+          i = _.indexOf(getExpressions(), d);
+
+          dragIndex = i;
+          dragStartY = d3.mouse(bottomBar.node())[1];
+          dragOffsetY = d3.mouse(this)[1];
+
+          // d3.select(this.parentNode.parentNode).raise();
+
+          // dragEnvelope = d3.select(this.parentNode);
+          // dragEnvelope.remove();
+          // bottomBar.append(dragEnvelope);
+
+          removeExpressionRegion
+            .transition()
+            .duration(200)
+            .style("opacity", 0.5);
+        })
+        .on("drag", function(d, i, a) {
+          dragY = d3.mouse(bottomBar.node())[1];
+          i = _.indexOf(getExpressions(), d);
+
+          dragDeltaY = dragY - dragStartY;
+
+          var targetIndex = Math.floor(dragY / 25);
+          targetIndex = Math.max(0, targetIndex);
+
+          if (targetIndex != i) moveExpression(d, targetIndex);
+
+          var originY = i * 25;
+
+          d3.select(this.parentNode).style(
+            "top",
+            dragY - originY - dragOffsetY
+          );
+
+          removeY = d3.mouse(removeExpressionRegion.node())[1];
+
+          d3.select(this).style("background", removeY < 100 ? "#822" : "#444");
+        })
+        .on("end", function(d, i, a) {
+          i = _.indexOf(getExpressions(), d);
+
+          dragIndex = -1;
+
+          // dragEnvelope.remove();
+          // bottomBar.append(dragEnvelope);
+
+          removeExpressionRegion
+            .transition()
+            .duration(200)
+            .style("opacity", 0);
+
+          d3.select(this.parentNode).style("top", 0);
+
+          removeY = d3.mouse(removeExpressionRegion.node())[1];
+
+          if (removeY < 100) removeExpression(i);
+          else refreshExpressions();
+        })
+    );
+
+    expressionHandles.append("div").text("☰");
+
+    expressionEnvelopes.append("div").attr("class", "buildExpressionEnvelope");
+
+    expressionEnvelopes.append("div").attr("class", "editExpressionEnvelope");
+
+    expressionEnvelopes.append("div").attr("class", "playExpressionEnvelope");
+
+    buildExpressionInputs = expressionEnvelopes
+      .select(".buildExpressionEnvelope")
+      .append("input")
+      .attr("class", "buildExpressionInput")
+      .attr("spellcheck", "false")
+      .attr("autocorrect", "off")
+      .attr("autocomplete", "off")
+      .attr("autocapitalize", "off")
+      .on("input", function(d, i, a) {
+        setExpression(_.indexOf(getExpressions(), d), this.value);
+      });
+
+    d3.selectAll(".buildExpressionInput").property("value", function(d, i, a) {
+      return d.expression;
+    });
+
+    expressionEnvelopes
+      .select(".editExpressionEnvelope")
+      .append("div")
+      .attr("class", "editExpressionSegments");
+
+    expressionEnvelopes
+      .select(".editExpressionEnvelope")
+      .append("div")
+      .attr("class", "editExpressionTail");
+
+    editExpressionInputs = enterExpressions
+      .merge(expressions)
+      .select(".expressionEnvelope")
+      .select(".editExpressionEnvelope")
+      .select(".editExpressionSegments")
+      .selectAll(".editExpressionInput")
+      .data(d => d.segmentData);
+
+    editExpressionInputs.exit().remove();
+
+    var enterEditExpressionInputs = editExpressionInputs
+      .enter()
+      .append("input")
+      .attr("class", "editExpressionInput")
+      .attr("spellcheck", "false")
+      .attr("autocorrect", "off")
+      .attr("autocomplete", "off")
+      .attr("autocapitalize", "off")
+      .style("border-width", (d, i) => (i % 2 == 0 ? "0px" : "1px"))
+      .on("input", function(d) {
+        d.set(this.value);
+      });
+
+    enterEditExpressionInputs
+      .merge(editExpressionInputs)
+      .style("display", d => (d.hide ? "none" : "flex"))
+      .property("disabled", function(d, i, a) {
+        return i % 2 == 0;
+      })
+      .property("value", function(d, i, a) {
+        return d.str;
+      })
+      .each(function() {
+        autosizeInput(this);
+      });
+
+    if (dragIndex < 0) {
+      // refreshExpressionPositions();
+    }
+
+    expressions.exit().remove();
+
+    resetExpressionsButton.style(
+      "display",
+      showResetButton() ? "none" : "flex"
+    );
+
+    playExpressionText = expressionEnvelopes
+      .select(".playExpressionEnvelope")
+      .append("input")
+      .attr("class", "playExpressionText")
+      .property("disabled", true);
+
+    d3.selectAll(".playExpressionText").property("value", function(d, i, a) {
+      return d.tagless;
+    });
+
+    d3.selectAll(".buildExpressionEnvelope").style(
+      "display",
+      getBuilding() ? "flex" : "none"
+    );
+
+    d3.selectAll(".editExpressionEnvelope").style(
+      "display",
+      getEditing() ? "flex" : "none"
+    );
+
+    d3.selectAll(".playExpressionEnvelope").style(
+      "display",
+      getRunning() ? "flex" : "none"
+    );
+
+    d3.selectAll(".expression").style(
+      "display",
+      d => (showExpression(d) ? "flex" : "none")
+    );
+  };
+
+  var onSetMacroState = () => {
+    // refreshExpressionPositions();
+
+    d3.selectAll(".expression").style(
+      "display",
+      d => (showExpression(d) ? "flex" : "none")
+    );
+
+    d3.selectAll(".buildExpressionEnvelope").style(
+      "display",
+      getBuilding() ? "flex" : "none"
+    );
+
+    d3.selectAll(".editExpressionEnvelope").style(
+      "display",
+      getEditing() ? "flex" : "none"
+    );
+
+    d3.selectAll(".playExpressionEnvelope").style(
+      "display",
+      getRunning() ? "flex" : "none"
+    );
+
+    playButton
+      .attr("class", getRunning() ? "stopButton" : "startButton")
+      .style("display", getBuilding() ? "none" : "flex");
+
+    buildButton.style("display", getRunning() ? "none" : "flex");
+
+    addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
+
+    resetExpressionsButton.style(
+      "display",
+      showResetButton() ? "none" : "flex"
+    );
+
+    bottomBar.style("opacity", getRunning() ? 0.5 : 1);
+
+    refreshVictory();
+    refreshRecorder();
+  };
+
+  var onUpdate = () => {
+    // ui.style("width", getWidth())
+    // .style("height", getHeight())
+  };
+
+  var render = () => {
+    if (getRunning()) refreshVictory();
+  };
+
+  var onEditExpressions = () => {
+    refreshExpressions();
+  };
+
+  pubsub.subscribe("onUpdate", onUpdate);
+  // pubsub.subscribe("onRender", onRender);
+  pubsub.subscribe("onEditExpressions", onEditExpressions);
+
+  refreshExpressions();
+  onSetMacroState();
+
+  pubsub.subscribe("onSetMacroState", onSetMacroState);
+
+  pubsub.subscribe("onSetRecord", refreshRecorder);
+  pubsub.subscribe("onGifProgress", refreshRecorder);
+
+  // pubsub.subscribe("onSetInputExpression", onSetInputExpression);
+
+  return {
+    render
+  };
+};
 
-		enterExpressions = expressions.enter()
-			.append("div")
-				.attr("class", "expression")
-
-		enterExpressions.merge(expressions).order();
-
-		expressionEnvelopes = enterExpressions
-			.append("div")
-				.attr("class", "expressionEnvelope")
-
-		expressionHandles = expressionEnvelopes.append("div")
-				.attr("class", "expressionHandle")
-
-		expressionHandles.call(
-			d3.drag()
-				.container(bottomBar.node())
-				.subject(() => ({x: 0, y: 0}))
-				.filter(getBuilding)
-				.on("start", function(d, i, a){
-					i = _.indexOf(getExpressions(), d);
-
-					dragIndex = i;
-					dragStartY = d3.mouse(bottomBar.node())[1];
-					dragOffsetY = d3.mouse(this)[1];
-
-					// d3.select(this.parentNode.parentNode).raise();
-
-					// dragEnvelope = d3.select(this.parentNode);
-					// dragEnvelope.remove();
-					// bottomBar.append(dragEnvelope);
-
-					removeExpressionRegion.transition()
-							.duration(200)
-							.style("opacity", 0.5)
-				})
-				.on("drag", function(d, i, a){
-					dragY = d3.mouse(bottomBar.node())[1];
-					i = _.indexOf(getExpressions(), d);
-
-					dragDeltaY = dragY-dragStartY;
-
-					var targetIndex = Math.floor(dragY/25);
-					targetIndex = Math.max(0, targetIndex);
-
-					if (targetIndex != i)
-						moveExpression(d, targetIndex);
-
-					var originY = i*25;
-
-					d3.select(this.parentNode)
-							.style("top", dragY-originY-dragOffsetY)
-
-					removeY = d3.mouse(removeExpressionRegion.node())[1];
-
-					d3.select(this)
-							.style("background", (removeY < 100) ? "#822" : "#444")
-				})
-				.on("end", function(d, i, a){
-					i = _.indexOf(getExpressions(), d);
-
-					dragIndex = -1;
-
-					// dragEnvelope.remove();
-					// bottomBar.append(dragEnvelope);
-
-					removeExpressionRegion.transition()
-							.duration(200)
-							.style("opacity", 0)
-
-					d3.select(this.parentNode)
-						.style("top", 0)
-
-					removeY = d3.mouse(removeExpressionRegion.node())[1];
-
-					if (removeY < 100)
-						removeExpression(i);
-					else
-						refreshExpressions();
-				})
-			)
-
-		expressionHandles.append("div")
-				.text("☰")
-
-		expressionEnvelopes.append("div")
-				.attr("class", "buildExpressionEnvelope")
-
-		expressionEnvelopes.append("div")
-				.attr("class", "editExpressionEnvelope")
-
-		expressionEnvelopes.append("div")
-				.attr("class", "playExpressionEnvelope")
-
-		buildExpressionInputs = expressionEnvelopes
-			.select(".buildExpressionEnvelope")
-			.append("input")
-				.attr("class", "buildExpressionInput")
-				.attr("spellcheck", "false")
-				.attr("autocorrect", "off")
-				.attr("autocomplete", "off")
-				.attr("autocapitalize", "off")
-				.on("input", function(d, i, a){setExpression(_.indexOf(getExpressions(), d), this.value)})
-
-		d3.selectAll(".buildExpressionInput")
-				.property("value", function(d, i, a){return d.expression;})
-
-		expressionEnvelopes.select(".editExpressionEnvelope")
-			.append("div")
-				.attr("class", "editExpressionSegments")
-				
-		expressionEnvelopes.select(".editExpressionEnvelope")
-			.append("div")
-				.attr("class", "editExpressionTail")
-
-		editExpressionInputs = enterExpressions.merge(expressions)
-			.select(".expressionEnvelope")
-			.select(".editExpressionEnvelope")
-			.select(".editExpressionSegments")
-			.selectAll(".editExpressionInput")
-				.data(d => d.segmentData)
-
-		editExpressionInputs.exit().remove();
-
-		var enterEditExpressionInputs = editExpressionInputs.enter()
-			.append("input")
-				.attr("class", "editExpressionInput")
-				.attr("spellcheck", "false")
-				.attr("autocorrect", "off")
-				.attr("autocomplete", "off")
-				.attr("autocapitalize", "off")
-				.style("border-width", (d, i) => (i%2 == 0 ? "0px" : "1px"))
-				.on("input", function(d){d.set(this.value);})
-		
-		enterEditExpressionInputs.merge(editExpressionInputs)
-				.style("display", d => d.hide ? "none" : "flex")
-				.property("disabled", function(d, i, a){return i%2 == 0;})
-				.property("value", function(d, i, a){return d.str;})
-				.each(function(){autosizeInput(this)})
-
-		if (dragIndex < 0) {
-			// refreshExpressionPositions();
-		}
-
-		expressions.exit().remove();
-
-		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex")
-
-		playExpressionText = expressionEnvelopes
-			.select(".playExpressionEnvelope")
-			.append("input")
-				.attr("class", "playExpressionText")
-				.property("disabled", true)
-
-		d3.selectAll(".playExpressionText")
-				.property("value", function(d, i, a){return d.tagless;})
-
-		d3.selectAll(".buildExpressionEnvelope")
-				.style("display", getBuilding() ? "flex" : "none")
-
-		d3.selectAll(".editExpressionEnvelope")
-				.style("display", getEditing() ? "flex" : "none")
-
-		d3.selectAll(".playExpressionEnvelope")
-				.style("display", getRunning() ? "flex" : "none")
-
-		d3.selectAll(".expression")
-				.style("display", d => showExpression(d) ? "flex" : "none")
-	}
-
-	var onSetMacroState = () => {
-		// refreshExpressionPositions();
-		
-		d3.selectAll(".expression")
-				.style("display", d => showExpression(d) ? "flex" : "none")
-
-		d3.selectAll(".buildExpressionEnvelope")
-				.style("display", getBuilding() ? "flex" : "none")
-
-		d3.selectAll(".editExpressionEnvelope")
-				.style("display", getEditing() ? "flex" : "none")
-
-		d3.selectAll(".playExpressionEnvelope")
-				.style("display", getRunning() ? "flex" : "none")
-
-		playButton.attr("class", getRunning() ? "stopButton" : "startButton")
-				.style("display", getBuilding() ? "none" : "flex")
-
-		buildButton.style("display", getRunning() ? "none" : "flex")
-
-		addExpressionButton.style("display", !getBuilding() ? "none" : "flex");
-
-		resetExpressionsButton.style("display", showResetButton() ? "none" : "flex");
-
-		bottomBar.style("opacity", getRunning() ? 0.5 : 1);
-
-		refreshVictory();
-		refreshRecorder();
-	}
-
-	var onUpdate = () => {
-		// ui.style("width", getWidth())
-			// .style("height", getHeight())
-	}
-
-	var onRender = () => {
-		if (getRunning())
-			refreshVictory();
-	}
-
-	var onEditExpressions = () => {
-		refreshExpressions();
-	}
-
-	pubsub.subscribe("onUpdate", onUpdate);
-	pubsub.subscribe("onRender", onRender);
-	pubsub.subscribe("onEditExpressions", onEditExpressions);
-
-	refreshExpressions();
-	onSetMacroState();
-
-	pubsub.subscribe("onSetMacroState", onSetMacroState);
-
-	pubsub.subscribe("onSetRecord", refreshRecorder);
-	pubsub.subscribe("onGifProgress", refreshRecorder);
-
-	// pubsub.subscribe("onSetInputExpression", onSetInputExpression);
-}
 },{"./helpers":4,"./templates/json_viewer_template":664,"./templates/recorder_template":665,"./templates/victory_template":668,"autosize-input":13,"d3":55,"lodash":66,"nanomorph":637}],672:[function(require,module,exports){
 const _ = require("lodash");
 
@@ -128526,7 +128326,7 @@ const {
   transform,
   lerp,
   normalize,
-  getSceneObjects
+  isComplex
 } = require("./helpers");
 
 module.exports = spec => {
@@ -128732,13 +128532,47 @@ module.exports = spec => {
     }
   };
 
-  var onRender = () => {
+  var render = () => {
+    axes.render();
+    graph.render();
+    images.render();
+    sledder.render();
+
     refreshWorldTemplate();
   };
 
   var onEditExpressions = () => {};
 
-  var onRefreshScene = () => {
+  var refreshScene = () => {
+    _.each(getSceneObjects("sled"), instance => {
+      let x = math.re(instance.p);
+      let y;
+      let a;
+      let s = sampleGraphSlope(x);
+
+      // console.log("Resetting sledder "+index);
+      // console.log(instance.p);
+
+      if (isComplex(instance.p)) {
+        y = instance.p.im;
+        a = Math.atan(s);
+      } else {
+        y = sampleGraph(x);
+        instance.p = math.complex(x, y);
+        a = Math.atan(s);
+      }
+
+      instance._physicsUpright.re = -math.sin(a);
+      instance._physicsUpright.im = math.cos(a);
+
+      // math.im(instance.p) = y;
+
+      instance.a = a;
+
+      instance.v.re = 0;
+      instance.v.im = 0;
+    });
+
     let sceneObjectArray = _.flatten(_.values(getSceneObjects()));
 
     // Temporary step while transitioning to Nanocomponent:
@@ -128772,12 +128606,11 @@ module.exports = spec => {
   refreshScales();
 
   pubsub.subscribe("onUpdate", onUpdate);
-  pubsub.subscribe("onRender", onRender);
 
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
   pubsub.subscribe("onEditExpressions", onEditExpressions);
-  pubsub.subscribe("onRefreshScene", onRefreshScene);
+  // pubsub.subscribe("onRefreshScene", onRefreshScene);
 
   pubsub.subscribe("onResize", onResize);
 
@@ -128835,30 +128668,6 @@ module.exports = spec => {
     sampleGraph
   });
 
-  // lol hack
-  var goals;
-  /*
-	var texts = Text({
-		pubsub,
-		container: svg,
-		loader,
-		getInstances: () => getSceneObjects("text"),
-
-		xScale,
-		yScale,
-		camera,
-
-		cameraPoints,
-
-		getRunning,
-		getFrameInterval,
-		getGravity,
-
-		sampleGraph,
-		sampleGraphSlope,
-		sampleGraphVelocity,
-	});
-*/
   var worldTemplateNode = svg.append("g").node();
   var refreshWorldTemplate = () =>
     morph(
@@ -128877,7 +128686,6 @@ module.exports = spec => {
     container: svg,
     loader,
     getInstances: () => getSceneObjects("sled"),
-    getIntersections: (point, radius) => goals.getIntersections(point, radius),
 
     xScale,
     yScale,
@@ -128893,28 +128701,11 @@ module.exports = spec => {
     sampleGraphSlope,
     sampleGraphVelocity
   });
-  /*
-  goals = Goal({
-    pubsub,
-    container: svg,
-    loader,
-    getInstances: () => getSceneObjects("goal"),
 
-    xScale,
-    yScale,
-    camera,
-
-    cameraPoints,
-
-    getRunning,
-    getFrameInterval,
-    getGravity,
-
-    sampleGraph,
-    sampleGraphSlope,
-    sampleGraphVelocity
-  });
-	*/
+  return {
+    render,
+    refreshScene
+  };
 };
 
 },{"./axes":1,"./goal":2,"./graph":3,"./helpers":4,"./image":5,"./physics":660,"./sledder":661,"./templates/world_template":669,"./text":670,"d3":55,"lodash":66,"mathjs":68,"nanomorph":637}]},{},[6]);
