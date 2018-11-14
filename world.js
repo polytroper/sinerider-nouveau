@@ -123,7 +123,7 @@ module.exports = spec => {
   var sceneIdCounter = 0;
 
   const physics = PhysicsContext();
-  let physicsInstances;
+  let physicsInstances = [];
 
   const renderer = Renderer({
     getWidth,
@@ -135,7 +135,7 @@ module.exports = spec => {
     samples,
     sampleCount
   });
-  let renderInstances;
+  let renderInstances = [];
 
   var canvas = container
     .append("canvas")

@@ -30,7 +30,7 @@ const stepMode = false;
 var parserVersion = "0.0.1";
 
 var expressions = [];
-var levelledExpressions = [];
+var levelledExpressions = [[], [], []];
 
 var r2d = 180 / Math.PI;
 var expressionKeyIndex = 0;
