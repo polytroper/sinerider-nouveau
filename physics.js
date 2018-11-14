@@ -321,11 +321,13 @@ const PhysicsContext = () => {
   };
 
   const resolve = instances => {
-    _.each(instances, instance => {
+    for (var i = 0; i < instances.length; i++) {
+      const instance = instances[i];
+
       const instanceHits = instance._physicsHits;
       const instanceShape = instance._physicsShape;
 
-      if (instanceHits.length == 0) return;
+      if (instanceHits.length == 0) continue;
 
       if (debug) {
         console.log(
@@ -334,15 +336,16 @@ const PhysicsContext = () => {
         console.log(instance);
       }
 
-      _.each(instanceHits, hit => {
-        if (hit.type == 1) return;
+      for (let j = 0; j < instanceHits.length; j++) {
+        const hit = instanceHits[j];
+        if (hit.type == 1) continue;
 
         const partnerShape = hit.partner._physicsShape;
         const resolver = resolvers[instanceShape][partnerShape];
 
         if (resolver) resolver(instance, hit);
-      });
-    });
+      }
+    }
   };
 
   const integratePoint = (instance, delta, gravity) => {
@@ -393,18 +396,21 @@ const PhysicsContext = () => {
   };
 
   const integrate = (instances, delta, gravity) => {
-    _.each(instances, instance => {
+    for (let i = 0; i < instances.length; i++) {
+      const instance = instances[i];
+
       const shape = instance._physicsShape;
       const integration = integrations[shape];
 
       if (integration) {
         integration(instance, delta, gravity);
       }
-    });
+    }
   };
 
   const inform = instances => {
-    _.each(intersections, intersection => {
+    for (let i = 0; i < intersections.length; i++) {
+      const intersection = intersections[i];
       const { instanceA, instanceB } = intersection;
 
       if (debug) {
@@ -426,17 +432,20 @@ const PhysicsContext = () => {
 
       instanceA._physicsParent._physicsHitCount++;
       instanceB._physicsParent._physicsHitCount++;
-    });
+    }
 
-    _.each(instances, instance => {
+    for (let i = 0; i < instances.length; i++) {
+      let instance = instances[i];
       instance._physicsHits.length = instance._physicsHitCount;
-    });
+    }
   };
 
   const intersect = () => {
     intersectionCount = 0;
 
-    _.each(pairs, pair => {
+    for (let i = 0; i < pairs.length; i++) {
+      const pair = pairs[i];
+
       const instanceA = pair[0];
       const instanceB = pair[1];
       const type = pair[2];
@@ -453,7 +462,7 @@ const PhysicsContext = () => {
 
       if (test && test(intersection, instanceA, instanceB, type))
         intersectionCount++;
-    });
+    }
 
     intersections.length = intersectionCount;
 
@@ -474,12 +483,11 @@ const PhysicsContext = () => {
   };
 
   const layerize = instances => {
-    _.each(layers, v => (layerInstanceCounts[v] = 0));
+    for (let i = 0; i < layers.length; i++) layerInstanceCounts[layers[i]] = 0;
 
-    let layer;
-
-    _.each(instances, instance => {
-      layer = instance._physicsLayer;
+    for (let i = 0; i < instances.length; i++) {
+      let instance = instances[i];
+      let layer = instance._physicsLayer;
       insertInstanceLayer(instance, layer);
 
       const subcolliders = instance._physicsSubcolliders;
@@ -492,9 +500,14 @@ const PhysicsContext = () => {
           insertInstanceLayer(subcollider, layer);
         });
       }
-    });
+    }
 
-    _.each(layers, v => (layerInstances[v].length = layerInstanceCounts[v]));
+    for (let i = 0; i < layers.length; i++) {
+      layer = layers[i];
+      layerInstances[layer].length = layerInstanceCounts[layer];
+    }
+
+    // _.each(layers, v => (layerInstances[v].length = layerInstanceCounts[v]));
 
     if (debug) {
       console.log(`Layers:`);
@@ -504,7 +517,10 @@ const PhysicsContext = () => {
 
   const pairify = () => {
     pairCount = 0;
-    _.each(layerPairs, layerPair => {
+
+    for (let p = 0; p < layerPairs.length; p++) {
+      let layerPair = layerPairs[p];
+
       let layerA = layerPair[0];
       let layerB = layerPair[1];
       let pairType = layerPair[2];
@@ -547,7 +563,7 @@ const PhysicsContext = () => {
           }
         }
       }
-    });
+    }
     pairs.length = pairCount;
 
     if (debug) {
@@ -557,9 +573,14 @@ const PhysicsContext = () => {
   };
 
   const wipe = instances => {
-    _.each(instances, instance => {
-      instance._physicsHitCount = 0;
-    });
+    for (let i = 0; i < instances.length; i++) {
+      instances[i]._physicsHitCount = 0;
+    }
+  };
+
+  const start = instances => {
+    layerize(instances);
+    pairify();
   };
 
   const tick = (instances, delta, gravity) => {
@@ -572,8 +593,8 @@ const PhysicsContext = () => {
     }
 
     wipe(instances);
-    layerize(instances);
-    pairify();
+    // layerize(instances);
+    // pairify();
 
     integrate(instances, delta, gravity);
     intersect();
@@ -581,7 +602,7 @@ const PhysicsContext = () => {
     resolve(instances);
   };
 
-  return tick;
+  return { start, tick };
 };
 
 module.exports = PhysicsContext;

@@ -75,7 +75,7 @@ module.exports = spec => {
       })
     );
   refreshVictory();
-
+  /*
   var recorderNode = ui.append("div").node();
   var refreshRecorder = () =>
     morph(
@@ -97,6 +97,7 @@ module.exports = spec => {
       })
     );
   refreshRecorder();
+	*/
 
   // var dragContainer = ui.append("div")
   // .attr("class", "dragContainer")
@@ -422,37 +423,34 @@ module.exports = spec => {
     bottomBar.style("opacity", getRunning() ? 0.5 : 1);
 
     refreshVictory();
-    refreshRecorder();
+    // refreshRecorder();
   };
 
-  var onUpdate = () => {
-    // ui.style("width", getWidth())
-    // .style("height", getHeight())
+  var update = () => {
+    // if (getRunning()) refreshVictory();
   };
 
-  var render = () => {
-    if (getRunning()) refreshVictory();
-  };
+  var render = () => {};
 
   var onEditExpressions = () => {
     refreshExpressions();
   };
 
-  pubsub.subscribe("onUpdate", onUpdate);
-  // pubsub.subscribe("onRender", onRender);
   pubsub.subscribe("onEditExpressions", onEditExpressions);
 
   refreshExpressions();
   onSetMacroState();
 
   pubsub.subscribe("onSetMacroState", onSetMacroState);
+  pubsub.subscribe("onCompleteGoal", refreshVictory);
 
-  pubsub.subscribe("onSetRecord", refreshRecorder);
-  pubsub.subscribe("onGifProgress", refreshRecorder);
+  // pubsub.subscribe("onSetRecord", refreshRecorder);
+  // pubsub.subscribe("onGifProgress", refreshRecorder);
 
   // pubsub.subscribe("onSetInputExpression", onSetInputExpression);
 
   return {
-    render
+    render,
+    update
   };
 };

@@ -30,6 +30,7 @@ const stepMode = false;
 var parserVersion = "0.0.1";
 
 var expressions = [];
+var levelledExpressions = [];
 
 var r2d = 180 / Math.PI;
 var expressionKeyIndex = 0;
@@ -74,7 +75,7 @@ var gifCanvas = container
   .attr("width", getWidth())
   .attr("height", getHeight());
 
-var frameRate = 30;
+var frameRate = 60;
 var frameInterval = 1 / frameRate;
 var frameIntervalMS = 1000 / frameRate;
 
@@ -121,6 +122,37 @@ var defaultScope = {
 var sampleScope;
 
 var sceneObjectTypes = {
+  image: {
+    p: math.complex(0, 0),
+    src: "http://polytrope.com/favicon.png",
+    size: 1,
+    anchor: 0,
+    color: 0
+  },
+  goal: {
+    p: math.complex(0, 0),
+    v: math.complex(0, 0),
+    a: 0,
+    complete: false,
+    color: "green",
+    ball: false,
+    _physicsOffset: math.complex(0, 0),
+    _physicsHitCount: 0,
+    _physicsHits: [],
+    _physicsLayer: "goals",
+    _physicsKinetic: v => (v.ball ? true : false),
+    _physicsShape: v => (v.ball ? "circle" : "box"),
+    _physicsSize: v => (v.ball ? math.complex(0.5, 0.5) : math.complex(1, 1)),
+    _physicsRadius: 0.5
+  },
+  text: {
+    p: math.complex(0, 0),
+    v: "Text!",
+    url: "",
+    fontSize: 1,
+    anchor: 0,
+    color: 0
+  },
   sled: {
     p: math.complex(0, 0),
     v: math.complex(0, 0),
@@ -142,36 +174,6 @@ var sceneObjectTypes = {
         _physicsRadius: 0.6
       }
     ]
-  },
-  goal: {
-    p: math.complex(0, 0),
-    v: math.complex(0, 0),
-    a: 0,
-    complete: false,
-    ball: false,
-    _physicsOffset: math.complex(0, 0),
-    _physicsHitCount: 0,
-    _physicsHits: [],
-    _physicsLayer: "goals",
-    _physicsKinetic: v => (v.ball ? true : false),
-    _physicsShape: v => (v.ball ? "circle" : "box"),
-    _physicsSize: v => (v.ball ? math.complex(0.5, 0.5) : math.complex(1, 1)),
-    _physicsRadius: 0.5
-  },
-  text: {
-    p: math.complex(0, 0),
-    v: "Text!",
-    url: "",
-    fontSize: 1,
-    anchor: 0,
-    color: 0
-  },
-  image: {
-    p: math.complex(0, 0),
-    src: "http://polytrope.com/favicon.png",
-    size: 1,
-    anchor: 0,
-    color: 0
   }
 };
 
@@ -223,6 +225,7 @@ var parseExpression = o => {
     var value = o.sampler.eval(sampleScope);
 
     if (isComplex(value)) o.sampleType = 1;
+    else if (_.isString(value)) o.sampleType = 1;
     else if (_.isArray(value)) o.sampleType = 0;
     else if (_.isObject(value)) o.sampleType = 0;
     else if (_.isFunction(value)) o.sampleType = 0;
@@ -238,6 +241,11 @@ var parseExpressions = () => {
   console.log("Parsing...");
   _.each(expressions, (v, i) => parseExpression(v));
   console.log(sampleScope);
+  console.log(expressions);
+
+  for (let i = 0; i < 3; i++) {
+    levelledExpressions[i] = _.filter(expressions, v => v.sampleType >= i);
+  }
 };
 
 var evaluateExpression = o => {
@@ -249,9 +257,10 @@ var evaluateExpression = o => {
 };
 
 var evaluateExpressions = (level = 0) => {
-  _.each(expressions, v => {
-    if (v.sampleType >= level) evaluateExpression(v);
-  });
+  let e = levelledExpressions[level];
+  for (let i = 0; i < e.length; i++) {
+    evaluateExpression(e[i]);
+  }
 };
 
 var getExpressionIndexByName = name => {
@@ -307,15 +316,15 @@ var refreshScene = () => {
   resetScope();
   evaluateExpressions();
 
-  console.log("Refreshing scene");
-  console.log(sampleScope);
+  // console.log("Refreshing scene");
+  // console.log(sampleScope);
 
   _.each(sceneObjects, (v, k) => (v.length = 0));
   _.each(sampleScope, tryCreateSceneObject);
 
   sceneScope = _.cloneDeep(sampleScope);
 
-  console.log(sceneObjects);
+  // console.log(sceneObjects);
 
   world.refreshScene();
 
@@ -667,7 +676,8 @@ var update = () => {
 
   evaluateExpressions(1);
 
-  pubsub.publish("onUpdate");
+  world.update();
+  ui.update();
 
   if (stepMode) {
   } else if (recording) {
@@ -683,7 +693,6 @@ var update = () => {
 */
   } else setTimeout(update, frameIntervalMS);
 };
-update();
 
 var render = () => {
   if (getRecording()) {
@@ -873,7 +882,7 @@ var loadDefault = () => {
     'press_enter={o:"text", p:-4+1/2i, v:"Press ENTER"}',
     'welcome={o:"text", p:10-2i, v:"' + getRandomWelcome() + '"}',
     // 'begin_link={o:"text", p:80-30i, v:"Click here to begin", fontSize: 5, color:"white", url: "/?/worlds/constants.sinerider"}',
-    'about_link={o:"text", p:92-38i, v:"About SineRider", fontSize: 3, color:"white", url: "/about.html"}',
+    // 'about_link={o:"text", p:92-38i, v:"About SineRider", fontSize: 3, color:"white", url: "/about.html"}',
     'sine={o:"text", p:48-10i, v:"Sine", fontSize: 8}',
     'rider={o:"text", p:68-16i, v:"Rider", fontSize: 8, color:"white"}',
     'img = {o:"image", p: 77-10i, anchor:-i, size:12, src:"assets/randall_tree.png"}',
@@ -964,6 +973,7 @@ if (!loadFromUrl()) loadDefault();
 // console.log("No URL state to load");
 // loadState(defaultState);
 
+update();
 render();
 
 const choo = require("choo");

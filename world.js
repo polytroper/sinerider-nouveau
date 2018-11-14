@@ -9,11 +9,37 @@ const Sledder = require("./sledder");
 const Goal = require("./goal");
 const Text = require("./text");
 const Image = require("./image");
+const Renderer = require("./renderer");
 
 const morph = require("nanomorph");
 
 const WorldComponent = require("./templates/world_template");
 const worldComponent = new WorldComponent();
+
+const Tone = require("tone");
+
+const synth = new Tone.Synth().toMaster();
+const synthNotes = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B"
+];
+
+const numberToNote = i => {
+  i = Math.max(1, Math.min(i, 100));
+  const octave = Math.ceil(i / 12);
+  const note = synthNotes[(i - 1) % 12];
+  return note + octave;
+};
 
 const {
   translate,
@@ -55,12 +81,15 @@ module.exports = spec => {
     sampleGraphVelocity
   } = spec;
 
-  var physics = PhysicsContext();
-
   var sceneComponentStates = [];
 
   var yScale = d3.scaleLinear().range([getHeight(), 0]);
   var xScale = d3.scaleLinear().range([0, getWidth()]);
+
+  const samples = [];
+  const sampleCount = 256;
+  samples.length = sampleCount;
+  for (let i = 0; i < sampleCount; i++) samples[i] = [0, 0];
 
   const graphInstance = {
     sample: sampleGraph,
@@ -93,8 +122,23 @@ module.exports = spec => {
   var cameraPoints = [[0, 0]];
   var sceneIdCounter = 0;
 
-  var svg = container
-    .append("svg")
+  const physics = PhysicsContext();
+  let physicsInstances;
+
+  const renderer = Renderer({
+    getWidth,
+    getHeight,
+    getAspect,
+    xScale,
+    yScale,
+    camera,
+    samples,
+    sampleCount
+  });
+  let renderInstances;
+
+  var canvas = container
+    .append("canvas")
     .attr("class", "world")
     .style("position", "absolute")
     .attr("width", getWidth())
@@ -108,11 +152,13 @@ module.exports = spec => {
     while (cameraPoints.length < sledders.length + 1) cameraPoints.push([0, 0]);
     while (cameraPoints.length > sledders.length + 1) cameraPoints.pop();
 
-    _.each(sledders, (v, i) => {
+    for (let i = 0; i < sledders.length; i++) {
+      const sledder = sledders[i];
+
       // +1 for the origin
-      cameraPoints[i + 1][0] = math.re(v.p);
-      cameraPoints[i + 1][1] = math.im(v.p);
-    });
+      cameraPoints[i + 1][0] = math.re(sledder.p);
+      cameraPoints[i + 1][1] = math.im(sledder.p);
+    }
   };
 
   var refreshScales = () => {
@@ -174,15 +220,19 @@ module.exports = spec => {
     refreshScales();
   };
 
+  const reduceCameraMin = (a, v) => [
+    math.min(a[0], v[0]),
+    math.min(a[1], v[1])
+  ];
+
+  const reduceCameraMax = (a, v) => [
+    math.max(a[0], v[0]),
+    math.max(a[1], v[1])
+  ];
+
   var followCameraPoints = () => {
-    var min = _.reduce(cameraPoints, (a, v) => [
-      math.min(a[0], v[0]),
-      math.min(a[1], v[1])
-    ]);
-    var max = _.reduce(cameraPoints, (a, v) => [
-      math.max(a[0], v[0]),
-      math.max(a[1], v[1])
-    ]);
+    var min = _.reduce(cameraPoints, reduceCameraMin);
+    var max = _.reduce(cameraPoints, reduceCameraMax);
 
     var x = (min[0] + max[0]) / 2;
     var y = (min[1] + max[1]) / 2;
@@ -200,40 +250,72 @@ module.exports = spec => {
     cameraTarget.size[1] = size;
 
     cameraTarget.scale = getHeight() / (size * 2);
-
-    // pubsub.publish("onMoveCamera");
   };
 
   var onSetMacroState = () => {
     jumpCamera();
-    refreshWorldTemplate();
   };
 
-  var onUpdate = () => {
+  const updateGoals = () => {
+    let instances = getSceneObjects("goal");
+
+    for (let i = 0; i < instances.length; i++) {
+      const instance = instances[i];
+      let { complete, _physicsHits, note = null, duration = 1 } = instance;
+
+      const playerHit = _.find(
+        _physicsHits,
+        v =>
+          v.partner._physicsLayer == "player" ||
+          v.partner._physicsLayer == "player_trigger"
+      );
+
+      if (playerHit) complete = true;
+
+      if (!instance.complete && complete) {
+        if (note != null) {
+          if (_.isNumber(note)) note = numberToNote(note);
+
+          console.log("Triggering synth note " + note);
+          synth.triggerAttackRelease(note, duration);
+        }
+
+        instance.complete = complete;
+        pubsub.publish("onCompleteGoal");
+      }
+    }
+  };
+
+  var resampleGraph = () => {
+    const xMin = camera.position[0] - camera.size[0];
+    const xMax = camera.position[0] + camera.size[0];
+
+    for (let i = 0; i < sampleCount; i++) {
+      const c = i / (sampleCount - 1);
+      let x = lerp(xMin, xMax, c);
+      let y = sampleGraph(x);
+      samples[i][0] = x;
+      samples[i][1] = y;
+    }
+  };
+
+  var update = () => {
     refreshCameraPoints();
     followCameraPoints();
+    updateGoals();
 
     if (getRunning()) smoothCamera();
     else jumpCamera();
 
-    if (getRunning()) {
-      let physicsInstances = _.flatten(_.values(getSceneObjects()));
-      physicsInstances = _.filter(physicsInstances, v =>
-        _.has(v, "_physicsLayer")
-      );
+    resampleGraph();
 
-      physicsInstances.push(graphInstance);
-      physics(physicsInstances, getFrameInterval(), getGravity());
+    if (getRunning()) {
+      physics.tick(physicsInstances, getFrameInterval(), getGravity());
     }
   };
 
   var render = () => {
-    axes.render();
-    graph.render();
-    images.render();
-    sledder.render();
-
-    refreshWorldTemplate();
+    renderer(canvas.node().getContext("2d"), renderInstances);
   };
 
   var onEditExpressions = () => {};
@@ -244,9 +326,6 @@ module.exports = spec => {
       let y;
       let a;
       let s = sampleGraphSlope(x);
-
-      // console.log("Resetting sledder "+index);
-      // console.log(instance.p);
 
       if (isComplex(instance.p)) {
         y = instance.p.im;
@@ -260,47 +339,33 @@ module.exports = spec => {
       instance._physicsUpright.re = -math.sin(a);
       instance._physicsUpright.im = math.cos(a);
 
-      // math.im(instance.p) = y;
-
       instance.a = a;
 
       instance.v.re = 0;
       instance.v.im = 0;
     });
 
-    let sceneObjectArray = _.flatten(_.values(getSceneObjects()));
+    renderInstances = _.flatten(_.values(getSceneObjects()));
+    renderInstances.unshift({ o: "graph", sample: sampleGraph });
 
-    // Temporary step while transitioning to Nanocomponent:
-    // Filter for only the scene object types that currently have a Nanocomponent implementation
-    let supportedComponentTypes = ["text", "goal"];
-    sceneObjectArray = _.filter(sceneObjectArray, v =>
-      _.includes(supportedComponentTypes, v.o)
+    physicsInstances = _.flatten(_.values(getSceneObjects()));
+    physicsInstances = _.filter(physicsInstances, v =>
+      _.has(v, "_physicsLayer")
     );
 
-    sceneComponentStates = _.map(sceneObjectArray, (v, i) => ({
-      arguments: {
-        instance: v,
-        camera,
-        xScale,
-        yScale
-      },
-      type: v.o,
-      id: _.toString(sceneIdCounter++)
-    }));
-    refreshWorldTemplate();
+    physicsInstances.push(graphInstance);
+    physics.start(physicsInstances);
   };
 
   var onResize = () => {
     yScale.range([getHeight(), 0]);
     xScale.range([0, getWidth()]);
 
-    svg.attr("width", getWidth());
-    svg.attr("height", getHeight());
+    canvas.attr("width", getWidth());
+    canvas.attr("height", getHeight());
   };
 
   refreshScales();
-
-  pubsub.subscribe("onUpdate", onUpdate);
 
   pubsub.subscribe("onSetMacroState", onSetMacroState);
 
@@ -309,96 +374,9 @@ module.exports = spec => {
 
   pubsub.subscribe("onResize", onResize);
 
-  var axes = Axes({
-    pubsub,
-    container: svg,
-    loader,
-
-    getWidth,
-    getHeight,
-    getAspect,
-
-    xScale,
-    yScale,
-    camera
-  });
-
-  var images = Image({
-    pubsub,
-    container: svg,
-    loader,
-    getInstances: () => getSceneObjects("image"),
-
-    xScale,
-    yScale,
-    camera,
-
-    cameraPoints,
-
-    getRunning,
-    getFrameInterval,
-    getGravity,
-
-    sampleGraph,
-    sampleGraphSlope,
-    sampleGraphVelocity
-  });
-
-  var graph = Graph({
-    pubsub,
-    container: svg,
-    loader,
-
-    getWidth,
-    getHeight,
-    getAspect,
-
-    xScale,
-    yScale,
-    camera,
-
-    getRunning,
-    getClockTime,
-
-    sampleGraph
-  });
-
-  var worldTemplateNode = svg.append("g").node();
-  var refreshWorldTemplate = () =>
-    morph(
-      worldTemplateNode,
-      worldComponent.render({
-        scene: sceneComponentStates,
-        camera,
-        xScale,
-        yScale
-      })
-    );
-  refreshWorldTemplate();
-
-  var sledder = Sledder({
-    pubsub,
-    container: svg,
-    loader,
-    getInstances: () => getSceneObjects("sled"),
-
-    xScale,
-    yScale,
-    camera,
-
-    cameraPoints,
-
-    getRunning,
-    getFrameInterval,
-    getGravity,
-
-    sampleGraph,
-    sampleGraphSlope,
-    sampleGraphVelocity
-  });
-
   return {
     render,
+    update,
     refreshScene
   };
 };
