@@ -502,11 +502,11 @@ svg {
   right: 0;
   bottom: 0;
 
-  width: 6vh;
-  height: 6vh;
+  width: 8vh;
+  height: 8vh;
 
   margin: 5px;
-  border-radius: 3vh;
+  border-radius: 4vh;
 
   align-self: flex-end;
 
@@ -533,11 +533,11 @@ svg {
   right: 0;
   bottom: 0;
 
-  width: 40px;
-  height: 40px;
+  width: 8vh;
+  height: 8vh;
 
   margin: 5px;
-  border-radius: 20px;
+  border-radius: 4vh;
 
   align-self: flex-end;
 
