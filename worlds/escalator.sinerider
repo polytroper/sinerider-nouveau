@@ -3,9 +3,9 @@
 	"expressions": [
 		"url = \"/worlds/left_and_right.sinerider\"",
 		"sledder={o:\"sled\", p:0}",
-		"title={o:\"text\", p:1/2+4i, v:\"waves can carry us forward\", fontSize: 1}",
+		"title={o:\"text\", p:5i, v:\"waves can carry us forward\", fontSize: 1}",
 		"goal_count = 8",
-		"g(v) = {o:\"goal\", p: 2*v+(2*v/4)i, note: 20+2v-(floor(v/4)), d3.interpolateCool((n-1)/(goal_count-1))}",
+		"g(v) = {o:\"goal\", p: 2*v+(2*v/4)i, note: 20+2v-(floor(v/4)), color: d3.interpolateCool((v-1)/(goal_count-1))}",
 		"goals = map(range(1, goal_count+1), g)",
 		"// Go up`",
 		"Y=-cos(`x+t`)+`x/2`"

@@ -109,7 +109,7 @@ const Renderer = spec => {
     const x = xScale(math.re(instance.p));
     const y = yScale(math.im(instance.p));
 
-    ctx.font = Math.round(instance.fontSize) + "px Courier";
+    ctx.font = instance.fontSize + "px Courier";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = parseColor(instance.color);

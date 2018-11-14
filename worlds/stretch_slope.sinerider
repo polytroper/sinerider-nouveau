@@ -2,7 +2,7 @@
 	"version": "0.0.0",
 	"expressions": [
 		"url = \"/worlds/raise_slope.sinerider\"",
-		"title={o:\"text\", p:1/2+4i, v:\"Y=x/2 will stretch your slope\", fontSize: 1}",
+		"title={o:\"text\", p:5i, v:\"Y=x/2 will stretch your slope\", fontSize: 1}",
 		"goal_count = 12",
 		"g(v) = {o:\"goal\", p: -2*v-(2*v/4)i, note: 20+3*floor(v/2)+2*v, color: d3.interpolateMagma((v-1)/(goal_count-1))}",
 		"goals = map(range(1, goal_count), g)",
