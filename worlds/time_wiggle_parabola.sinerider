@@ -1,7 +1,7 @@
 ﻿{
 	"version": "0.0.1",
 	"expressions": [
-		"url = \"/worlds/escalator.sinerider\"",
+		"url = \"/worlds/the_end.sinerider\"",
 		"sledder={o:\"sled\", p:0}",
 		"title={o:\"text\", p:-2i, v:\"Time can wiggle\", fontSize: 1, color: 1}",
 		"goal_count = 10",

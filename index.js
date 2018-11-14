@@ -238,10 +238,10 @@ var parseExpression = o => {
 
 var parseExpressions = () => {
   resetScope();
-  console.log("Parsing...");
+  // console.log("Parsing...");
   _.each(expressions, (v, i) => parseExpression(v));
-  console.log(sampleScope);
-  console.log(expressions);
+  // console.log(sampleScope);
+  // console.log(expressions);
 
   for (let i = 0; i < 3; i++) {
     levelledExpressions[i] = _.filter(expressions, v => v.sampleType >= i);

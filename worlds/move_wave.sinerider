@@ -1,0 +1,14 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/escalator.sinerider\"",
+		"make_sledder(n) = {o: \"sled\", p: (n-1/2)*pi*2}",
+		"sledders = map([-1, 0, 1], make_sledder)",
+		"g(n) = {o:\"goal\", p: (n+1/4)*pi*2+4/3i, note: 28+7*floor(n/2)-2n, color: d3.interpolateMagma((n+1)/(2))}",
+		"goals = map([-1, 0, 1], g)",
+		"title={o:\"text\", p: 4i, v:\"Waves can be moved left and right\", color: 0}",
+		"subtitle={o:\"text\", p: 3i, v:\"(are you seeing a pattern here?)\", fontSize: 0.6}",
+		"// Try moving this wave to the right`",
+		"Y=sin(`x`)"
+	]
+}

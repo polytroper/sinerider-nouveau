@@ -1,0 +1,13 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"url = \"/worlds/stretch_wave.sinerider\"",
+		"make_sledder(n) = {o: \"sled\", p: n*pi*2}",
+		"sledders = map(range(-1, 1), make_sledder)",
+		"g(n) = {o:\"goal\", p: (n+1/4)*pi*2-sin((n+1/4)*pi*2)*i, note: 28+7*floor(n/2)-2n, color: d3.interpolateViridis((n+1)/(2))}",
+		"goals = map(range(-1, 1), g)",
+		"title={o:\"text\", p: 4i, v:\"Y=sin(x) creates a wave\", color: 0}",
+		"// How can you reverse this wave?`",
+		"Y=sin(`x`)"
+	]
+}

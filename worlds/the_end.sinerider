@@ -1,0 +1,19 @@
+﻿{
+	"version": "0.0.1",
+	"expressions": [
+		"sledder={o:\"sled\", p:0}",
+		"thank={o:\"text\", p:-6i, v:\"That's all for now\", fontSize: 1, color: 1}",
+		"you={o:\"text\", p:-7i, v:\"Check back soon for more!\", fontSize: 0.7, color: 1}",
+		"// This game is very much a work in progress.`",
+		"// Let me know what you think! Tweet me @EnDimensions`",
+		"Y=`(x/16)^2+sin((x+t*2)/4)*3-cos((x-t/3)/8)*2`"
+	],
+	"originals": [
+		"sledder={o:\"sled\", p:0}",
+		"thank={o:\"text\", p:-6i, v:\"That's all for now\", fontSize: 1, color: 1}",
+		"you={o:\"text\", p:-7i, v:\"Check back soon for more!\", fontSize: 0.7, color: 1}",
+		"// This game is very much a work in progress.`",
+		"// Let me know what you think! Tweet me @EnDimensions`",
+		"Y=`(x/16)^2+sin((x+t*2)/4)*3-cos((x-t/3)/8)*2`"
+	]
+}

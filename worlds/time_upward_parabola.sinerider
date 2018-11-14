@@ -1,7 +1,7 @@
 ﻿{
 	"version": "0.0.1",
 	"expressions": [
-		"url = \"/worlds/time_wiggle_parabola.sinerider\"",
+		"url = \"/worlds/wave.sinerider\"",
 		"sledder={o:\"sled\", p:0}",
 		"title={o:\"text\", p:1-2i, v:\"Time can move in all directions\", fontSize: 1, color: 1}",
 		"goal_count = 4",
