@@ -174,6 +174,11 @@ var sceneObjectTypes = {
         _physicsRadius: 0.6
       }
     ]
+  },
+  ray: {
+    p: math.complex(0, 0),
+    d: math.complex(0, 1),
+    color: "green"
   }
 };
 

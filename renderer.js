@@ -150,12 +150,54 @@ const Renderer = spec => {
     );
   };
 
+  const renderRay = (ctx, instance) => {
+    const { p, d, color } = instance;
+
+    const px = math.re(p);
+    const py = math.im(p);
+
+    const dx = math.re(d);
+    const dy = math.im(d);
+
+    const l = Math.sqrt(dx * dx + dy * dy);
+
+    const nx = dx / l;
+    const ny = dy / l;
+
+    const cx = -ny;
+    const cy = nx;
+
+    const ax = dx - nx / 8;
+    const ay = dy - ny / 8;
+
+    const jx = ax + cx / 8;
+    const jy = ay + cy / 8;
+
+    const kx = ax - cx / 8;
+    const ky = ay - cy / 8;
+
+    ctx.strokeStyle = parseColor(color);
+    ctx.lineCap = "round";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+
+    ctx.moveTo(xScale(px), yScale(py));
+    ctx.lineTo(xScale(px + dx), yScale(py + dy));
+
+    ctx.moveTo(xScale(px + jx), yScale(py + jy));
+    ctx.lineTo(xScale(px + dx), yScale(py + dy));
+    ctx.lineTo(xScale(px + kx), yScale(py + ky));
+
+    ctx.stroke();
+  };
+
   const renderers = {
     graph: renderGraph,
     sled: renderSled,
     goal: renderGoal,
     text: renderText,
-    image: renderImage
+    image: renderImage,
+    ray: renderRay
   };
 
   const clear = ctx => {

@@ -469,9 +469,9 @@ svg {
   left: 0;
   top: 0;
 
-  width: 20px;
   height: 20px;
 
+  padding: 0px 4px;
   margin: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -518,6 +518,10 @@ svg {
 .startButton:hover {
   color: #000;
   background: #fff;
+}
+
+.startButtonLabel {
+  font: 2vh Arial;
 }
 
 .stopButton {
