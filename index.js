@@ -35,10 +35,6 @@ var levelledExpressions = [[], [], []];
 var r2d = 180 / Math.PI;
 var expressionKeyIndex = 0;
 
-// var getWidth = () => width;
-// var getHeight = () => height;
-// var getAspect = () => aspect;
-
 var record = false;
 var getRecord = () => record;
 var setRecord = v => {
